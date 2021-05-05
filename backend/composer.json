@@ -1,0 +1,7 @@
+{
+    "name": "QBApp",
+    "description": "This app connects to Quickbooks API and genarates invoices",
+    "require": {
+        "quickbooks/v3-php-sdk": "^6.0"
+    }
+}

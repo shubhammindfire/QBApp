@@ -1,0 +1,6 @@
+# Ignore PHP files
+backend/vendor
+backend/composer.lock
+backend/config.php
+
+# Ignore JS files
