@@ -84,7 +84,7 @@ function emptyItemTable($conn)
  */
 function updateItemTable($conn, $item, $user): bool
 {
-    $id = $item->Id;
+    $itemId = $item->Id;
     $type = ($item->Type === "Inventory") ? "INVENTORY" : "SERVICE";
     $name = ($item->Name) ?? "null";
     $description = ($item->Description) ?? "null";
@@ -96,7 +96,7 @@ function updateItemTable($conn, $item, $user): bool
     $userId = $user['realmId'];
 
     $stmt = $conn->prepare("INSERT INTO item(itemId, type, name, description, salesPrice, costPrice, quantity, createdAt, updatedAt, userId) VALUES(?,?,?,?,?,?,?,?,?,?)");
-    $stmt->bind_param("isssddiiis", $id, $type, $name, $description, $salesPrice, $costPrice, $quantity, $createdAt, $updatedAt, $userId);
+    $stmt->bind_param("isssddiiis", $itemId, $type, $name, $description, $salesPrice, $costPrice, $quantity, $createdAt, $updatedAt, $userId);
 
     if ($stmt->execute() === false) {
         echo ("Error in adding new item in table item: " . $conn->error);
