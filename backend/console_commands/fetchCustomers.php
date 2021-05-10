@@ -34,20 +34,20 @@ function fetchCustomers()
         $users[$key] = $value;
     }
 
-    if (emptyCustomerTable($conn) === true) {
-        foreach ($users as $user) {
-            $accessToken = new OAuth2AccessToken($config['client_id'], $config['client_secret'], $user['accessToken'], $user['refreshToken'], $user['accessTokenExpiresAt'], $user['refreshTokenExpiresAt']);
-            $accessToken->setRealmID($user['realmId']);
+    foreach ($users as $user) {
+        $accessToken = new OAuth2AccessToken($config['client_id'], $config['client_secret'], $user['accessToken'], $user['refreshToken'], $user['accessTokenExpiresAt'], $user['refreshTokenExpiresAt']);
+        $accessToken->setRealmID($user['realmId']);
 
-            /*
+        /*
             * Update the OAuth2Token of the dataService object
             */
-            $dataService->updateOAuth2Token($accessToken);
-            $customers = $dataService->Query("Select * from Customer");
+        $dataService->updateOAuth2Token($accessToken);
+        $customers = $dataService->Query("Select * from Customer");
 
-            // var_dump($customers);
-            foreach ($customers as $customer) {
-                updateCustomerTable($conn, $customer, $user);
+        // var_dump($customers);
+        foreach ($customers as $customer) {
+            if (customerExists($conn, $customer->Id, $user['realmId']) === false) {
+                addCustomer($conn, $customer, $user);
             }
         }
     }
@@ -63,13 +63,21 @@ function fetchCustomers()
     }
 }
 
-function emptyCustomerTable($conn)
+/**
+ * @param mysqli $conn
+ * @param String $customerId
+ * @param String $userId
+ * @return bool
+ */
+function customerExists($conn, $customerId, $userId): bool
 {
-    if ($conn->query("DELETE FROM customer WHERE 1") === false) {
-        echo ("Error in emptying table customer: " . $conn->error);
-        return false;
+    $sql = "SELECT id from customer WHERE customerId=$customerId AND userId=$userId";
+
+    $res = $conn->query($sql)->fetch_assoc();
+    if ($res !== null) {
+        return true;
     }
-    return true;
+    return false;
 }
 
 /**
@@ -78,7 +86,7 @@ function emptyCustomerTable($conn)
  * @param Array $user
  * @return bool
  */
-function updateCustomerTable($conn, $customer, $user): bool
+function addCustomer($conn, $customer, $user): bool
 {
     $customerId = $customer->Id;
     $firstname = ($customer->GivenName) ?? "null";
