@@ -34,20 +34,20 @@ function fetchItems()
         $users[$key] = $value;
     }
 
-    if (emptyItemTable($conn) === true) {
-        foreach ($users as $user) {
-            $accessToken = new OAuth2AccessToken($config['client_id'], $config['client_secret'], $user['accessToken'], $user['refreshToken'], $user['accessTokenExpiresAt'], $user['refreshTokenExpiresAt']);
-            $accessToken->setRealmID($user['realmId']);
+    foreach ($users as $user) {
+        $accessToken = new OAuth2AccessToken($config['client_id'], $config['client_secret'], $user['accessToken'], $user['refreshToken'], $user['accessTokenExpiresAt'], $user['refreshTokenExpiresAt']);
+        $accessToken->setRealmID($user['realmId']);
 
-            /*
+        /*
             * Update the OAuth2Token of the dataService object
             */
-            $dataService->updateOAuth2Token($accessToken);
-            $items = $dataService->Query("Select * from Item");
+        $dataService->updateOAuth2Token($accessToken);
+        $items = $dataService->Query("Select * from Item");
 
-            // var_dump($items);
-            foreach ($items as $item) {
-                updateItemTable($conn, $item, $user);
+        // var_dump($items);
+        foreach ($items as $item) {
+            if (itemExists($conn, $item->Id, $user['realmId']) === false) {
+                addItem($conn, $item, $user);
             }
         }
     }
@@ -65,15 +65,19 @@ function fetchItems()
 
 /**
  * @param mysqli $conn
+ * @param String $itemId
+ * @param String $userId
  * @return bool
  */
-function emptyItemTable($conn)
+function itemExists($conn, $itemId, $userId): bool
 {
-    if ($conn->query("DELETE FROM item WHERE 1") === false) {
-        echo ("Error in emptying table item: " . $conn->error);
-        return false;
+    $sql = "SELECT id from item WHERE itemId=$itemId AND userId=$userId";
+
+    $res = $conn->query($sql)->fetch_assoc();
+    if ($res !== null) {
+        return true;
     }
-    return true;
+    return false;
 }
 
 /**
@@ -82,7 +86,7 @@ function emptyItemTable($conn)
  * @param Array $user
  * @return bool
  */
-function updateItemTable($conn, $item, $user): bool
+function addItem($conn, $item, $user): bool
 {
     $itemId = $item->Id;
     $type = ($item->Type === "Inventory") ? "INVENTORY" : "SERVICE";
