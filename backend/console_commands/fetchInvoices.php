@@ -35,20 +35,20 @@ function fetchInvoices()
         $users[$key] = $value;
     }
 
-    if (emptyInvoiceAndCartItemTable($conn, $config['cartItem_tablename']) === true && emptyInvoiceAndCartItemTable($conn, $config['invoice_tablename']) === true) {
-        foreach ($users as $user) {
-            $accessToken = new OAuth2AccessToken($config['client_id'], $config['client_secret'], $user['accessToken'], $user['refreshToken'], $user['accessTokenExpiresAt'], $user['refreshTokenExpiresAt']);
-            $accessToken->setRealmID($user['realmId']);
+    foreach ($users as $user) {
+        $accessToken = new OAuth2AccessToken($config['client_id'], $config['client_secret'], $user['accessToken'], $user['refreshToken'], $user['accessTokenExpiresAt'], $user['refreshTokenExpiresAt']);
+        $accessToken->setRealmID($user['realmId']);
 
-            /*
+        /*
             * Update the OAuth2Token of the dataService object
             */
-            $dataService->updateOAuth2Token($accessToken);
-            $invoices = $dataService->Query("Select * from Invoice");
+        $dataService->updateOAuth2Token($accessToken);
+        $invoices = $dataService->Query("Select * from Invoice");
 
-            // var_dump($invoices);
-            foreach ($invoices as $invoice) {
-                updateInvoiceTable($conn, $invoice, $user);
+        // var_dump($invoices);
+        foreach ($invoices as $invoice) {
+            if (invoiceExists($conn, $invoice->Id, $user['realmId']) === false) {
+                addInvoice($conn, $invoice, $user);
                 $lastInvoiceId = getLastAddedInvoiceId($conn, $invoice->Id, $user['realmId']);
                 fetchCartItems($conn, $invoice->Line, $invoice->MetaData->CreateTime, $invoice->MetaData->LastUpdatedTime, $lastInvoiceId, $user['realmId']);
             }
@@ -66,17 +66,22 @@ function fetchInvoices()
     }
 }
 
+
 /**
  * @param mysqli $conn
+ * @param String $invoiceId
+ * @param String $userId
  * @return bool
  */
-function emptyInvoiceAndCartItemTable($conn, $tablename)
+function invoiceExists($conn, $invoiceId, $userId): bool
 {
-    if ($conn->query("DELETE FROM $tablename WHERE 1") === false) {
-        echo ("Error in emptying table $tablename: " . $conn->error);
-        return false;
+    $sql = "SELECT id from invoice WHERE invoiceId=$invoiceId AND userId=$userId";
+
+    $res = $conn->query($sql)->fetch_assoc();
+    if ($res !== null) {
+        return true;
     }
-    return true;
+    return false;
 }
 
 /**
@@ -98,7 +103,7 @@ function getLastAddedInvoiceId($conn, $invoiceId, $userId)
  * @param Array $user
  * @return bool
  */
-function updateInvoiceTable($conn, $invoice, $user): bool
+function addInvoice($conn, $invoice, $user): bool
 {
     $invoiceId = $invoice->Id;
     $invoiceNumber = $invoice->DocNumber;
