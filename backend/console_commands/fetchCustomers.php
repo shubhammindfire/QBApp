@@ -80,7 +80,7 @@ function emptyCustomerTable($conn)
  */
 function updateCustomerTable($conn, $customer, $user): bool
 {
-    $id = $customer->Id;
+    $customerId = $customer->Id;
     $firstname = ($customer->GivenName) ?? "null";
     $lastname = ($customer->FamilyName) ?? "null";
     $companyName = ($customer->CompanyName) ?? "null";
@@ -101,7 +101,7 @@ function updateCustomerTable($conn, $customer, $user): bool
     $userId = $user['realmId'];
 
     $stmt = $conn->prepare("INSERT INTO customer(customerId,firstName,lastName, companyName, displayName, email, billingAddress, shippingAddress, phoneNumber, openBalance, createdAt, updatedAt, userId) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)");
-    $stmt->bind_param("issssssssdiis", $id, $firstname, $lastname, $companyName, $displayName, $email, $billingAddress, $shippingAddress, $phoneNumber, $openBalance, $createdAt, $updatedAt, $userId);
+    $stmt->bind_param("issssssssdiis", $customerId, $firstname, $lastname, $companyName, $displayName, $email, $billingAddress, $shippingAddress, $phoneNumber, $openBalance, $createdAt, $updatedAt, $userId);
 
     if ($stmt->execute() === false) {
         echo ("Error in adding new customer in table customer: " . $conn->error);
