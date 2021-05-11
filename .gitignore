@@ -1,6 +1,16 @@
 # Ignore PHP files
-backend/vendor
-backend/composer.lock
+*/vendor/*
+*/composer.lock
 backend/config.php
+
+###> symfony/framework-bundle ###
+*/.env.local
+*/.env.local.php
+*/.env.*.local
+*/config/secrets/prod/prod.decrypt.private.php
+*/public/bundles/
+*/var/
+###< symfony/framework-bundle ###
+
 
 # Ignore JS files
