@@ -56,3 +56,9 @@ services:
         arguments:
             - "@monolog.logger"
             - "@doctrine"
+    QBApp.item_service:
+        class: App\Service\ItemService
+        parent: QBApp.base_service
+        public: true
+        arguments:
+            - "@doctrine"
