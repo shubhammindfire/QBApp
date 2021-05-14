@@ -42,7 +42,7 @@ class User implements UserInterface
      * @ORM\Column(type="string", length=225)
      * @Assert\NotBlank()
      */
-    private $password; // TODO: Encrypt this password before saving it to the database
+    private $password;
 
     /**
      * @ORM\Column(name="userType", type="string", length=255)
