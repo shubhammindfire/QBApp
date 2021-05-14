@@ -7,32 +7,39 @@ use QuickBooksOnline\API\Core\OAuth\OAuth2\OAuth2AccessToken;
 use QuickBooksOnline\API\DataService\DataService;
 use App\QuickBooks\Config;
 use Doctrine\ORM\EntityManager;
+use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 
 class UserAccessTokenService extends BaseService
 {
-    // /**
-    //  * @var LoggerInterface
-    //  */
-    // private $logger;
+    /**
+     * @var LoggerInterface
+     */
+    protected $logger;
+
+    /**
+     * @var EntityManager
+     */
+    protected $entityManager;
 
     /**
      * @var Array
      */
     private $config;
 
-    function __construct(LoggerInterface $logger)
+    function __construct(LoggerInterface $logger, EntityManagerInterface $em)
     {
         $this->logger = $logger;
+        $this->entityManager = $em;
+
         $this->config = (new Config())->getConfig();
     }
 
     /**
      * @param User $user 
-     * @param EntityManager $em
      * @return OAuth2AccessToken
      */
-    function getUserAccessToken(User $user, EntityManager $em): ?OAuth2AccessToken
+    function getUserAccessToken(User $user): ?OAuth2AccessToken
     {
         // Create SDK instance
         $dataService = DataService::Configure(array(
@@ -95,8 +102,8 @@ class UserAccessTokenService extends BaseService
                 if ($user->getRefreshTokenExpiresAt() !== $refreshTokenExpiresEpoch)
                     $user->setRefreshTokenExpiresAt($refreshTokenExpiresEpoch);
 
-                $em->persist($user);
-                $em->flush();
+                $this->entityManager->persist($user);
+                $this->entityManager->flush();
 
                 $this->logger->info("User AccessToken is refreshed and updated in the database.");
 

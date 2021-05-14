@@ -33,7 +33,7 @@ class UserController extends AbstractController
     public function token(UserAccessTokenService $userAccessTokenService)
     {
         $em = $this->getDoctrine()->getManager();
-        $accessToken = $userAccessTokenService->getUserAccessToken($this->getUser(), $em);
+        $accessToken = $userAccessTokenService->getUserAccessToken($this->getUser());
         var_dump($accessToken);
         // TODO: figure out how to handle the return from this endpoint. Maybe remove it completely because getUserAccessToken() will only be used within the api codebase.
         return $this->json($this->getUser());

@@ -34,3 +34,18 @@ services:
         tags:
             - { name: kernel.event_listener }
             # - { name: kernel.event_listener, event: kernel.request }
+
+    QBApp.base_service:
+        abstract: true
+        class: App\Service\BaseService
+        calls:
+            - [setServiceContainer, ["@service_container"]]
+            - [setLogger, ["@monolog.logger"]]
+            - [setEntityManager, ["@doctrine.orm.entity_manager"]]
+    QBApp.user_access_token_service:
+        class: App\Service\UserAccessTokenService
+        parent: QBApp.base_service
+        public: true
+        arguments:
+            - "@monolog.logger"
+            - "@doctrine.orm.entity_manager"

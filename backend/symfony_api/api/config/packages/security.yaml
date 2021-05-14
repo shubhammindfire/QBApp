@@ -40,7 +40,8 @@ security:
         - {
               path: ^/api/login,
               roles: IS_AUTHENTICATED_ANONYMOUSLY,
-              # TODO mention method as POST
+              # methods: [POST],
+              # TODO mention method as POST the above didn't work as debug:router still mentions method as ANY
           }
         - {
               path: ^/api/users,
