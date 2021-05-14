@@ -49,3 +49,10 @@ services:
         arguments:
             - "@monolog.logger"
             - "@doctrine.orm.entity_manager"
+    QBApp.customer_service:
+        class: App\Service\CustomerService
+        parent: QBApp.base_service
+        public: true
+        arguments:
+            - "@monolog.logger"
+            - "@doctrine"
