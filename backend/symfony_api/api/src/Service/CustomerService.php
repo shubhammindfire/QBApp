@@ -33,12 +33,13 @@ class CustomerService extends BaseService
     }
 
     /**
+     * @param int $id
      * @param User $user
      * @return Object
      */
-    public function getCustomerByIdForUser(User $user): ?Object
+    public function getCustomerByIdForUser(int $id, User $user): ?Object
     {
-        $customer = $this->repository->findOneBy(["userId" => $user->getRealmId()]);
+        $customer = $this->repository->findOneBy(["userId" => $user->getRealmId(), "id" => $id]);
 
         return $customer;
     }

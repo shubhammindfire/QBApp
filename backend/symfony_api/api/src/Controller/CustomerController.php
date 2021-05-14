@@ -19,7 +19,7 @@ class CustomerController extends AbstractController
      */
     public function getCustomerById($id, CustomerService $customerService)
     {
-        $customer = $customerService->getCustomerByIdForUser($this->getUser());
+        $customer = $customerService->getCustomerByIdForUser($id, $this->getUser());
 
         // if there is no customer then send a no content response
         if ($customer == null) {
