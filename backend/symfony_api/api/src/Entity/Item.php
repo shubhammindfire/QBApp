@@ -2,15 +2,10 @@
 
 namespace App\Entity;
 
-use ApiPlatform\Core\Annotation\ApiResource;
 use App\Repository\ItemRepository;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * @ApiResource(
- *      itemOperations={"GET"},
- *      collectionOperations={"GET"},
- * )
  * @ORM\Entity(repositoryClass=ItemRepository::class)
  */
 class Item
