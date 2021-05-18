@@ -63,11 +63,11 @@ class InvoiceController extends AbstractController
      */
     public function updateInvoiceById($id, InvoiceService $invoiceService, Request $request)
     {
-        // $data = $request->toArray();
+        $data = $request->toArray();
         $user = $this->getUser();
 
         if ($invoiceService->isValidInvoice($id, $user) === true) {
-            return $this->json($invoiceService->updateInvoiceByIdForUser($id, $user));
+            return $this->json($invoiceService->updateInvoiceByIdForUser($id, $user, $data));
         } else {
             return $this->json(["error" => "No invoice by the provided id found for the user!"], Response::HTTP_BAD_REQUEST);
         }
