@@ -92,9 +92,12 @@ class CartItem
         return $this->createdAt;
     }
 
-    public function setCreatedAt(string $createdAt): self
+    /**
+     * @ORM\PrePersist
+     */
+    public function setCreatedAt(): self
     {
-        $this->createdAt = $createdAt;
+        $this->createdAt = time();
 
         return $this;
     }
@@ -105,6 +108,7 @@ class CartItem
     }
 
     /**
+     * @ORM\PrePersist
      * @ORM\PreUpdate
      */
     public function setUpdatedAt(): self

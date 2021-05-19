@@ -7,6 +7,7 @@ use Doctrine\ORM\Mapping as ORM;
 
 /**
  * @ORM\Entity(repositoryClass=ItemRepository::class)
+ * @ORM\HasLifecycleCallbacks()
  */
 class Item
 {
@@ -161,9 +162,12 @@ class Item
         return $this->createdAt;
     }
 
-    public function setCreatedAt(string $createdAt): self
+    /**
+     * @ORM\PrePersist
+     */
+    public function setCreatedAt(): self
     {
-        $this->createdAt = $createdAt;
+        $this->createdAt = time();
 
         return $this;
     }
@@ -173,9 +177,13 @@ class Item
         return $this->updatedAt;
     }
 
-    public function setUpdatedAt(string $updatedAt): self
+    /**
+     * @ORM\PrePersist
+     * @ORM\PreUpdate
+     */
+    public function setUpdatedAt(): self
     {
-        $this->updatedAt = $updatedAt;
+        $this->updatedAt = time();
 
         return $this;
     }
