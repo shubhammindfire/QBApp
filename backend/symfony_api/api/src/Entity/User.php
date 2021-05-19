@@ -20,7 +20,9 @@ use Symfony\Component\Security\Core\User\UserInterface;
  *          "groups"={"read"}
  *      }
  * )
- * @UniqueEntity("username")
+ * @UniqueEntity("username", message="username for each user must be unique")
+ * @UniqueEntity("realmId", message="realmId for each user must be unique")
+ * 
  */
 class User implements UserInterface
 {

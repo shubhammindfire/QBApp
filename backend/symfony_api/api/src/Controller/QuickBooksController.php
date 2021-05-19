@@ -81,24 +81,7 @@ class QuickBooksController extends AbstractController
          * @var User $user
          */
         $user = $repository->findOneBy(["realmId" => $parseUrl['realmId']]);
-        // $user = $this->getUser();
         $em = $this->getDoctrine()->getManager();
-        // check if the user has not generated the QBO tokens yet
-        if ($user->getAccessToken() == null || $user->getRefreshToken() == null) {
-            // if no tokens are generated then add the new token data to database
-            $accessTokenExpiryAtString = strval($accessToken->getAccessTokenExpiresAt());
-            // the getAccessTokenExpiresAt() method returns a Date() object
-            // converting it to string using strval() gives a string like "2021\/08\/23 11:20:41"
-            // the "\/" part can't be handled by the strtotime() method
-            // so str_replace() function is used to replace "\/" with "/"
-            $formattedResult = str_replace('\/', "/", $accessTokenExpiryAtString);
-            $accessTokenExpiryAtEpoch = strtotime($formattedResult);
-            $user->setAccessTokenExpiresAt($accessTokenExpiryAtEpoch);
-
-            $refreshTokenExpiresAtString = strval($accessToken->getRefreshTokenExpiresAt());
-            $refreshTokenExpiresEpoch = strtotime($refreshTokenExpiresAtString);
-            $user->getRefreshTokenExpiresAt($refreshTokenExpiresEpoch);
-        }
         $user->setAccessToken($accessToken->getAccessToken());
         $user->setRefreshToken($accessToken->getRefreshToken());
 
