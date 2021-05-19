@@ -45,20 +45,6 @@ class User implements UserInterface
     private $password;
 
     /**
-     * @ORM\Column(name="userType", type="string", length=255)
-     * @Assert\NotBlank()
-     * @Groups({"read"})
-     */
-    private $userType;
-
-    /**
-     * @ORM\Column(type="string", length=255)
-     * @Assert\NotBlank()
-     * @Groups({"read"})
-     */
-    private $status;
-
-    /**
      * @ORM\Column(name="createdAt", type="bigint")
      * @Groups({"read"})
      */
@@ -73,6 +59,10 @@ class User implements UserInterface
     /**
      * @ORM\Column(name="realmId", type="string", length=225)
      * @Assert\NotBlank()
+     * @Assert\Regex(
+     *      pattern="/[0-9]{19}/",
+     *      message="RealmId must be at least 19 characters long and contain all digits"
+     * )
      * @Groups({"read"})
      */
     private $realmId;
@@ -128,30 +118,6 @@ class User implements UserInterface
     public function setPassword(string $password): self
     {
         $this->password = $password;
-
-        return $this;
-    }
-
-    public function getUserType(): ?string
-    {
-        return $this->userType;
-    }
-
-    public function setUserType(string $userType): self
-    {
-        $this->userType = $userType;
-
-        return $this;
-    }
-
-    public function getStatus(): ?string
-    {
-        return $this->status;
-    }
-
-    public function setStatus(string $status): self
-    {
-        $this->status = $status;
 
         return $this;
     }
