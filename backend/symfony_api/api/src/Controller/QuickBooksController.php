@@ -31,7 +31,6 @@ class QuickBooksController extends AbstractController
      */
     public function connectToQuickBooks()
     {
-        // echo ("connectToQuickBooks method");
         $dataService = DataService::Configure(array(
             'auth_mode' => 'oauth2',
             'ClientID' => $this->config['client_id'],
@@ -47,11 +46,6 @@ class QuickBooksController extends AbstractController
         $OAuth2LoginHelper = $dataService->getOAuth2LoginHelper();
         $authUrl = $OAuth2LoginHelper->getAuthorizationCodeURL();
 
-        // return $this->json(["authUrl" => $authUrl]);
-
-        // $this->logger->info("now i will redirect for auth");
-        // echo("now i will redirect for auth");
-        // return $this->redirect($authUrl);
         return $this->json(["authUrl" => $authUrl]);
     }
 
@@ -60,8 +54,6 @@ class QuickBooksController extends AbstractController
      */
     public function proccessCode()
     {
-        // TODO: handle a callback uri for generating accessToken for first time
-
         $dataService = DataService::Configure(array(
             'auth_mode' => 'oauth2',
             'ClientID' => $this->config['client_id'],
@@ -84,13 +76,29 @@ class QuickBooksController extends AbstractController
         $dataService->updateOAuth2Token($accessToken);
 
         // Updating the accessToken in the database
+        $repository = $this->getDoctrine()->getRepository(User::class);
         /**
          * @var User $user
          */
-        $repository = $this->getDoctrine()->getRepository(User::class);
         $user = $repository->findOneBy(["realmId" => $parseUrl['realmId']]);
         // $user = $this->getUser();
         $em = $this->getDoctrine()->getManager();
+        // check if the user has not generated the QBO tokens yet
+        if ($user->getAccessToken() == null || $user->getRefreshToken() == null) {
+            // if no tokens are generated then add the new token data to database
+            $accessTokenExpiryAtString = strval($accessToken->getAccessTokenExpiresAt());
+            // the getAccessTokenExpiresAt() method returns a Date() object
+            // converting it to string using strval() gives a string like "2021\/08\/23 11:20:41"
+            // the "\/" part can't be handled by the strtotime() method
+            // so str_replace() function is used to replace "\/" with "/"
+            $formattedResult = str_replace('\/', "/", $accessTokenExpiryAtString);
+            $accessTokenExpiryAtEpoch = strtotime($formattedResult);
+            $user->setAccessTokenExpiresAt($accessTokenExpiryAtEpoch);
+
+            $refreshTokenExpiresAtString = strval($accessToken->getRefreshTokenExpiresAt());
+            $refreshTokenExpiresEpoch = strtotime($refreshTokenExpiresAtString);
+            $user->getRefreshTokenExpiresAt($refreshTokenExpiresEpoch);
+        }
         $user->setAccessToken($accessToken->getAccessToken());
         $user->setRefreshToken($accessToken->getRefreshToken());
 
@@ -113,7 +121,7 @@ class QuickBooksController extends AbstractController
         $em->flush();
 
 
-        echo("now REDIRECT");
+        echo ("now REDIRECT");
         // $logger->info("~~~  now i will redirect");
         return $this->redirect("http://localhost:3000");
     }

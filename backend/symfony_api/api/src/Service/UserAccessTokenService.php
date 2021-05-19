@@ -8,6 +8,7 @@ use QuickBooksOnline\API\DataService\DataService;
 use App\QuickBooks\Config;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityManagerInterface;
+use Exception;
 use Psr\Log\LoggerInterface;
 
 class UserAccessTokenService extends BaseService
@@ -51,23 +52,11 @@ class UserAccessTokenService extends BaseService
             'baseUrl' => "development"
         ));
 
-        // if there is no accessToken then generate using realmId
         if ($user->getAccessToken() === null || $user->getRefreshToken() === null) {
+            // if there is no accessToken then throw exception
             $this->logger->error("User Access Token is null");
-            echo ("User Access token is null");
+            throw new Exception("No AccessToken generated for the user");
             return null;
-
-            // TODO: Handle if accessToken is null, i.e., if user hasn't generated the accessToken yet
-            // Help from Scahin: he told that for the first time you have to use UI to let user generate the accessToken for the first time
-
-            // $OAuth2LoginHelper = $dataService->getOAuth2LoginHelper();
-
-            // $url = $OAuth2LoginHelper->getAuthorizationCodeURL();
-            // echo ("auth code url = $url");
-            //It will return something like:https://b200efd8.ngrok.io/OAuth2_c/OAuth_2/OAuth2PHPExample.php?state=RandomState&code=Q0115106996168Bqap6xVrWS65f2iXDpsePOvB99moLCdcUwHq&realmId=193514538214074
-            //get the Code and realmID, use for the exchangeAuthorizationCodeForToken
-            //   $accessToken = $OAuth2LoginHelper->exchangeAuthorizationCodeForToken("AB11590626553iLinvYq9jciX3MKcx7vCONItnkZBmgfGHWfGP", "4620816365006687740");
-            //   $dataService->updateOAuth2Token($accessToken);
         } else {
             // if accessToken is present then check if it is expired or not
             // if expired then generate a new accessToken using the refreshToken else return the accessToken
