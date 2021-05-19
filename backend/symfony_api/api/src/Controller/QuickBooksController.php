@@ -8,6 +8,8 @@ use QuickBooksOnline\API\DataService\DataService;
 use App\QuickBooks\Config;
 use QuickBooksOnline\API\Core\OAuth\OAuth2\OAuth2AccessToken;
 use App\Entity\User;
+use App\Service\QuickBooksService;
+use App\Service\UserAccessTokenService;
 use Psr\Log\LoggerInterface;
 
 /**
@@ -52,7 +54,7 @@ class QuickBooksController extends AbstractController
     /**
      * @Route("/callback")
      */
-    public function proccessCode()
+    public function proccessCode(QuickBooksService $quickBooksService, UserAccessTokenService $userAccessTokenService)
     {
         $dataService = DataService::Configure(array(
             'auth_mode' => 'oauth2',
@@ -82,9 +84,16 @@ class QuickBooksController extends AbstractController
          */
         $user = $repository->findOneBy(["realmId" => $parseUrl['realmId']]);
         $em = $this->getDoctrine()->getManager();
+        $isNewUser = false;
+
+        if ($user->getAccessToken() == null || $user->getRefreshTokenExpiresAt() == null) {
+            // check if user is new or not
+            // if new then we set the token and fetch all data in if-condition below
+            $isNewUser = true;
+        }
+
         $user->setAccessToken($accessToken->getAccessToken());
         $user->setRefreshToken($accessToken->getRefreshToken());
-
 
         $accessTokenExpiryAtString = strval($accessToken->getAccessTokenExpiresAt());
         // the getAccessTokenExpiresAt() method returns a Date() object
@@ -103,9 +112,12 @@ class QuickBooksController extends AbstractController
         $em->persist($user);
         $em->flush();
 
+        if ($isNewUser === true) {
+            // if tokens are null, we need to fetch all data to database this first time
+            $quickBooksService->fetchAllDataFromQBO($user, $userAccessTokenService);
+        }
 
-        echo ("now REDIRECT");
-        // $logger->info("~~~  now i will redirect");
+
         return $this->redirect("http://localhost:3000");
     }
 
