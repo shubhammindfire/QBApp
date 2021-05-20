@@ -10,12 +10,14 @@ use App\Entity\User;
 use QuickBooksOnline\API\DataService\DataService;
 use App\QuickBooks\Config;
 use App\QuickBooks\SetupQBQuery;
+use DateTime;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ManagerRegistry;
 use Psr\Log\LoggerInterface;
 use QuickBooksOnline\API\Data\IPPInvoice;
 use QuickBooksOnline\API\Data\IPPLine;
+use QuickBooksOnline\API\Data\IPPItem;
 
 class QuickBooksService extends BaseService
 {
@@ -55,12 +57,13 @@ class QuickBooksService extends BaseService
     public function fetchAllDataFromQBO(User $user, UserAccessTokenService $userAccessTokenService)
     {
         $this->fetchCustomersFromQBO($user, $userAccessTokenService);
-        $this->fetchItemsFromQBO($user);
-        $this->fetchInvoicesfromQBO($user);
+        $this->fetchItemsFromQBO($user, $userAccessTokenService);
+        $this->fetchInvoicesfromQBO($user, $userAccessTokenService);
     }
 
     /**
      * @var User $user
+     * @var UserAccessTokenService $userAccessTokenService
      */
     public function fetchCustomersFromQBO(User $user, UserAccessTokenService $userAccessTokenService)
     {
@@ -111,8 +114,9 @@ class QuickBooksService extends BaseService
 
     /**
      * @var User $user
+     * @var UserAccessTokenService $userAccessTokenService
      */
-    public function fetchItemsFromQBO(User $user)
+    public function fetchItemsFromQBO(User $user, UserAccessTokenService $userAccessTokenService)
     {
 
         $setupQBQuery = new SetupQBQuery();
@@ -120,7 +124,7 @@ class QuickBooksService extends BaseService
          * @var DataService
          */
         $dataService = $setupQBQuery->getDataService();
-        $accessToken = $this->userAccessTokenService->getUserAccessToken($user);
+        $accessToken = $userAccessTokenService->getUserAccessToken($user);
         $dataService->updateOAuth2Token($accessToken);
         $items = $dataService->Query("Select * from Item");
 
@@ -138,15 +142,16 @@ class QuickBooksService extends BaseService
             $itemEntity->setUpdatedAt(strtotime($item->MetaData->LastUpdatedTime));
             $itemEntity->setUserId($user->getRealmId());
 
-            $this->entityManager->persist($item);
+            $this->entityManager->persist($itemEntity);
         }
         $this->entityManager->flush();
     }
 
     /**
      * @var User $user
+     * @var UserAccessTokenService $userAccessTokenService
      */
-    public function fetchInvoicesfromQBO(User $user)
+    public function fetchInvoicesfromQBO(User $user, UserAccessTokenService $userAccessTokenService)
     {
 
         $setupQBQuery = new SetupQBQuery();
@@ -154,7 +159,7 @@ class QuickBooksService extends BaseService
          * @var DataService
          */
         $dataService = $setupQBQuery->getDataService();
-        $accessToken = $this->userAccessTokenService->getUserAccessToken($user);
+        $accessToken = $userAccessTokenService->getUserAccessToken($user);
         $dataService->updateOAuth2Token($accessToken);
         $invoices = $dataService->Query("Select * from Invoice");
 
@@ -169,26 +174,27 @@ class QuickBooksService extends BaseService
             $invoiceEntity->setAmount($invoice->TotalAmt);
             $invoiceEntity->setBalance($invoice->Balance);
             $invoiceEntity->setPaymentStatus((($invoice->Balance) == 0) ? "PAID" : "PENDING");
-            $invoiceEntity->setInvoiceDate($invoice->TxnDate);
-            $invoiceEntity->setDueDate($invoice->DueDate);
+            $invoiceEntity->setInvoiceDate(DateTime::createFromFormat('Y-m-d', ($invoice->TxnDate)));
+            $invoiceEntity->setDueDate(DateTime::createFromFormat('Y-m-d', ($invoice->DueDate)));
             $invoiceEntity->setCreatedAt(strtotime($invoice->MetaData->CreateTime));
             $invoiceEntity->setUpdatedAt(strtotime($invoice->MetaData->LastUpdatedTime));
             $invoiceEntity->setUserId($user->getRealmId());
 
-            $this->entityManager->persist($invoice);
+            $this->entityManager->persist($invoiceEntity);
             $this->entityManager->flush();
 
-            $this->fetchCartItemsFromQBO((int)($invoice->Id), $invoice->Line, $user);
+            $this->fetchCartItemsFromQBO((int)($invoice->Id), $invoice->Line, $user, $userAccessTokenService);
         }
     }
 
 
     /**
      * @var int $invoiceIdFromQBO
-     * @var IPPLine $line
+     * @var $line // this is an array of IPPLine
      * @var User $user
+     * @var UserAccessTokenService $userAccessTokenService
      */
-    public function fetchCartItemsfromQBO(int $invoiceIdFromQBO, IPPLine $line, User $user)
+    public function fetchCartItemsfromQBO(int $invoiceIdFromQBO, $line, User $user, UserAccessTokenService $userAccessTokenService)
     {
 
         $setupQBQuery = new SetupQBQuery();
@@ -196,11 +202,13 @@ class QuickBooksService extends BaseService
          * @var DataService
          */
         $dataService = $setupQBQuery->getDataService();
-        $accessToken = $this->userAccessTokenService->getUserAccessToken($user);
+        $accessToken = $userAccessTokenService->getUserAccessToken($user);
         $dataService->updateOAuth2Token($accessToken);
 
         foreach ($line as $item) {
-            if ($item->Id !== null) {
+            // the last item in every invoice is empty so checking for that, or else thows exception
+            // so checking the $line is array or not and then $item has an $Id or not
+            if (is_array($line) == 1 && $item->Id !== null) {
                 $cartItemEntity = new CartItem();
 
                 $itemRepository = $this->doctrine->getRepository(Item::class);
@@ -218,8 +226,9 @@ class QuickBooksService extends BaseService
                 $cartItemEntity->setInvoiceTableId($invoice->getId());
 
                 $cartItemEntity->setQuantity($item->SalesItemLineDetail->Qty ?? 0);
-                $cartItemEntity->setCreatedAt(strtotime($line->createdAt));
-                $cartItemEntity->setUpdatedAt(strtotime($line->updatedAt));
+                $cartItemEntity->setCreatedAt(strtotime($invoice->getCreatedAt()));
+                $cartItemEntity->setUpdatedAt(strtotime($invoice->getUpdatedAt()));
+                $cartItemEntity->setUserId($user->getRealmId());
 
                 $this->entityManager->persist($cartItemEntity);
             }

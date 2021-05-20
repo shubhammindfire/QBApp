@@ -38,7 +38,7 @@ function updateCartItemTable($conn, $item, $createdAt, $updatedAt, $invoiceId, $
     $createdAt = strtotime($createdAt);
     $updatedAt = strtotime($updatedAt);
 
-    $sql = "INSERT INTO cartItem(itemId, quantity, invoiceId, createdAt, updatedAt) VALUES($itemId, $quantity, $invoiceId, $createdAt, $updatedAt)";
+    $sql = "INSERT INTO cartItem(itemId, quantity, invoiceId, createdAt, updatedAt, userId) VALUES($itemId, $quantity, $invoiceId, $createdAt, $updatedAt, $userId)";
     if ($conn->query($sql) === false) {
         echo ("Error in adding new cart item in table cartItem: " . $conn->error);
         return false;

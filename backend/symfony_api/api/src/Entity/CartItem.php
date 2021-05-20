@@ -46,6 +46,11 @@ class CartItem
      */
     private $updatedAt;
 
+    /**
+     * @ORM\Column(name="userId",type="string", length=225)
+     */
+    private $userId;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -114,6 +119,18 @@ class CartItem
     public function setUpdatedAt(): self
     {
         $this->updatedAt = time();
+
+        return $this;
+    }
+
+    public function getUserId(): ?string
+    {
+        return $this->userId;
+    }
+
+    public function setUserId(string $userId): self
+    {
+        $this->userId = $userId;
 
         return $this;
     }
