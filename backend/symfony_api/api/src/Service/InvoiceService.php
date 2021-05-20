@@ -213,7 +213,10 @@ class InvoiceService extends BaseService
                 ],
                 "Line" => $cartItems
             ]);
-            $resultingCustomerUpdatedObj = $dataService->Update($updateInvoice);
+            $newInvoiceObjFromQBO = $dataService->Update($updateInvoice);
+
+            $newAmount = $newInvoiceObjFromQBO->TotalAmt;
+            $newBalance = $newInvoiceObjFromQBO->Balance;
 
             $error = $dataService->getLastError();
             if ($error) {
@@ -232,8 +235,8 @@ class InvoiceService extends BaseService
             $invoice = $this->repository->findOneBy(["userId" => $user->getRealmId(), "id" => $id]);
             $em = $this->doctrine->getManager();
 
-            $invoice->setInvoiceDate(DateTime::createFromFormat('Y-m-d', $newInvoiceDate));
-            $invoice->setDueDate(DateTime::createFromFormat('Y-m-d', $newDueDate));
+            $invoice->setInvoiceDate(DateTime::createFromFormat('Y-m-d', $newInvoiceObjFromQBO->TxnDate));
+            $invoice->setDueDate(DateTime::createFromFormat('Y-m-d', $newInvoiceObjFromQBO->DueDate));
             $invoice->setAmount($newAmount);
             $invoice->setBalance($newBalance);
             $invoice->setCustomerId($customer->getId());
@@ -265,6 +268,7 @@ class InvoiceService extends BaseService
                     $cartItem->setQuantity($items[$i]['quantity']);
                     $cartItem->setItemTableId($item->getId());
                     $cartItem->setInvoiceTableId($id);
+                    $cartItem->setUserId($user->getRealmId());
 
                     $em->persist($cartItem);
                 }
@@ -484,6 +488,7 @@ class InvoiceService extends BaseService
                     $cartItem->setQuantity($items[$i]['quantity']);
                     $cartItem->setItemTableId($item->getId());
                     $cartItem->setInvoiceTableId($newinvoiceFromDB->getId());
+                    $cartItem->setUserId($user->getRealmId());
 
                     $em->persist($cartItem);
                 }
