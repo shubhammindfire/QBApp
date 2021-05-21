@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import axios from "axios";
 import { Link, useHistory } from "react-router-dom";
 import TextField from "../widgets/TextField";
-import { REGISTER_URL } from "./../../../Constants.js";
+import { REGISTER_URL, LOGIN_ROUTE } from "./../../../Constants.js";
 
 function Register() {
     const history = useHistory();
@@ -46,7 +46,7 @@ function Register() {
                     setSuccessMessage("User registered successfully");
                     // delay and then route to /login after successfull register
                     setTimeout(() => {
-                        history.push("/login");
+                        history.push({ LOGIN_ROUTE });
                     }, 1500);
                 } else {
                     // console.log(
@@ -118,7 +118,7 @@ function Register() {
 
             <div>
                 Already registered?
-                <Link to="/login">
+                <Link to={LOGIN_ROUTE}>
                     <p className="inline text-blue-600"> Login Instead</p>
                 </Link>
             </div>

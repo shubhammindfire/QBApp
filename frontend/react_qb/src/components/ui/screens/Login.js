@@ -4,7 +4,7 @@ import { Link } from "react-router-dom";
 import TextField from "../widgets/TextField";
 import { useSelector, useDispatch } from "react-redux";
 import { setLocalAuthJwt } from "./../../../redux/localAuth/localAuthActions.js";
-import { LOGIN_URL, CONNECT_TO_QBO_URL } from "./../../../Constants.js";
+import { LOGIN_URL, CONNECT_TO_QBO_URL, REGISTER_ROUTE } from "./../../../Constants.js";
 
 function Login() {
     const jwt = useSelector((state) => state.localAuth.jwt);
@@ -123,7 +123,7 @@ function Login() {
             </div>
             <div>
                 Not a registered user?
-                <Link to="/register">
+                <Link to={REGISTER_ROUTE}>
                     <p className="inline text-blue-600"> Register Instead</p>
                 </Link>
             </div>
