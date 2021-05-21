@@ -1,58 +1,78 @@
 import React, { useState } from "react";
 import axios from "axios";
-import { Link } from "react-router-dom";
+import { Link, useHistory } from "react-router-dom";
 import TextField from "../widgets/TextField";
+import { REGISTER_URL } from "./../../../Constants.js";
 
 function Register() {
+    const history = useHistory();
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
     const [realmId, setRealmId] = useState("");
 
-    const [registerError, setRegisterError] = useState(null);
+    const [usernameError, setUsernameError] = useState(null);
+    const [passwordError, setPasswordError] = useState(null);
+    const [realmIdError, setRealmIdError] = useState(null);
+    const [successMessage, setSuccessMessage] = useState(null);
 
     function handleUsernameChange(e) {
+        setUsernameError(null);
         setUsername(e.target.value);
     }
 
     function handlePasswordChange(e) {
+        setPasswordError(null);
         setPassword(e.target.value);
     }
 
     function handleRealmIdChange(e) {
+        setRealmIdError(null);
         setRealmId(e.target.value);
     }
 
     function handleRegister(e) {
         e.preventDefault();
 
-        const registerUrl = "http://localhost:8000/api/users";
-
         axios
-            .post(registerUrl, {
+            .post(REGISTER_URL, {
                 username: username,
                 password: password,
                 realmId: realmId,
             })
             .then((response) => {
                 console.log(response);
-                // console.log(response.data);
-                if (response.status === 200) {
-                    console.log(response.data);
+                if (response.status === 201) {
+                    // console.log("user created successfully");
+                    setSuccessMessage("User registered successfully");
+                    // delay and then route to /login after successfull register
+                    setTimeout(() => {
+                        history.push("/login");
+                    }, 1500);
                 } else {
-                    console.log(
-                        `Error : ERROR CODE=${response.status} ERROR MESSAGE=${response.statusText}`
-                    );
+                    // console.log(
+                    //     `Error : ERROR CODE=${response.status} ERROR MESSAGE=${response.statusText}`
+                    // );
                 }
             })
             .catch((error) => {
                 if (error.response) {
-                    console.log(
-                        "error response data = " + error.response.data.message
-                    );
+                    // console.log(
+                    //     "error response data = " +
+                    //         error.response.data.violations
+                    // );
 
-                    setRegisterError(error.response.data.message);
+                    const violations = error.response.data.violations;
+
+                    violations.forEach((violation) => {
+                        if (violation["propertyPath"] === "username")
+                            setUsernameError(violation["message"]);
+                        if (violation.propertyPath === "password")
+                            setPasswordError(violation["message"]);
+                        if (violation.propertyPath === "realmId")
+                            setRealmIdError(violation["message"]);
+                    });
                 }
-                console.error(`Axios Error: ${error}`);
+                // console.error(`Axios Error: ${error}`);
             });
     }
 
@@ -66,22 +86,33 @@ function Register() {
                         placeholder="Enter username"
                         onChange={handleUsernameChange}
                     />
+                    {usernameError !== null ? (
+                        <p className="text-red-600">{usernameError}</p>
+                    ) : null}
                     <TextField
                         label="Password"
                         placeholder="Enter password"
                         onChange={handlePasswordChange}
                     />
+                    {passwordError !== null ? (
+                        <p className="text-red-600">{passwordError}</p>
+                    ) : null}
                     <TextField
                         label="RealmId"
                         placeholder="Enter RealmId"
                         onChange={handleRealmIdChange}
                     />
-                    {registerError !== null ? (
-                        <p className="text-red-600">{registerError}</p>
+                    {realmIdError !== null ? (
+                        <p className="text-red-600">{realmIdError}</p>
                     ) : null}
                     <button type="submit" className="submitBtn bg-blue-600">
                         Register
                     </button>
+                    {successMessage !== null ? (
+                        <p className="text-green-600 text-center my-2">
+                            {successMessage}
+                        </p>
+                    ) : null}
                 </form>
             </div>
 
