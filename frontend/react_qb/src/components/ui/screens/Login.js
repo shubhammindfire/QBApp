@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import TextField from "../widgets/TextField";
 import { useSelector, useDispatch } from "react-redux";
 import { setLocalAuthJwt } from "./../../../redux/localAuth/localAuthActions.js";
+import { LOGIN_URL, CONNECT_TO_QBO_URL } from "./../../../Constants.js";
 
 function Login() {
     const jwt = useSelector((state) => state.localAuth.jwt);
@@ -26,10 +27,8 @@ function Login() {
     function handleQBOConnect(e) {
         e.preventDefault();
 
-        const connectToQBOUrl = "http://localhost:8000/qb/connect";
-
         axios
-            .get(connectToQBOUrl, {
+            .get(CONNECT_TO_QBO_URL, {
                 headers: { Authorization: `Bearer ${jwt}` },
             })
             .then((response) => {
@@ -37,7 +36,6 @@ function Login() {
                     console.log(response.data);
                     console.log(response.data.authUrl);
                     window.location.href = response.data.authUrl;
-                    // axios.get(response.data.authUrl);
                 } else {
                     console.log(
                         `Error : ERROR CODE=${response.status} ERROR MESSAGE=${response.statusText}`
@@ -49,32 +47,34 @@ function Login() {
     function handleLogin(e) {
         e.preventDefault();
 
-        const loginUrl = "http://localhost:8000/api/login";
         axios
-            .post(loginUrl, {
+            .post(LOGIN_URL, {
                 username: username,
                 password: password,
             })
             .then((response) => {
                 if (response.status === 200) {
                     dispatch(setLocalAuthJwt(response.data));
-                    localStorage.setItem('session-jwt',JSON.stringify(response.data));
+                    localStorage.setItem(
+                        "session-jwt",
+                        JSON.stringify(response.data)
+                    );
                 } else {
                     setLoginError(response.message);
-                    console.log(
-                        `Error : ERROR CODE=${response.status} ERROR MESSAGE=${response.message}`
-                    );
+                    // console.log(
+                    //     `Error : ERROR CODE=${response.status} ERROR MESSAGE=${response.message}`
+                    // );
                 }
             })
             .catch((error) => {
                 if (error.response) {
-                    console.log(
-                        "error response data = " + error.response.data.message
-                    );
+                    // console.log(
+                    //     "error response data = " + error.response.data.message
+                    // );
 
                     setLoginError(error.response.data.message);
                 }
-                console.error(`Axios Error: ${error}`);
+                // console.error(`Axios Error: ${error}`);
             });
     }
 
