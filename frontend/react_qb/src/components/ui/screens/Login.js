@@ -4,7 +4,11 @@ import { Link } from "react-router-dom";
 import TextField from "../widgets/TextField";
 import { useSelector, useDispatch } from "react-redux";
 import { setLocalAuthJwt } from "./../../../redux/localAuth/localAuthActions.js";
-import { LOGIN_URL, CONNECT_TO_QBO_URL, REGISTER_ROUTE } from "./../../../Constants.js";
+import {
+    LOGIN_URL,
+    CONNECT_TO_QBO_URL,
+    REGISTER_ROUTE,
+} from "./../../../Constants.js";
 
 function Login() {
     const jwt = useSelector((state) => state.localAuth.jwt);
@@ -107,6 +111,12 @@ function Login() {
                     >
                         Login
                     </button>
+
+                    {jwt !== null ? (
+                        <p className="text-green-600">
+                            Login successfull, now connect to Quickbooks
+                        </p>
+                    ) : null}
                     <button
                         type="button"
                         onClick={handleQBOConnect}
