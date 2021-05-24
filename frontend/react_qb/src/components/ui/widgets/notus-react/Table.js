@@ -1,3 +1,8 @@
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import {
+    faCheckCircle,
+    faExclamationCircle,
+} from "@fortawesome/free-solid-svg-icons";
 import React from "react";
 
 function Table(props) {
@@ -118,17 +123,14 @@ function row(color = "light", invoices) {
                 Math.abs(epochDiff) / 1000 / 60 / 60 / 24
             );
 
-            // if epochDiff is +ve then overdue else not overdue
-            if (epochDiff > 0) isOverdue = true;
-            else isOverdue = false;
-
-            console.log(
-                "due date = " + dueDateString + "timestamp = " + dueDateEpoch
-            );
-            console.log("current date = timestamp = " + currentDateEpoch);
-            console.log("diff = timestamp = " + epochDiff);
-            console.log("isOverdue = " + isOverdue);
-            console.log("diff in days " + diffInDays);
+            if (invoices[i].balance !== 0.0) {
+                // if epochDiff is +ve then overdue else not overdue
+                if (epochDiff > 0) {
+                    isOverdue = true;
+                } else {
+                    isOverdue = false;
+                }
+            }
 
             rows.push(
                 <tr className="text-md">
@@ -146,6 +148,20 @@ function row(color = "light", invoices) {
                         ${invoices[i].amount}
                     </td>
                     <td className="border-t-0 px-6 align-middle border-l-0 border-r-0 whitespace-nowrap p-4">
+                        {invoices[i].balance === 0.0 ? null : isOverdue ? (
+                            <FontAwesomeIcon
+                                icon={faExclamationCircle}
+                                color="#FFA500"
+                                className="mr-2"
+                            />
+                        ) : (
+                            <FontAwesomeIcon
+                                icon={faCheckCircle}
+                                color="#228B22"
+                                className="mr-2"
+                            />
+                        )}
+
                         {invoices[i].balance === 0.0
                             ? "Deposited"
                             : isOverdue
