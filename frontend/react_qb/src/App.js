@@ -28,12 +28,20 @@ function App() {
     // check if session variable has jwt or not
     let session_jwt = localStorage.getItem("session-jwt");
     session_jwt = session_jwt !== null ? JSON.parse(session_jwt) : null;
+    let isSessionExpired = false;
+
     if (
         session_jwt !== null &&
-        session_jwt.token !== null &&
-        session_jwt.token !== ""
+        session_jwt.value.token !== null &&
+        session_jwt.value.token !== "" &&
+        session_jwt.expiry > new Date().getTime()
     ) {
-        dispatch(setLocalAuthJwt(session_jwt.token));
+        dispatch(setLocalAuthJwt(session_jwt.value.token));
+    } else if (
+        session_jwt !== null &&
+        session_jwt.expiry < new Date().getTime()
+    ) {
+        isSessionExpired = true;
     }
 
     return (
@@ -45,7 +53,14 @@ function App() {
                         path="/"
                         render={() => {
                             return jwt === null || jwt === "" ? (
-                                <Redirect to={LOGIN_ROUTE} />
+                                <Redirect
+                                    to={{
+                                        pathname: LOGIN_ROUTE,
+                                        state: {
+                                            isSessionExpired: isSessionExpired,
+                                        },
+                                    }}
+                                />
                             ) : (
                                 <Redirect to={PORTAL_ROUTE} />
                             );

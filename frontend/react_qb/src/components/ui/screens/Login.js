@@ -10,7 +10,11 @@ import {
     REGISTER_ROUTE,
 } from "./../../../Constants.js";
 
-function Login() {
+function Login(props) {
+    const isSessionExpired =
+        props.location.state !== undefined
+            ? props.location.state.isSessionExpired
+            : false;
     const jwt = useSelector((state) => state.localAuth.jwt);
     const dispatch = useDispatch();
 
@@ -59,9 +63,14 @@ function Login() {
             .then((response) => {
                 if (response.status === 200) {
                     dispatch(setLocalAuthJwt(response.data));
+                    const ttl = 3600000; // time for expiry in milliseconds
+                    const itemToLocalStorage = {
+                        value: response.data,
+                        expiry: new Date().getTime() + ttl,
+                    };
                     localStorage.setItem(
                         "session-jwt",
-                        JSON.stringify(response.data)
+                        JSON.stringify(itemToLocalStorage)
                     );
                 } else {
                     setLoginError(response.message);
@@ -84,6 +93,9 @@ function Login() {
 
     return (
         <div className="flex flex-col justify-center items-center">
+            {isSessionExpired ? (
+                <p className="text-red-600">Session Expired Login again</p>
+            ) : null}
             <p className="mt-4 text-4xl">Login</p>
             <div className="rounded w-96 m-4 bg-gray-50 shadow-lg p-6 align-middle">
                 <form onSubmit={handleLogin}>
