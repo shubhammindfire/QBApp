@@ -59,8 +59,14 @@ class InvoiceService extends BaseService
     public function getInvoiceByIdForUser(int $id, User $user): ?array
     {
         $invoice = $this->repository->findOneBy(["userId" => $user->getRealmId(), "id" => $id]);
+
         $cartItemRepository = $this->doctrine->getRepository(CartItem::class);
         $cartItems = $cartItemRepository->findBy(["invoiceTableId" => $id]);
+
+        // add CustomerName to the $invoice object as Customer name is used in the UI
+        $customerRepository = $this->doctrine->getRepository(Customer::class);
+        $customer = $customerRepository->findOneBy(["id" => $invoice->getCustomerId()]);
+        $invoice->setCustomerName($customer->getDisplayName());
 
         return ["invoice" => $invoice, "cartItems" => $cartItems];
     }
@@ -73,6 +79,13 @@ class InvoiceService extends BaseService
     public function getAllInvoiceForUser(User $user): array
     {
         $invoices = $this->repository->findBy(["userId" => $user->getRealmId()]);
+
+        foreach ($invoices as $invoice) {
+            // add CustomerName to the $invoice object as Customer name is used in the UI
+            $customerRepository = $this->doctrine->getRepository(Customer::class);
+            $customer = $customerRepository->findOneBy(["id" => $invoice->getCustomerId()]);
+            $invoice->setCustomerName($customer->getDisplayName());
+        }
 
         return $invoices;
     }
@@ -240,6 +253,12 @@ class InvoiceService extends BaseService
             $invoice->setAmount($newAmount);
             $invoice->setBalance($newBalance);
             $invoice->setCustomerId($customer->getId());
+
+            // add CustomerName to the $invoice object as Customer name is used in the UI
+            $customerRepository = $this->doctrine->getRepository(Customer::class);
+            $customer = $customerRepository->findOneBy(["id" => $invoice->getCustomerId()]);
+            $invoice->setCustomerName($customer->getDisplayName());
+
             if ($newBalance == 0) $invoice->setPaymentStatus("PAID");
 
             $em->persist($invoice);
@@ -466,6 +485,12 @@ class InvoiceService extends BaseService
              * @var Invoice
              */
             $newinvoiceFromDB = $invoiceRepository->findOneBy(['invoiceId' => (int)($newInvoiceFromQBO->Id), 'userId' => $user->getRealmId()]);
+
+            // add CustomerName to the $invoice object as Customer name is used in the UI
+            $customerRepository = $this->doctrine->getRepository(Customer::class);
+            $customer = $customerRepository->findOneBy(["id" => $newinvoiceFromDB->getCustomerId()]);
+            $newinvoiceFromDB->setCustomerName($customer->getDisplayName());
+
             $cartItemRepository = $this->doctrine->getRepository(CartItem::class);
             $entities = $cartItemRepository->findBy(['invoiceTableId' => $newinvoiceFromDB->getId()]);
 

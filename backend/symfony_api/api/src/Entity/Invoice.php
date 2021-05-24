@@ -34,6 +34,12 @@ class Invoice
     private $customerId;
 
     /**
+     * Not included in the database
+     * @var String $customerName
+     */
+    private $customerName;
+
+    /**
      * @ORM\Column(name="paymentStatus",type="string", length=45)
      */
     private $paymentStatus;
@@ -110,6 +116,18 @@ class Invoice
     public function setCustomerId(int $customerId): self
     {
         $this->customerId = $customerId;
+
+        return $this;
+    }
+
+    public function getCustomerName(): ?String
+    {
+        return $this->customerName;
+    }
+
+    public function setCustomerName(String $customerName): self
+    {
+        $this->customerName = $customerName;
 
         return $this;
     }
