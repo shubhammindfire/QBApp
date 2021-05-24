@@ -63,6 +63,18 @@ class InvoiceService extends BaseService
         $cartItemRepository = $this->doctrine->getRepository(CartItem::class);
         $cartItems = $cartItemRepository->findBy(["invoiceTableId" => $id]);
 
+        foreach ($cartItems as $cartItem) {
+            $itemRepository = $this->doctrine->getRepository(Item::class);
+            /**
+             * @var Item $item
+             */
+            $item = $itemRepository->findOneBy(["id" => $$cartItem->getItemTableId(), "userId" => $user->getRealmId()]);
+
+            $cartItem->setItemName($item->getName());
+            $cartItem->setItemDescription($item->getDescription());
+            $cartItem->setCostPrice($item->getCostPrice());
+        }
+
         // add CustomerName to the $invoice object as Customer name is used in the UI
         $customerRepository = $this->doctrine->getRepository(Customer::class);
         $customer = $customerRepository->findOneBy(["id" => $invoice->getCustomerId()]);

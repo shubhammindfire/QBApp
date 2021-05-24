@@ -51,6 +51,30 @@ class CartItem
      */
     private $userId;
 
+    /**
+     * Not included in the database
+     * @var String $itemName
+     */
+    private $itemName;
+
+    /**
+     * Not included in the database
+     * @var String $itemDescription
+     */
+    private $itemDescription;
+
+    /**
+     * Not included in the database
+     * @var float $costPrice
+     */
+    private $costPrice;
+
+    /**
+     * Not included in the database
+     * @var float $itemAmount
+     */
+    private $itemAmount;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -133,5 +157,49 @@ class CartItem
         $this->userId = $userId;
 
         return $this;
+    }
+
+    public function getItemName()
+    {
+        return $this->itemName;
+    }
+
+    public function setItemName(String $itemName): self
+    {
+        $this->itemName = $itemName;
+
+        return $this;
+    }
+
+    public function getItemDescription()
+    {
+        return $this->itemDescription;
+    }
+
+    public function setItemDescription(String $itemDescription): self
+    {
+        $this->itemDescription = $itemDescription;
+
+        return $this;
+    }
+
+    public function getCostPrice()
+    {
+        return $this->costPrice;
+    }
+
+    public function setCostPrice(float $costPrice): self
+    {
+        $this->costPrice = $costPrice;
+
+        return $this;
+    }
+
+    // getItemAmount() also acts the setter here
+    public function getItemAmount()
+    {
+        $this->itemAmount = $this->costPrice * $this->quantity;
+
+        return $this->itemAmount;
     }
 }
