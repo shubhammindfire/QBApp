@@ -1,7 +1,8 @@
 import React from "react";
 
 function Table(props) {
-    const { color = "light", title } = props;
+    const { color = "light", title, invoices } = props;
+
     return (
         <>
             <div
@@ -93,7 +94,7 @@ function Table(props) {
                                 ></th>
                             </tr>
                         </thead>
-                        <tbody>{row()}</tbody>
+                        <tbody>{row("light", invoices)}</tbody>
                     </table>
                 </div>
             </div>
@@ -101,30 +102,60 @@ function Table(props) {
     );
 }
 
-function row(color = "light") {
+function row(color = "light", invoices) {
     const rows = [];
 
-    for (let i = 0; i < 10; i++) {
-        rows.push(
-            <tr className="text-md">
-                <th className="border-t-0 px-6 align-middle border-l-0 border-r-0 whitespace-nowrap p-4 text-left flex items-center">
-                    15/05/2021
-                </th>
-                <td className="border-t-0 px-6 align-middle border-l-0 border-r-0 whitespace-nowrap p-4">
-                    1016
-                </td>
-                <td className="border-t-0 px-6 align-middle border-l-0 border-r-0 whitespace-nowrap p-4">
-                    TestCompany
-                </td>
-                <td className="border-t-0 px-6 align-middle border-l-0 border-r-0 whitespace-nowrap p-4">
-                    $300.00
-                </td>
-                <td className="border-t-0 px-6 align-middle border-l-0 border-r-0 whitespace-nowrap p-4">
-                    Overdue 3 days
-                </td>
-                <td className="border-t-0 px-6 align-middle border-l-0 border-r-0 whitespace-nowrap p-4 text-right"></td>
-            </tr>
-        );
+    if (invoices !== undefined) {
+        for (let i = 0; i < invoices.length; i++) {
+            let isOverdue = false;
+            const dueDateString = invoices[i].dueDate;
+            const dueDateEpoch = new Date(dueDateString).getTime();
+            const currentDateEpoch = new Date().getTime();
+
+            const epochDiff = currentDateEpoch - dueDateEpoch;
+
+            let diffInDays = Math.floor(
+                Math.abs(epochDiff) / 1000 / 60 / 60 / 24
+            );
+
+            // if epochDiff is +ve then overdue else not overdue
+            if (epochDiff > 0) isOverdue = true;
+            else isOverdue = false;
+
+            console.log(
+                "due date = " + dueDateString + "timestamp = " + dueDateEpoch
+            );
+            console.log("current date = timestamp = " + currentDateEpoch);
+            console.log("diff = timestamp = " + epochDiff);
+            console.log("isOverdue = " + isOverdue);
+            console.log("diff in days " + diffInDays);
+
+            rows.push(
+                <tr className="text-md">
+                    <th className="border-t-0 px-6 align-middle border-l-0 border-r-0 whitespace-nowrap p-4 text-left flex items-center">
+                        {/* splitting the data received to get the desired format */}
+                        {invoices[i].invoiceDate.split("T")[0]}
+                    </th>
+                    <td className="border-t-0 px-6 align-middle border-l-0 border-r-0 whitespace-nowrap p-4">
+                        {invoices[i].invoiceNumber}
+                    </td>
+                    <td className="border-t-0 px-6 align-middle border-l-0 border-r-0 whitespace-nowrap p-4">
+                        {invoices[i].customerName}
+                    </td>
+                    <td className="border-t-0 px-6 align-middle border-l-0 border-r-0 whitespace-nowrap p-4">
+                        ${invoices[i].amount}
+                    </td>
+                    <td className="border-t-0 px-6 align-middle border-l-0 border-r-0 whitespace-nowrap p-4">
+                        {invoices[i].balance === 0.0
+                            ? "Deposited"
+                            : isOverdue
+                            ? `Overdue ${diffInDays} days`
+                            : `Due in ${diffInDays} days`}
+                    </td>
+                    <td className="border-t-0 px-6 align-middle border-l-0 border-r-0 whitespace-nowrap p-4 text-right"></td>
+                </tr>
+            );
+        }
     }
 
     return rows;

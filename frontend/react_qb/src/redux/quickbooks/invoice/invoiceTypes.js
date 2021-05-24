@@ -1,0 +1,2 @@
+export const ADD_ALL_INVOICES = "ADD_ALL_INVOICES";
+export const ADD_ONE_INVOICE = "ADD_ONE_INVOICE";
