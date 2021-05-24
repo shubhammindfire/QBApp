@@ -6,3 +6,11 @@
 .submitBtn {
     @apply block p-2 mt-4 w-full text-white rounded-md;
 }
+
+.roundedPillBtn {
+    @apply block p-2 mt-4 text-white px-4 rounded-full;
+}
+
+.roundedPillBorderedBtn {
+    @apply block p-2 mt-4 text-white px-4 border border-white rounded-full;
+}

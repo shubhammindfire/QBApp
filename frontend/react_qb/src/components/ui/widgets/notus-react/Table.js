@@ -2,8 +2,12 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
     faCheckCircle,
     faExclamationCircle,
+    faEye,
+    faPen,
 } from "@fortawesome/free-solid-svg-icons";
 import React from "react";
+import { Link } from "react-router-dom";
+import { PORTAL_INVOICE_DETAIL_ROUTE } from "../../../../Constants";
 
 function Table(props) {
     const { color = "light", title, invoices } = props;
@@ -96,7 +100,9 @@ function Table(props) {
                                             ? "bg-blueGray-50 text-blueGray-500 border-blueGray-100"
                                             : "bg-lightBlue-800 text-lightBlue-300 border-lightBlue-700")
                                     }
-                                ></th>
+                                >
+                                    Action
+                                </th>
                             </tr>
                         </thead>
                         <tbody>{row("light", invoices)}</tbody>
@@ -133,7 +139,7 @@ function row(color = "light", invoices) {
             }
 
             rows.push(
-                <tr className="text-md">
+                <tr className="text-md" key={invoices[i].invoiceNumber}>
                     <th className="border-t-0 px-6 align-middle border-l-0 border-r-0 whitespace-nowrap p-4 text-left flex items-center">
                         {/* splitting the data received to get the desired format */}
                         {invoices[i].invoiceDate.split("T")[0]}
@@ -168,7 +174,34 @@ function row(color = "light", invoices) {
                             ? `Overdue ${diffInDays} days`
                             : `Due in ${diffInDays} days`}
                     </td>
-                    <td className="border-t-0 px-6 align-middle border-l-0 border-r-0 whitespace-nowrap p-4 text-right"></td>
+                    <td className="border-t-0 px-6 align-middle border-l-0 border-r-0 whitespace-nowrap p-4">
+                        {invoices[i].balance === 0.0 ? (
+                            <Link
+                                to={{
+                                    pathname: PORTAL_INVOICE_DETAIL_ROUTE,
+                                    state: {
+                                        invoiceTableId: invoices[i].id,
+                                    },
+                                }}
+                            >
+                                <FontAwesomeIcon
+                                    icon={faEye}
+                                    color="#32A6E9"
+                                    className="mr-2"
+                                />
+                                View
+                            </Link>
+                        ) : (
+                            <button>
+                                <FontAwesomeIcon
+                                    icon={faPen}
+                                    color="#32A6E9"
+                                    className="mr-2"
+                                />
+                                Edit
+                            </button>
+                        )}
+                    </td>
                 </tr>
             );
         }

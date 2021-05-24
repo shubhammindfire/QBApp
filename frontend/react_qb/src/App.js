@@ -16,10 +16,12 @@ import {
     PORTAL_CUSTOMERS_ROUTE,
     PORTAL_ITEMS_ROUTE,
     PORTAL_INVOICES_ROUTE,
+    PORTAL_INVOICE_DETAIL_ROUTE,
 } from "./Constants.js";
 import Customers from "./components/ui/screens/Customers.js";
 import Invoices from "./components/ui/screens/Invoices.js";
 import Items from "./components/ui/screens/Items.js";
+import InvoiceDetail from "./components/ui/screens/InvoiceDetail.js";
 
 function App() {
     const dispatch = useDispatch();
@@ -79,6 +81,11 @@ function App() {
                         path={PORTAL_INVOICES_ROUTE}
                         exact
                         component={Invoices}
+                    />
+                    <Route
+                        path={PORTAL_INVOICE_DETAIL_ROUTE}
+                        exact
+                        component={InvoiceDetail}
                     />
                 </Switch>
             </div>

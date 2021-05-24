@@ -12,3 +12,4 @@ export const PORTAL_ROUTE = "/portal";
 export const PORTAL_CUSTOMERS_ROUTE = "/portal/customers";
 export const PORTAL_ITEMS_ROUTE = "/portal/items";
 export const PORTAL_INVOICES_ROUTE = "/portal/invoices";
+export const PORTAL_INVOICE_DETAIL_ROUTE = "/portal/invoice/detail";
