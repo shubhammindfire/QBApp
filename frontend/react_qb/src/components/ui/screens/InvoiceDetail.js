@@ -11,20 +11,38 @@ import { Link } from "react-router-dom";
 import {
     PORTAL_INVOICES_ROUTE,
     GET_INVOICE_BY_ID,
+    GET_ALL_CUSTOMERS,
+    GET_ALL_ITEMS,
+    GET_CUSTOMER_BY_ID,
+    GET_ITEM_BY_ID,
 } from "../../../Constants.js";
+import CartItemInInvoiceTable from "./../widgets/CartItemInInvoiceTable.js";
 
 function InvoiceDetail(props) {
     const jwt = useSelector((state) => state.localAuth.jwt);
-    const [invoiceTableId] = useState(
+    // const [invoiceTableId] = useState(
+    //     props.location.state !== undefined
+    //         ? props.location.state.invoiceTableId
+    //         : null
+    // );
+    const invoiceTableId =
         props.location.state !== undefined
             ? props.location.state.invoiceTableId
-            : null
-    );
+            : null;
+
+    const operation =
+        props.location.state !== undefined
+            ? props.location.state.operation
+            : "View";
 
     // this is a json object of invoice
     const [invoice, setInvoice] = useState([]);
     // this is an array of json objects of cartItems
     const [cartItems, setCartItems] = useState([]);
+    // this is an array of json objects of customers
+    const [customers, setCustomers] = useState([]);
+    // this is an array of json objects of items
+    const [items, setItems] = useState([]);
 
     const [customerName, setCustomerName] = useState("");
     const [customerEmail, setCustomerEmail] = useState("");
@@ -34,67 +52,79 @@ function InvoiceDetail(props) {
     const [invoiceDate, setInvoiceDate] = useState("");
     const [totalAmount, setTotalAmount] = useState(0.0);
 
+    let customerNameListAsString = [];
+
     useEffect(() => {
+        // if the operation is create then the invoice won't be available
+        // therefore no need for GET_INVOICE_BY_ID api call
+        if (operation !== "Create") {
+            axios
+                .get(GET_INVOICE_BY_ID + `/${invoiceTableId}`, {
+                    headers: { Authorization: `Bearer ${jwt}` },
+                })
+                .then((response) => {
+                    setInvoice(response.data.invoice);
+                    setCartItems(response.data.cartItems);
+                    setCustomerName(response.data.invoice.customerName);
+                    setCustomerEmail(response.data.invoice.customerEmail);
+                    setBalance(response.data.invoice.balance);
+                    setTotalAmount(response.data.invoice.amount);
+                    setBillingAddress(response.data.invoice.billingAddress);
+                    const rawInvoiceDate = response.data.invoice.invoiceDate;
+                    const formattedInvoiceDate = rawInvoiceDate.split("T")[0];
+                    setInvoiceDate(formattedInvoiceDate);
+                    const rawDueDate = response.data.invoice.dueDate;
+                    const formattedDueDate = rawDueDate.split("T")[0];
+                    setDueDate(formattedDueDate);
+                })
+                .catch((error) => {
+                    // TODO: pending write catch for this api call
+                });
+        }
+
         axios
-            .get(GET_INVOICE_BY_ID + `/${invoiceTableId}`, {
+            .get(GET_ALL_CUSTOMERS, {
                 headers: { Authorization: `Bearer ${jwt}` },
             })
             .then((response) => {
-                // TODO: remove this
-                console.log(JSON.stringify(response.data.invoice));
-                console.log(JSON.stringify(response.data.cartItems));
+                setCustomers(response.data);
+            });
 
-                setInvoice(response.data.invoice);
-                setCartItems(response.data.cartItems);
-                setCustomerName(response.data.invoice.customerName);
-                setCustomerEmail(response.data.invoice.customerEmail);
-                setBalance(response.data.invoice.balance);
-                setTotalAmount(response.data.invoice.amount);
-                setBillingAddress(response.data.invoice.billingAddress);
-                const rawInvoiceDate = response.data.invoice.invoiceDate;
-                const formattedInvoiceDate = rawInvoiceDate.split("T")[0];
-                setInvoiceDate(formattedInvoiceDate);
-                const rawDueDate = response.data.invoice.dueDate;
-                const formattedDueDate = rawDueDate.split("T")[0];
-                setDueDate(formattedDueDate);
+        axios
+            .get(GET_ALL_ITEMS, {
+                headers: { Authorization: `Bearer ${jwt}` },
+            })
+            .then((response) => {
+                setItems(response.data);
             });
     }, []);
 
-    function handleCustomerNameChange(e) {
+    function handleChange(e, attribute) {
         e.preventDefault();
 
-        setCustomerName(e.target.value);
-    }
+        if (attribute === "customerName") {
+            setCustomerName(e.target.value);
+            // TODO: fill realted info if existing customer is selected
 
-    function handleCustomerEmailChange(e) {
-        e.preventDefault();
-
-        setCustomerEmail(e.target.value);
-    }
-
-    function handleBillingAddressChange(e) {
-        e.preventDefault();
-
-        setBillingAddress(e.target.value);
-    }
-
-    function handleInvoiceDateChange(e) {
-        e.preventDefault();
-
-        setInvoiceDate(e.target.value);
-    }
-
-    function handleDueDateChange(e) {
-        e.preventDefault();
-
-        setDueDate(e.target.value);
+            if (customerNameListAsString.includes(e.target.value)) {
+                for (let j = 0; j < customers.length; j++) {
+                    if (customers[j].displayName === e.target.value) {
+                        setCustomerEmail(customers[j].email);
+                        setBillingAddress(customers[j].billingAddress);
+                        j = items.length; //this is to end the loop like break
+                    }
+                }
+            }
+        } else if (attribute === "customerEmail")
+            setCustomerEmail(e.target.value);
+        else if (attribute === "billingAddress")
+            setBillingAddress(e.target.value);
+        else if (attribute === "invoiceDate") setInvoiceDate(e.target.value);
+        else if (attribute === "dueDate") setDueDate(e.target.value);
+        // else if (attribute === "itemName") setItemName(e.target.value);
     }
 
     function handleCancel() {
-        // TODO: pending
-    }
-
-    function handleClear() {
         // TODO: pending
     }
 
@@ -104,6 +134,20 @@ function InvoiceDetail(props) {
 
     function handleSaveAndClose() {
         // TODO: pending
+    }
+
+    function getCustomerNameList() {
+        let customerNameList = [];
+
+        if (customers !== undefined) {
+            for (let i = 0; i < customers.length; i++) {
+                customerNameList.push(
+                    <option value={customers[i].displayName} />
+                );
+                customerNameListAsString.push(customers[i].displayName);
+            }
+        }
+        return customerNameList;
     }
 
     return (
@@ -117,7 +161,10 @@ function InvoiceDetail(props) {
                         size="2x"
                     />
                     <p className="inline font-bold ml-2 text-gray-800 text-3xl">
-                        Invoice #{invoice.invoiceNumber}
+                        Invoice{" "}
+                        {operation !== "Create"
+                            ? `#${invoice.invoiceNumber}`
+                            : null}
                     </p>
                 </div>
                 <Link to={PORTAL_INVOICES_ROUTE}>
@@ -141,16 +188,15 @@ function InvoiceDetail(props) {
                                     className="inline rounded p-2 border border-black xs:w-full"
                                     placeholder="Select a customer"
                                     value={customerName}
-                                    onChange={handleCustomerNameChange}
-                                    disabled={balance === 0.0 ? true : false}
+                                    onChange={(e) =>
+                                        handleChange(e, "customerName")
+                                    }
+                                    disabled={
+                                        operation === "View" ? true : false
+                                    }
                                 />
                                 <datalist id="customerNames">
-                                    {/* TODO: fetch this list of custoemers */}
-                                    <option value="Edge" />
-                                    <option value="Firefox" />
-                                    <option value="Chrome" />
-                                    <option value="Opera" />
-                                    <option value="Safari" />
+                                    {getCustomerNameList()}
                                 </datalist>
                             </div>
                         </div>
@@ -166,14 +212,16 @@ function InvoiceDetail(props) {
                                 className="block rounded xs:w-full"
                                 placeholder="Enter customer email"
                                 value={customerEmail}
-                                onChange={handleCustomerEmailChange}
-                                disabled={balance === 0.0 ? true : false}
+                                onChange={(e) =>
+                                    handleChange(e, "customerEmail")
+                                }
+                                disabled={operation === "View" ? true : false}
                             />
                         </div>
                         {/* Empty col */}
                         <div className="col-span-2"></div>
                         {/* if balance is zero then show that payment status is "paid", else show the balance due amount */}
-                        {balance === 0.0 ? (
+                        {operation === "View" ? (
                             <div className="col-span-2 text-right">
                                 <span className="text-gray-500 font-bold">
                                     PAYMENT STATUS
@@ -206,8 +254,10 @@ function InvoiceDetail(props) {
                                 rows="3"
                                 className="block rounded xs:w-full"
                                 value={billingAddress}
-                                onChange={handleBillingAddressChange}
-                                disabled={balance === 0.0 ? true : false}
+                                onChange={(e) =>
+                                    handleChange(e, "billingAddress")
+                                }
+                                disabled={operation === "View" ? true : false}
                             ></textarea>
                         </div>
 
@@ -219,8 +269,8 @@ function InvoiceDetail(props) {
                                 type="date"
                                 className="block rounded border"
                                 value={invoiceDate}
-                                onChange={handleInvoiceDateChange}
-                                disabled={balance === 0.0 ? true : false}
+                                onChange={(e) => handleChange(e, "invoiceDate")}
+                                disabled={operation === "View" ? true : false}
                             />
                         </div>
 
@@ -232,8 +282,8 @@ function InvoiceDetail(props) {
                                 type="date"
                                 className="block rounded border xs:w-full"
                                 value={dueDate}
-                                onChange={handleDueDateChange}
-                                disabled={balance === 0.0 ? true : false}
+                                onChange={(e) => handleChange(e, "dueDate")}
+                                disabled={operation === "View" ? true : false}
                             />
                         </div>
 
@@ -282,7 +332,7 @@ function InvoiceDetail(props) {
                                 <td>Amount Received</td>
                                 <td>
                                     $
-                                    {balance === 0.0
+                                    {operation === "View"
                                         ? totalAmount.toFixed(2)
                                         : 0.0}
                                 </td>
@@ -299,7 +349,7 @@ function InvoiceDetail(props) {
 
             {/* sticky footer */}
 
-            {balance === 0.0 ? (
+            {operation === "View" ? (
                 <div className="bg-gray-800 text-white fixed left-0 bottom-0 justify-between px-2  h-16 w-full">
                     <Link
                         to={PORTAL_INVOICES_ROUTE}
@@ -318,13 +368,6 @@ function InvoiceDetail(props) {
                             onClick={handleCancel}
                         >
                             Cancel
-                        </button>
-                        <button
-                            type="button"
-                            className="roundedPillBorderedBtn bg-transparent rounded-pill hover:bg-white hover:text-black"
-                            onClick={handleClear}
-                        >
-                            Clear
                         </button>
                     </div>
 
@@ -355,64 +398,69 @@ function InvoiceDetail(props) {
         if (cartItems !== undefined) {
             for (let i = 0; i < cartItems.length; i++) {
                 rows.push(
-                    <tr
-                        className="text-center hover:bg-gray-100"
-                        key={cartItems.id}
-                    >
-                        <td className="border-r-2 border-t-2">{i + 1}</td>
-                        <td className="border-r-2 border-t-2">
-                            <input
-                                list="cartItemNames"
-                                className="inline p-2 border border-black xs:w-full"
-                                placeholder="Select an item"
-                                value={cartItems[i].itemName}
-                                disabled={balance === 0.0 ? true : false}
-                            />
-                            <datalist id="cartItemNames">
-                                {/* TODO: fetch this list of cart items */}
-                                <option value="Edge" />
-                                <option value="Firefox" />
-                                <option value="Chrome" />
-                                <option value="Opera" />
-                                <option value="Safari" />
-                            </datalist>
-                        </td>
-                        <td className="border-r-2 border-t-2">
-                            <input
-                                type="text"
-                                className="block xs:w-full"
-                                value={cartItems[i].itemDescription}
-                                disabled={balance === 0.0 ? true : false}
-                            />
-                        </td>
-                        <td className="border-r-2 border-t-2">
-                            <input
-                                type="text"
-                                className="block xs:w-full"
-                                value={cartItems[i].quantity}
-                                disabled={balance === 0.0 ? true : false}
-                            />
-                        </td>
-                        <td className="border-r-2 border-t-2">
-                            <input
-                                type="text"
-                                className="block xs:w-full"
-                                value={cartItems[i].rate}
-                                disabled={balance === 0.0 ? true : false}
-                            />
-                        </td>
-                        <td className="border-r-2 border-t-2">
-                            {cartItems[i].itemAmount}
-                        </td>
-                        <td className="border-t-2">
-                            <button disabled={balance === 0.0 ? true : false}>
-                                <FontAwesomeIcon
-                                    icon={faTrashAlt}
-                                    color="#696969"
-                                />
-                            </button>
-                        </td>
-                    </tr>
+                    <CartItemInInvoiceTable
+                        cartItem={cartItems[i]}
+                        items={items}
+                        balance={balance}
+                        index={i}
+                        key={cartItems[i].id}
+                    />
+                    // <tr
+                    //     className="text-center hover:bg-gray-100"
+                    //     key={cartItems[0].id}
+                    // >
+                    //     <td className="border-r-2 border-t-2">{i + 1}</td>
+                    //     <td className="border-r-2 border-t-2">
+                    //         <input
+                    //             list="cartItemNames"
+                    //             className="inline p-2 border border-black xs:w-full"
+                    //             placeholder="Select an item"
+                    //             // value={cartItems[i].itemName}
+                    //             value=""
+                    //             // value={itemName}
+                    //             disabled={operation === "View" ? true : false}
+                    //             onChange={(e) => handleChange(e, "itemName")}
+                    //         />
+                    //         <datalist id="cartItemNames">
+                    //             {getItemNameList()}
+                    //         </datalist>
+                    //     </td>
+                    //     <td className="border-r-2 border-t-2">
+                    //         <input
+                    //             type="text"
+                    //             className="block xs:w-full"
+                    //             value={cartItems[i].itemDescription}
+                    //             disabled={operation === "View" ? true : false}
+                    //         />
+                    //     </td>
+                    //     <td className="border-r-2 border-t-2">
+                    //         <input
+                    //             type="text"
+                    //             className="block xs:w-full"
+                    //             value={cartItems[i].quantity}
+                    //             disabled={operation === "View" ? true : false}
+                    //         />
+                    //     </td>
+                    //     <td className="border-r-2 border-t-2">
+                    //         <input
+                    //             type="text"
+                    //             className="block xs:w-full"
+                    //             value={cartItems[i].rate}
+                    //             disabled={operation === "View" ? true : false}
+                    //         />
+                    //     </td>
+                    //     <td className="border-r-2 border-t-2">
+                    //         {cartItems[i].itemAmount}
+                    //     </td>
+                    //     <td className="border-t-2">
+                    //         <button disabled={operation === "View" ? true : false}>
+                    //             <FontAwesomeIcon
+                    //                 icon={faTrashAlt}
+                    //                 color="#696969"
+                    //             />
+                    //         </button>
+                    //     </td>
+                    // </tr>
                 );
             }
         }

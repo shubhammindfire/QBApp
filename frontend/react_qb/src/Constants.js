@@ -4,7 +4,11 @@ export const REGISTER_URL = BASE_SERVER_URL + "/api/users";
 export const LOGIN_URL = BASE_SERVER_URL + "/api/login";
 export const CONNECT_TO_QBO_URL = BASE_SERVER_URL + "/qb/connect";
 export const GET_ALL_INVOICES = BASE_SERVER_URL + "/api/invoices";
-export const GET_INVOICE_BY_ID = BASE_SERVER_URL + "/api/invoices"; // endpoint - /api/invoices/{id}
+export const GET_INVOICE_BY_ID = BASE_SERVER_URL + "/api/invoices"; // actual endpoint - /api/invoices/{id}
+export const GET_ALL_ITEMS = BASE_SERVER_URL + "/api/items";
+export const GET_ITEM_BY_ID = BASE_SERVER_URL + "/api/items"; // actual endpoint - /api/items/{id}
+export const GET_ALL_CUSTOMERS = BASE_SERVER_URL + "/api/customers";
+export const GET_CUSTOMER_BY_ID = BASE_SERVER_URL + "/api/customers"; // actual endpoint - /api/customers/{id}
 
 // react routes
 export const LOGIN_ROUTE = "/login";

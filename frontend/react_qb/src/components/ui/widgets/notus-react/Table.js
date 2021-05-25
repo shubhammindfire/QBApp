@@ -22,21 +22,28 @@ function Table(props) {
                         : "bg-lightBlue-900 text-white")
                 }
             >
-                <div className="rounded-t mb-0 px-4 py-3 border-0">
-                    <div className="flex flex-wrap items-center">
-                        <div className="relative w-full px-4 max-w-full flex-grow flex-1">
-                            <h3
-                                className={
-                                    "font-semibold text-lg " +
-                                    (color === "light"
-                                        ? "text-blueGray-700"
-                                        : "text-white")
-                                }
-                            >
-                                {title}
-                            </h3>
-                        </div>
-                    </div>
+                <div className="relative w-full p-5 max-w-full flex justify-between">
+                    <h3
+                        className={
+                            "font-semibold text-xl " +
+                            (color === "light"
+                                ? "text-blueGray-700"
+                                : "text-white")
+                        }
+                    >
+                        {title}
+                    </h3>
+                    <Link
+                        to={{
+                            pathname: PORTAL_INVOICE_DETAIL_ROUTE,
+                            state: {
+                                operation: "Create",
+                            },
+                        }}
+                        className="rounded-full bg-green-600 text-white px-4 py-2"
+                    >
+                        Create Invoice
+                    </Link>
                 </div>
                 <div className="block w-full overflow-x-auto">
                     {/* Projects table */}
@@ -181,6 +188,7 @@ function row(color = "light", invoices) {
                                     pathname: PORTAL_INVOICE_DETAIL_ROUTE,
                                     state: {
                                         invoiceTableId: invoices[i].id,
+                                        operation: "View",
                                     },
                                 }}
                             >
@@ -192,14 +200,23 @@ function row(color = "light", invoices) {
                                 View
                             </Link>
                         ) : (
-                            <button>
+                            // TODO: pending finish work for editing an invoice
+                            <Link
+                                to={{
+                                    pathname: PORTAL_INVOICE_DETAIL_ROUTE,
+                                    state: {
+                                        invoiceTableId: invoices[i].id,
+                                        operation: "Edit",
+                                    },
+                                }}
+                            >
                                 <FontAwesomeIcon
                                     icon={faPen}
                                     color="#32A6E9"
                                     className="mr-2"
                                 />
                                 Edit
-                            </button>
+                            </Link>
                         )}
                     </td>
                 </tr>
