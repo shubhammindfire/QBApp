@@ -68,7 +68,7 @@ class InvoiceService extends BaseService
             /**
              * @var Item $item
              */
-            $item = $itemRepository->findOneBy(["id" => $$cartItem->getItemTableId(), "userId" => $user->getRealmId()]);
+            $item = $itemRepository->findOneBy(["id" => $cartItem->getItemTableId(), "userId" => $user->getRealmId()]);
 
             $cartItem->setItemName($item->getName());
             $cartItem->setItemDescription($item->getDescription());
@@ -79,6 +79,8 @@ class InvoiceService extends BaseService
         $customerRepository = $this->doctrine->getRepository(Customer::class);
         $customer = $customerRepository->findOneBy(["id" => $invoice->getCustomerId()]);
         $invoice->setCustomerName($customer->getDisplayName());
+        $invoice->setCustomerEmail($customer->getEmail());
+        $invoice->setBillingAddress($customer->getBillingAddress());
 
         return ["invoice" => $invoice, "cartItems" => $cartItems];
     }

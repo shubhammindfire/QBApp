@@ -34,12 +34,6 @@ class Invoice
     private $customerId;
 
     /**
-     * Not included in the database
-     * @var String $customerName
-     */
-    private $customerName;
-
-    /**
      * @ORM\Column(name="paymentStatus",type="string", length=45)
      */
     private $paymentStatus;
@@ -79,6 +73,24 @@ class Invoice
      */
     private $userId;
 
+    /**
+     * Not included in the database
+     * @var String $customerName
+     */
+    private $customerName;
+
+    /**
+     * Not included in the database
+     * @var String $customerEmail
+     */
+    private $customerEmail;
+
+    /**
+     * Not included in the database
+     * @var String $billingAddress
+     */
+    private $billingAddress;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -116,18 +128,6 @@ class Invoice
     public function setCustomerId(int $customerId): self
     {
         $this->customerId = $customerId;
-
-        return $this;
-    }
-
-    public function getCustomerName(): ?String
-    {
-        return $this->customerName;
-    }
-
-    public function setCustomerName(String $customerName): self
-    {
-        $this->customerName = $customerName;
 
         return $this;
     }
@@ -231,6 +231,42 @@ class Invoice
     public function setUserId(string $userId): self
     {
         $this->userId = $userId;
+
+        return $this;
+    }
+
+    public function getCustomerName(): ?String
+    {
+        return $this->customerName;
+    }
+
+    public function setCustomerName(String $customerName): self
+    {
+        $this->customerName = $customerName;
+
+        return $this;
+    }
+
+    public function getCustomerEmail(): ?String
+    {
+        return $this->customerEmail;
+    }
+
+    public function setCustomerEmail(String $customerEmail): self
+    {
+        $this->customerEmail = $customerEmail;
+
+        return $this;
+    }
+
+    public function getBillingAddress(): ?String
+    {
+        return $this->billingAddress;
+    }
+
+    public function setBillingAddress(String $billingAddress): self
+    {
+        $this->billingAddress = $billingAddress;
 
         return $this;
     }
