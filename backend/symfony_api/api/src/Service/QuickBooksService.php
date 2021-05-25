@@ -215,19 +215,20 @@ class QuickBooksService extends BaseService
                 /**
                  * @var Item $item
                  */
-                $item = $itemRepository->findOneBy(['itemId' => $item->SalesItemLineDetail->ItemRef, 'userId' => $user->getRealmId()]);
-                $cartItemEntity->setItemTableId($item->getId());
+                $itemFromDB = $itemRepository->findOneBy(['itemId' => $item->SalesItemLineDetail->ItemRef, 'userId' => $user->getRealmId()]);
+                $cartItemEntity->setItemTableId($itemFromDB->getId());
 
                 $invoiceRepository = $this->doctrine->getRepository(Invoice::class);
                 /**
                  * @var Invoice $invoice
                  */
-                $invoice = $invoiceRepository->findOneBy(['invoiceId' => $invoiceIdFromQBO, 'userId' => $user->getRealmId()]);
-                $cartItemEntity->setInvoiceTableId($invoice->getId());
+                $invoiceFromDB = $invoiceRepository->findOneBy(['invoiceId' => $invoiceIdFromQBO, 'userId' => $user->getRealmId()]);
+                $cartItemEntity->setInvoiceTableId($invoiceFromDB->getId());
 
                 $cartItemEntity->setQuantity($item->SalesItemLineDetail->Qty ?? 0);
-                $cartItemEntity->setCreatedAt(strtotime($invoice->getCreatedAt()));
-                $cartItemEntity->setUpdatedAt(strtotime($invoice->getUpdatedAt()));
+                $cartItemEntity->setRate($item->SalesItemLineDetail->UnitPrice ?? 0.0);
+                $cartItemEntity->setCreatedAt(strtotime($invoiceFromDB->getCreatedAt()));
+                $cartItemEntity->setUpdatedAt(strtotime($invoiceFromDB->getUpdatedAt()));
                 $cartItemEntity->setUserId($user->getRealmId());
 
                 $this->entityManager->persist($cartItemEntity);

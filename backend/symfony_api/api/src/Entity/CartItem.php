@@ -31,6 +31,11 @@ class CartItem
     private $quantity;
 
     /**
+     * @ORM\Column(name="rate",type="float")
+     */
+    private $rate;
+
+    /**
      * @ORM\Column(name="invoiceTableId",type="integer")
      * this is the id of the invoice in the invoice table
      */
@@ -65,12 +70,6 @@ class CartItem
 
     /**
      * Not included in the database
-     * @var float $costPrice
-     */
-    private $costPrice;
-
-    /**
-     * Not included in the database
      * @var float $itemAmount
      */
     private $itemAmount;
@@ -100,6 +99,18 @@ class CartItem
     public function setQuantity(int $quantity): self
     {
         $this->quantity = $quantity;
+
+        return $this;
+    }
+
+    public function getRate()
+    {
+        return $this->rate;
+    }
+
+    public function setRate(float $rate): self
+    {
+        $this->rate = $rate;
 
         return $this;
     }
@@ -183,22 +194,11 @@ class CartItem
         return $this;
     }
 
-    public function getCostPrice()
-    {
-        return $this->costPrice;
-    }
-
-    public function setCostPrice(float $costPrice): self
-    {
-        $this->costPrice = $costPrice;
-
-        return $this;
-    }
 
     // getItemAmount() also acts the setter here
     public function getItemAmount()
     {
-        $this->itemAmount = $this->costPrice * $this->quantity;
+        $this->itemAmount = $this->rate * $this->quantity;
 
         return $this->itemAmount;
     }

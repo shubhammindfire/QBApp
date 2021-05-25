@@ -72,7 +72,6 @@ class InvoiceService extends BaseService
 
             $cartItem->setItemName($item->getName());
             $cartItem->setItemDescription($item->getDescription());
-            $cartItem->setCostPrice($item->getCostPrice());
         }
 
         // add CustomerName to the $invoice object as Customer name is used in the UI
