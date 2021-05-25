@@ -4,6 +4,7 @@ export const REGISTER_URL = BASE_SERVER_URL + "/api/users";
 export const LOGIN_URL = BASE_SERVER_URL + "/api/login";
 export const CONNECT_TO_QBO_URL = BASE_SERVER_URL + "/qb/connect";
 export const GET_ALL_INVOICES = BASE_SERVER_URL + "/api/invoices";
+export const GET_INVOICE_BY_ID = BASE_SERVER_URL + "/api/invoices"; // endpoint - /api/invoices/{id}
 
 // react routes
 export const LOGIN_ROUTE = "/login";
