@@ -1,17 +1,40 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Sidebar from "../widgets/notus-react/SideBar.js";
-
-import Table from "../widgets/notus-react/Table.js";
+import { useDispatch, useSelector } from "react-redux";
+import axios from "axios";
+import { GET_ALL_ITEMS } from "../../../Constants.js";
+import { addAllItems } from "./../../../redux/quickbooks/item/itemActions.js";
+import CustomerAndItemTable from "../widgets/notus-react/CustomerAndItemTable.js";
 
 function Items() {
+    const jwt = useSelector((state) => state.localAuthReducer.jwt);
+    const items = useSelector((state) => state.itemReducer.items);
+    const dispatch = useDispatch();
+    const [isSessionExpired, setIsSessionExpired] = useState(false);
+
+    useEffect(() => {
+        axios
+            .get(GET_ALL_ITEMS, {
+                headers: { Authorization: `Bearer ${jwt}` },
+            })
+            .then((response) => {
+                console.log(response);
+                dispatch(addAllItems(response.data));
+            })
+            .catch((error) => {
+                if (error.response.data.code === 401) {
+                    setIsSessionExpired(true);
+                }
+            });
+    }, []);
+
     return (
         <>
             <Sidebar />
-            {/* TODO: this is a copy of Invoices, change this */}
             <div className="relative md:ml-64 bg-blueGray-100">
                 <div className="flex flex-wrap mt-4">
                     <div className="w-full mb-12 px-4">
-                        <Table title="Items"/>
+                        <CustomerAndItemTable title="Items" data={items} />
                     </div>
                 </div>
             </div>
