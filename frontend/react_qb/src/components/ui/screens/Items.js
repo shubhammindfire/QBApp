@@ -5,6 +5,7 @@ import axios from "axios";
 import { GET_ALL_ITEMS } from "../../../Constants.js";
 import { addAllItems } from "./../../../redux/quickbooks/item/itemActions.js";
 import CustomerAndItemTable from "../widgets/notus-react/CustomerAndItemTable.js";
+import SessionExpiredModal from "../widgets/SessionExpiredModal.js";
 
 function Items() {
     const jwt = useSelector((state) => state.localAuthReducer.jwt);
@@ -18,7 +19,6 @@ function Items() {
                 headers: { Authorization: `Bearer ${jwt}` },
             })
             .then((response) => {
-                console.log(response);
                 dispatch(addAllItems(response.data));
             })
             .catch((error) => {
@@ -26,18 +26,27 @@ function Items() {
                     setIsSessionExpired(true);
                 }
             });
-    }, []);
+    }, [jwt, dispatch]);
 
     return (
         <>
-            <Sidebar />
-            <div className="relative md:ml-64 bg-blueGray-100">
-                <div className="flex flex-wrap mt-4">
-                    <div className="w-full mb-12 px-4">
-                        <CustomerAndItemTable title="Items" data={items} />
+            {isSessionExpired ? (
+                <SessionExpiredModal />
+            ) : (
+                <>
+                    <Sidebar />
+                    <div className="relative md:ml-64 bg-blueGray-100">
+                        <div className="flex flex-wrap mt-4">
+                            <div className="w-full mb-12 px-4">
+                                <CustomerAndItemTable
+                                    title="Items"
+                                    data={items}
+                                />
+                            </div>
+                        </div>
                     </div>
-                </div>
-            </div>
+                </>
+            )}
         </>
     );
 }

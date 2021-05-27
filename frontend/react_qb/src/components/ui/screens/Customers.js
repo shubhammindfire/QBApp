@@ -5,6 +5,7 @@ import { useDispatch, useSelector } from "react-redux";
 import axios from "axios";
 import { GET_ALL_CUSTOMERS } from "../../../Constants.js";
 import { addAllCustomers } from "./../../../redux/quickbooks/customer/customerActions.js";
+import SessionExpiredModal from "../widgets/SessionExpiredModal.js";
 
 function Customers() {
     const jwt = useSelector((state) => state.localAuthReducer.jwt);
@@ -18,7 +19,6 @@ function Customers() {
                 headers: { Authorization: `Bearer ${jwt}` },
             })
             .then((response) => {
-                console.log(response);
                 dispatch(addAllCustomers(response.data));
             })
             .catch((error) => {
@@ -26,22 +26,27 @@ function Customers() {
                     setIsSessionExpired(true);
                 }
             });
-    }, []);
+    }, [jwt, dispatch]);
 
     return (
         <>
-            <Sidebar />
-            {/* TODO: this is a copy of invoices, change this */}
-            <div className="relative md:ml-64 bg-blueGray-100">
-                <div className="flex flex-wrap mt-4">
-                    <div className="w-full mb-12 px-4">
-                        <CustomerAndItemTable
-                            title="Customers"
-                            data={customers}
-                        />
+            {isSessionExpired ? (
+                <SessionExpiredModal />
+            ) : (
+                <>
+                    <Sidebar />
+                    <div className="relative md:ml-64 bg-blueGray-100">
+                        <div className="flex flex-wrap mt-4">
+                            <div className="w-full mb-12 px-4">
+                                <CustomerAndItemTable
+                                    title="Customers"
+                                    data={customers}
+                                />
+                            </div>
+                        </div>
                     </div>
-                </div>
-            </div>
+                </>
+            )}
         </>
     );
 }
