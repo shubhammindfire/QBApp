@@ -15,7 +15,7 @@ function Login(props) {
         props.location.state !== undefined
             ? props.location.state.isSessionExpired
             : false;
-    const jwt = useSelector((state) => state.localAuth.jwt);
+    const jwt = useSelector((state) => state.localAuthReducer.jwt);
     const dispatch = useDispatch();
 
     const [username, setUsername] = useState("");
@@ -102,11 +102,13 @@ function Login(props) {
                     <TextField
                         label="Username"
                         placeholder="Enter username"
+                        type="text"
                         onChange={handleUsernameChange}
                     />
                     <TextField
                         label="Password"
                         placeholder="Enter password"
+                        type="password"
                         onChange={handlePasswordChange}
                     />
                     {loginError !== null ? (

@@ -84,6 +84,7 @@ function Register() {
                     <TextField
                         label="Username"
                         placeholder="Enter username"
+                        type="text"
                         onChange={handleUsernameChange}
                     />
                     {usernameError !== null ? (
@@ -92,6 +93,7 @@ function Register() {
                     <TextField
                         label="Password"
                         placeholder="Enter password"
+                        type="password"
                         onChange={handlePasswordChange}
                     />
                     {passwordError !== null ? (
@@ -100,6 +102,7 @@ function Register() {
                     <TextField
                         label="RealmId"
                         placeholder="Enter RealmId"
+                        type="text"
                         onChange={handleRealmIdChange}
                     />
                     {realmIdError !== null ? (
