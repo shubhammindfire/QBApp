@@ -5,7 +5,7 @@ import axios from "axios";
 import { GET_ALL_ITEMS } from "../../../Constants.js";
 import { addAllItems } from "./../../../redux/quickbooks/item/itemActions.js";
 import CustomerAndItemTable from "../widgets/notus-react/CustomerAndItemTable.js";
-import SessionExpiredModal from "../widgets/SessionExpiredModal.js";
+import ErrorModal from "../widgets/ErrorModal.js";
 
 function Items() {
     const jwt = useSelector((state) => state.localAuthReducer.jwt);
@@ -31,7 +31,7 @@ function Items() {
     return (
         <>
             {isSessionExpired ? (
-                <SessionExpiredModal />
+                <ErrorModal type="SESSION_EXPIRED" />
             ) : (
                 <>
                     <Sidebar />

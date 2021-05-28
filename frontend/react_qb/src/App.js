@@ -25,7 +25,7 @@ import InvoiceDetail from "./components/ui/screens/InvoiceDetail.js";
 
 function App() {
     const dispatch = useDispatch();
-    const jwt = useSelector((state) => state.localAuth.jwt);
+    const jwt = useSelector((state) => state.localAuthReducer.jwt);
 
     // check if session variable has jwt or not
     let session_jwt = localStorage.getItem("session-jwt");

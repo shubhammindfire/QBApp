@@ -452,6 +452,8 @@ class InvoiceService extends BaseService
                     "value" => $newCustomerId,
                     "name" => $newCustomerName
                 ],
+                "TxnDate" => $data['invoiceDate'],
+                "DueDate" => $data['dueDate'],
                 "Line" => $cartItems
             ]);
             /**
@@ -527,6 +529,7 @@ class InvoiceService extends BaseService
                     $cartItem->setItemTableId($item->getId());
                     $cartItem->setInvoiceTableId($newinvoiceFromDB->getId());
                     $cartItem->setUserId($user->getRealmId());
+                    $cartItem->setRate($items[$i]['costPrice']);
 
                     $em->persist($cartItem);
                 }

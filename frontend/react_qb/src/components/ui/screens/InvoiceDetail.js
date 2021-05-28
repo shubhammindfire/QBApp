@@ -1,30 +1,60 @@
 import {
     faHistory,
+    faPlusCircle,
     faTimes,
-    faTrashAlt,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import axios from "axios";
 import React, { useState, useEffect } from "react";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import {
     PORTAL_INVOICES_ROUTE,
     GET_INVOICE_BY_ID,
     GET_ALL_CUSTOMERS,
     GET_ALL_ITEMS,
-    GET_CUSTOMER_BY_ID,
-    GET_ITEM_BY_ID,
+    BASE_REACT_ROUTE,
 } from "../../../Constants.js";
+import {
+    addCurrentCartItems,
+    addCurrentInvoice,
+    removeCurrentInvoice,
+    removeCurrentCartItems,
+    deleteCurrentCartItemByIndex,
+} from "../../../redux/quickbooks/invoice/invoiceActions.js";
+import addNewInvoice from "../../utils/addNewInvoice.js";
+import getQBOCustomerId from "../../utils/getQBOCustomerId.js";
+import {
+    validateCustomerName,
+    validateDueDate,
+    validateInvoiceDate,
+    validateEmptyCartItem,
+    validateInvalidCartItem,
+    validateCartItemQuantity,
+} from "../../utils/validateData.js";
+import ErrorModal from "../widgets/ErrorModal.js";
+import SuccessModal from "../widgets/SuccessModal.js";
 import CartItemInInvoiceTable from "./../widgets/CartItemInInvoiceTable.js";
 
 function InvoiceDetail(props) {
-    const jwt = useSelector((state) => state.localAuth.jwt);
-    // const [invoiceTableId] = useState(
-    //     props.location.state !== undefined
-    //         ? props.location.state.invoiceTableId
-    //         : null
+    const dispatch = useDispatch();
+    // const reduxInvoice = useSelector(
+    //     (state) => state.invoiceReducer.currentInvoice
     // );
+    // const reduxState.currentCartItems = useSelector(
+    //     (state) => state.invoice.currentCartItems
+    // );
+
+    // const reduxState.currentCartItems = useSelector(
+    //     (state) => state.invoice
+    // );
+    const reduxState = useSelector((state) => ({
+        currentCartItems: state.invoiceReducer.currentCartItems,
+        currentInvoice: state.invoiceReducer.currentInvoice,
+    }));
+
+    const jwt = useSelector((state) => state.localAuthReducer.jwt);
+
     const invoiceTableId =
         props.location.state !== undefined
             ? props.location.state.invoiceTableId
@@ -36,9 +66,9 @@ function InvoiceDetail(props) {
             : "View";
 
     // this is a json object of invoice
-    const [invoice, setInvoice] = useState([]);
+    const [stateInvoice, setStateInvoice] = useState({});
     // this is an array of json objects of cartItems
-    const [cartItems, setCartItems] = useState([]);
+    const [stateCartItems, setStateCartItems] = useState([]);
     // this is an array of json objects of customers
     const [customers, setCustomers] = useState([]);
     // this is an array of json objects of items
@@ -52,6 +82,16 @@ function InvoiceDetail(props) {
     const [invoiceDate, setInvoiceDate] = useState("");
     const [totalAmount, setTotalAmount] = useState(0.0);
 
+    const [customerNameError, setCustomerNameError] = useState(null);
+    const [invoiceDateError, setInvoiceDateError] = useState(null);
+    const [dueDateError, setDueDateError] = useState(null);
+    const [totalAmountError, setTotalAmountError] = useState(null);
+    const [cartItemsError, setCartItemsError] = useState(null);
+
+    const [showSuccessModal, setShowSuccessModal] = useState(false);
+    const [successModalType, setSuccessModalType] = useState("Save");
+    const [showErrorModal, setShowErrorModal] = useState(false);
+
     let customerNameListAsString = [];
 
     useEffect(() => {
@@ -63,8 +103,11 @@ function InvoiceDetail(props) {
                     headers: { Authorization: `Bearer ${jwt}` },
                 })
                 .then((response) => {
-                    setInvoice(response.data.invoice);
-                    setCartItems(response.data.cartItems);
+                    dispatch(addCurrentInvoice(response.data.invoice));
+                    setStateInvoice(response.data.invoice);
+                    dispatch(addCurrentCartItems(response.data.cartItems));
+                    setStateCartItems(response.data.cartItems);
+
                     setCustomerName(response.data.invoice.customerName);
                     setCustomerEmail(response.data.invoice.customerEmail);
                     setBalance(response.data.invoice.balance);
@@ -101,39 +144,165 @@ function InvoiceDetail(props) {
 
     function handleChange(e, attribute) {
         e.preventDefault();
+        let currentInvoice = reduxState.currentInvoice;
 
         if (attribute === "customerName") {
+            setCustomerNameError(null);
             setCustomerName(e.target.value);
-            // TODO: fill realted info if existing customer is selected
-
+            currentInvoice.customerName = e.target.value;
             if (customerNameListAsString.includes(e.target.value)) {
                 for (let j = 0; j < customers.length; j++) {
                     if (customers[j].displayName === e.target.value) {
                         setCustomerEmail(customers[j].email);
                         setBillingAddress(customers[j].billingAddress);
-                        j = items.length; //this is to end the loop like break
+                        currentInvoice.customerEmail = customers[j].email;
+                        currentInvoice.billingAddress =
+                            customers[j].billingAddress;
+                        break;
+                        // j = items.length; //this is to end the loop like break
                     }
                 }
             }
-        } else if (attribute === "customerEmail")
+        } else if (attribute === "customerEmail") {
             setCustomerEmail(e.target.value);
-        else if (attribute === "billingAddress")
+            currentInvoice.customerEmail = e.target.value;
+        } else if (attribute === "billingAddress") {
             setBillingAddress(e.target.value);
-        else if (attribute === "invoiceDate") setInvoiceDate(e.target.value);
-        else if (attribute === "dueDate") setDueDate(e.target.value);
-        // else if (attribute === "itemName") setItemName(e.target.value);
+            currentInvoice.billingAddress = e.target.value;
+        } else if (attribute === "invoiceDate") {
+            setInvoiceDateError("");
+            setInvoiceDate(e.target.value);
+            currentInvoice.invoiceDate = e.target.value;
+        } else if (attribute === "dueDate") {
+            setDueDateError("");
+            setDueDate(e.target.value);
+            currentInvoice.dueDate = e.target.value;
+        }
+
+        setStateInvoice(currentInvoice);
+        dispatch(addCurrentInvoice(currentInvoice));
     }
 
     function handleCancel() {
-        // TODO: pending
+        window.location.href = BASE_REACT_ROUTE + PORTAL_INVOICES_ROUTE;
     }
 
-    function handleSave() {
-        // TODO: pending
+    function validateAll() {
+        if (customerName === "") {
+            setCustomerNameError("Please enter a customer name");
+            return false;
+        } else if (
+            validateCustomerName(customerName, customerNameListAsString) ===
+            false
+        ) {
+            setCustomerNameError(
+                "Please select customer name from the list provided"
+            );
+            return false;
+        } else if (invoiceDate === "") {
+            setInvoiceDateError("Please enter an invoice date");
+            return false;
+        } else if (validateInvoiceDate(invoiceDate) === false) {
+            setInvoiceDateError("Please select a proper invoice date");
+            return false;
+        } else if (dueDate === "") {
+            setDueDateError("Please enter a due date");
+            return false;
+        } else if (validateDueDate(invoiceDate, dueDate) === false) {
+            setDueDateError("Please select a proper due date");
+            return false;
+        } else if (totalAmount <= 0.0) {
+            setTotalAmountError(
+                "Please select items to increase total amount above zero"
+            );
+            return false;
+        } else if (
+            validateEmptyCartItem(reduxState.currentCartItems) === false
+        ) {
+            setCartItemsError("Please fill item name for every item added");
+            return false;
+        } else if (
+            validateInvalidCartItem(reduxState.currentCartItems, items) ===
+            false
+        ) {
+            setCartItemsError("Please select item name from the list provided");
+            return false;
+        } else if (
+            validateCartItemQuantity(reduxState.currentCartItems) === false
+        ) {
+            setCartItemsError("Please fill quantity for every item added");
+            return false;
+        } else {
+            return true;
+        }
     }
 
-    function handleSaveAndClose() {
-        // TODO: pending
+    async function handleSave(e) {
+        e.preventDefault();
+        setCartItemsError(null);
+        if (validateAll() === true) {
+            const isSuccess = await addNewInvoice(
+                jwt,
+                invoiceDate,
+                dueDate,
+                getQBOCustomerId(customers, customerName),
+                totalAmount,
+                balance,
+                reduxState.currentCartItems
+            );
+            if (isSuccess) {
+                setSuccessModalType("Save");
+                setShowSuccessModal(true);
+            } else setShowErrorModal(true);
+        }
+    }
+
+    async function handleSaveAndClose(e) {
+        e.preventDefault();
+        setCartItemsError(null);
+        if (validateAll() === true) {
+            const isSuccess = await addNewInvoice(
+                jwt,
+                invoiceDate,
+                dueDate,
+                getQBOCustomerId(customers, customerName),
+                totalAmount,
+                balance,
+                reduxState.currentCartItems
+            );
+            if (isSuccess) {
+                setSuccessModalType("Save&Close");
+                setShowSuccessModal(true);
+                setTimeout(function () {
+                    window.location.href =
+                        BASE_REACT_ROUTE + PORTAL_INVOICES_ROUTE;
+                }, 2000);
+            } else setShowErrorModal(true);
+        }
+    }
+
+    function handleAddItem(e) {
+        e.preventDefault();
+        reduxState.currentCartItems.push({
+            id: null,
+            itemTableId: null,
+            quantity: null,
+            rate: null,
+            invoiceTableId: null,
+            createdAt: null,
+            updatedAt: null,
+            userId: null,
+            itemName: null,
+            itemDescription: null,
+            itemAmount: null,
+        });
+        setStateCartItems(reduxState.currentCartItems);
+        console.log(
+            `state cart items in handleAddItem() = ${JSON.stringify(
+                stateCartItems
+            )}`
+        );
+        dispatch(addCurrentCartItems(reduxState.currentCartItems));
     }
 
     function getCustomerNameList() {
@@ -163,15 +332,26 @@ function InvoiceDetail(props) {
                     <p className="inline font-bold ml-2 text-gray-800 text-3xl">
                         Invoice{" "}
                         {operation !== "Create"
-                            ? `#${invoice.invoiceNumber}`
+                            ? `#${stateInvoice.invoiceNumber}`
                             : null}
                     </p>
                 </div>
-                <Link to={PORTAL_INVOICES_ROUTE}>
+                {/* <Link to={PORTAL_INVOICES_ROUTE}>
                     <FontAwesomeIcon icon={faTimes} color="#696969" size="2x" />
-                </Link>
+                </Link> */}
+                <button onClick={handleCancel}>
+                    <FontAwesomeIcon icon={faTimes} color="#696969" size="2x" />
+                </button>
             </div>
 
+            {showSuccessModal ? (
+                <SuccessModal
+                    setShowSuccessModal={setShowSuccessModal}
+                    type={successModalType}
+                />
+            ) : showErrorModal ? (
+                <ErrorModal />
+            ) : null}
             {/* the margin below is used because the footer hides the data at the bottom */}
             <form className="mb-64">
                 {/* grid wrapper*/}
@@ -198,6 +378,9 @@ function InvoiceDetail(props) {
                                 <datalist id="customerNames">
                                     {getCustomerNameList()}
                                 </datalist>
+                                <p className="text-red-600">
+                                    {customerNameError}
+                                </p>
                             </div>
                         </div>
                         <div className="col-span-2">
@@ -212,10 +395,8 @@ function InvoiceDetail(props) {
                                 className="block rounded xs:w-full"
                                 placeholder="Enter customer email"
                                 value={customerEmail}
-                                onChange={(e) =>
-                                    handleChange(e, "customerEmail")
-                                }
-                                disabled={operation === "View" ? true : false}
+                                // disabled={operation === "View" ? true : false}
+                                disabled
                             />
                         </div>
                         {/* Empty col */}
@@ -233,7 +414,9 @@ function InvoiceDetail(props) {
                                 <span className="text-gray-500 font-bold">
                                     BALANCE DUE
                                 </span>
-                                <p className="font-bold text-4xl">${balance}</p>
+                                <p className="font-bold text-4xl">
+                                    ${balance.toFixed(2)}
+                                </p>
                             </div>
                         )}
                     </div>
@@ -257,7 +440,8 @@ function InvoiceDetail(props) {
                                 onChange={(e) =>
                                     handleChange(e, "billingAddress")
                                 }
-                                disabled={operation === "View" ? true : false}
+                                // disabled={operation === "View" ? true : false}
+                                disabled
                             ></textarea>
                         </div>
 
@@ -272,6 +456,7 @@ function InvoiceDetail(props) {
                                 onChange={(e) => handleChange(e, "invoiceDate")}
                                 disabled={operation === "View" ? true : false}
                             />
+                            <p className="text-red-600">{invoiceDateError}</p>
                         </div>
 
                         <div className="col-span-1">
@@ -285,12 +470,13 @@ function InvoiceDetail(props) {
                                 onChange={(e) => handleChange(e, "dueDate")}
                                 disabled={operation === "View" ? true : false}
                             />
+                            <p className="text-red-600">{dueDateError}</p>
                         </div>
 
                         {/* empty col */}
                         <div className="col-span-2"></div>
                     </div>
-
+                    <p className="text-red-600">{totalAmountError}</p>
                     {/* table starts */}
                     <div className="table w-full mt-5 p-4">
                         <table className="table-auto border-collapse w-full p-4">
@@ -317,8 +503,26 @@ function InvoiceDetail(props) {
                                     <th className="p-3 font-bold uppercase lg:table-cell"></th>
                                 </tr>
                             </thead>
-                            <tbody>{showItems(cartItems)}</tbody>
+                            <tbody>
+                                {showItems(
+                                    stateCartItems,
+                                    reduxState.currentCartItems
+                                )}
+                            </tbody>
                         </table>
+                        <p className="text-red-600">{cartItemsError}</p>
+                        {operation === "View" ? null : (
+                            <button
+                                title="Add an item"
+                                onClick={(e) => handleAddItem(e)}
+                            >
+                                <FontAwesomeIcon
+                                    icon={faPlusCircle}
+                                    color="#228B22"
+                                    size="2x"
+                                />
+                            </button>
+                        )}
                     </div>
                     {/* table ends */}
                     {/* amount description table starts */}
@@ -375,14 +579,14 @@ function InvoiceDetail(props) {
                         <button
                             type="button"
                             className="xs:hidden md:inline roundedPillBorderedBtn bg-transparent rounded-pill mr-2 hover:bg-white hover:text-black"
-                            onClick={handleSave}
+                            onClick={(e) => handleSave(e)}
                         >
                             Save
                         </button>
                         <button
                             type="button"
                             className="roundedPillBtn bg-green-700 rounded-pill hover:bg-green-500"
-                            onClick={handleSaveAndClose}
+                            onClick={(e) => handleSaveAndClose(e)}
                         >
                             Save and close
                         </button>
@@ -392,18 +596,67 @@ function InvoiceDetail(props) {
         </div>
     );
 
-    function showItems(cartItems) {
+    function showItems(stateCartItems, reduxCartItems) {
         let rows = [];
 
-        if (cartItems !== undefined) {
-            for (let i = 0; i < cartItems.length; i++) {
+        // type can be "View", "Edit" or "Create"
+        function updateStateCartItems(type, newCartItem, index) {
+            console.log("called updateStateCartItems on callback");
+            // stateCartItems[index] = newCartItem;
+            // setStateCartItems(stateCartItems);
+            // dispatch(addCurrentCartItems(stateCartItems));
+
+            // cartItems[index] = newCartItem;
+            // dispatch(addCurrentCartItems(cartItems));
+
+            reduxCartItems[index] = newCartItem;
+            updateAmount(reduxCartItems);
+            setStateCartItems(reduxCartItems);
+            dispatch(addCurrentCartItems(reduxCartItems));
+        }
+
+        function deleteStateCartItem(index) {
+            console.log("called deleteStateCartItem on callback");
+
+            let tempCartItems = [
+                ...stateCartItems.slice(0, index),
+                ...stateCartItems.slice(index + 1),
+            ];
+            setStateCartItems([
+                ...stateCartItems.slice(0, index),
+                ...stateCartItems.slice(index + 1),
+            ]);
+            updateAmount(tempCartItems);
+            dispatch(deleteCurrentCartItemByIndex(index));
+        }
+
+        // this function calculates and updates the amount and balance
+        function updateAmount(reduxCartItems) {
+            let total = 0.0;
+            reduxCartItems.forEach((reduxCartItem) => {
+                total += reduxCartItem.itemAmount;
+            });
+            setTotalAmountError(null);
+            setTotalAmount(total);
+            if (operation === "Create") setBalance(total);
+        }
+
+        if (stateCartItems !== undefined) {
+            console.log(
+                `state cart items in showItems() = ${JSON.stringify(
+                    stateCartItems
+                )}`
+            );
+            for (let i = 0; i < stateCartItems.length; i++) {
                 rows.push(
                     <CartItemInInvoiceTable
-                        cartItem={cartItems[i]}
+                        cartItem={stateCartItems[i]}
                         items={items}
-                        balance={balance}
+                        operation={operation}
                         index={i}
-                        key={cartItems[i].id}
+                        updateItemsCallback={updateStateCartItems}
+                        deleteItemCallback={deleteStateCartItem}
+                        key={stateCartItems[i].id}
                     />
                     // <tr
                     //     className="text-center hover:bg-gray-100"

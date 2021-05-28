@@ -1,15 +1,15 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import Sidebar from "../widgets/notus-react/SideBar.js";
-import Table from "../widgets/notus-react/Table.js";
+import InvoiceTable from "../widgets/notus-react/InvoiceTable.js";
 import { GET_ALL_INVOICES } from "./../../../Constants.js";
 import { useDispatch, useSelector } from "react-redux";
 import { addAllInvoices } from "./../../../redux/quickbooks/invoice/invoiceActions.js";
-import SessionExpiredModal from "../widgets/SessionExpiredModal.js";
+import ErrorModal from "../widgets/ErrorModal.js";
 
 function Invoices() {
-    const jwt = useSelector((state) => state.localAuth.jwt);
-    const invoices = useSelector((state) => state.invoice.invoices);
+    const jwt = useSelector((state) => state.localAuthReducer.jwt);
+    const invoices = useSelector((state) => state.invoiceReducer.invoices);
     const dispatch = useDispatch();
     const [isSessionExpired, setIsSessionExpired] = useState(false);
 
@@ -32,14 +32,17 @@ function Invoices() {
     return (
         <>
             {isSessionExpired ? (
-                <SessionExpiredModal />
+                <ErrorModal type="SESSION_EXPIRED" />
             ) : (
                 <>
                     <Sidebar />
                     <div className="relative md:ml-64 bg-blueGray-100">
                         <div className="flex flex-wrap mt-4">
                             <div className="w-full mb-12 px-4">
-                                <Table title="Invoices" invoices={invoices} />
+                                <InvoiceTable
+                                    title="Invoices"
+                                    invoices={invoices}
+                                />
                             </div>
                         </div>
                     </div>

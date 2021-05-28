@@ -100,7 +100,7 @@ class InvoiceController extends AbstractController
 
         $responseData = $invoiceService->createInvoiceForUser($user, $data);
         if ($responseData['status'] === "OK") {
-            return $this->json($responseData['data']);
+            return $this->json($responseData['data'], Response::HTTP_CREATED);
         }
         echo ("STATUS IS NOT OK");
         return $this->json($responseData, Response::HTTP_BAD_REQUEST);

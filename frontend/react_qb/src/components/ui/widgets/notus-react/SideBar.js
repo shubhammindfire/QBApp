@@ -6,6 +6,8 @@ import {
     PORTAL_CUSTOMERS_ROUTE,
     PORTAL_ITEMS_ROUTE,
     PORTAL_INVOICES_ROUTE,
+    BASE_REACT_ROUTE,
+    LOGIN_ROUTE,
 } from "./../../../../Constants.js";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -13,11 +15,15 @@ import {
     faExclamation,
     faIcons,
     faList,
+    faPowerOff,
     faTimes,
     faUser,
 } from "@fortawesome/free-solid-svg-icons";
+import { useDispatch } from "react-redux";
+import { setLocalAuthJwt } from "../../../../redux/localAuth/localAuthActions.js";
 
 export default function Sidebar() {
+    const dispatch = useDispatch();
     const [collapseShow, setCollapseShow] = React.useState("hidden");
     return (
         <>
@@ -140,40 +146,28 @@ export default function Sidebar() {
                             </li>
                         </ul>
 
-                        {/* TODO: think about removes the below tabs and providing a simple logout option */}
                         {/* Divider */}
                         <hr className="my-4 md:min-w-full" />
-                        {/* Heading */}
-                        <h6 className="md:min-w-full text-blueGray-500 text-xs uppercase font-bold block pt-1 pb-4 no-underline">
-                            Auth Layout Pages
-                        </h6>
-                        {/* Navigation */}
 
                         <ul className="md:flex-col md:min-w-full flex flex-col list-none md:mb-4">
                             <li className="items-center">
-                                <Link
+                                <button
                                     className="text-blueGray-700 hover:text-blueGray-500 text-xs uppercase py-3 font-bold block"
-                                    to="/auth/login"
+                                    onClick={(e) => {
+                                        e.preventDefault();
+                                        dispatch(setLocalAuthJwt(null));
+                                        localStorage.removeItem("session-jwt");
+                                        window.location.href =
+                                            BASE_REACT_ROUTE + LOGIN_ROUTE;
+                                    }}
                                 >
                                     <FontAwesomeIcon
-                                        icon={faExclamation}
+                                        icon={faPowerOff}
                                         className="mr-3"
+                                        color="#FF0000"
                                     />
-                                    Login
-                                </Link>
-                            </li>
-
-                            <li className="items-center">
-                                <Link
-                                    className="text-blueGray-700 hover:text-blueGray-500 text-xs uppercase py-3 font-bold block"
-                                    to="/auth/register"
-                                >
-                                    <FontAwesomeIcon
-                                        icon={faExclamation}
-                                        className="mr-3"
-                                    />
-                                    Register
-                                </Link>
+                                    Logout
+                                </button>
                             </li>
                         </ul>
                     </div>

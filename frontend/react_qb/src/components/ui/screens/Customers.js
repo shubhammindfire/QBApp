@@ -5,7 +5,7 @@ import { useDispatch, useSelector } from "react-redux";
 import axios from "axios";
 import { GET_ALL_CUSTOMERS } from "../../../Constants.js";
 import { addAllCustomers } from "./../../../redux/quickbooks/customer/customerActions.js";
-import SessionExpiredModal from "../widgets/SessionExpiredModal.js";
+import ErrorModal from "../widgets/ErrorModal.js";
 
 function Customers() {
     const jwt = useSelector((state) => state.localAuthReducer.jwt);
@@ -31,7 +31,7 @@ function Customers() {
     return (
         <>
             {isSessionExpired ? (
-                <SessionExpiredModal />
+                <ErrorModal type="SESSION_EXPIRED" />
             ) : (
                 <>
                     <Sidebar />
