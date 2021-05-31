@@ -7,7 +7,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import axios from "axios";
 import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { Link } from "react-router-dom";
+import { Link, useHistory } from "react-router-dom";
 import {
     PORTAL_INVOICES_ROUTE,
     GET_INVOICE_BY_ID,
@@ -38,6 +38,7 @@ import CartItemInInvoiceTable from "./../widgets/CartItemInInvoiceTable.js";
 
 function InvoiceDetail(props) {
     const dispatch = useDispatch();
+    const history = useHistory();
     // const reduxInvoice = useSelector(
     //     (state) => state.invoiceReducer.currentInvoice
     // );
@@ -270,8 +271,8 @@ function InvoiceDetail(props) {
                 setSuccessModalType("Save&Close");
                 setShowSuccessModal(true);
                 setTimeout(function () {
-                    window.location.href =
-                        BASE_REACT_ROUTE + PORTAL_INVOICES_ROUTE;
+                    // using history to move to PORTAL_INVOICES_ROUTE without page refresh
+                    history.push(PORTAL_INVOICES_ROUTE);
                 }, 2000);
             } else setShowErrorModal(true);
         }
@@ -575,13 +576,13 @@ function InvoiceDetail(props) {
                         >
                             Save
                         </button>
-                        <button
-                            type="button"
+                        <Link
+                            to={PORTAL_INVOICES_ROUTE}
                             className="roundedPillBtn bg-green-700 rounded-pill hover:bg-green-500"
                             onClick={(e) => handleSaveAndClose(e)}
                         >
-                            Save and close
-                        </button>
+                            Save and Close
+                        </Link>
                     </div>
                 </div>
             )}
