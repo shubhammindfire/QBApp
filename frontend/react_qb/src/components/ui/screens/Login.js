@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import axios from "axios";
-import { Link } from "react-router-dom";
+import { Link, Redirect } from "react-router-dom";
 import TextField from "../widgets/TextField";
 import { useSelector, useDispatch } from "react-redux";
 import { setLocalAuthJwt } from "./../../../redux/localAuth/localAuthActions.js";
@@ -8,7 +8,9 @@ import {
     LOGIN_URL,
     CONNECT_TO_QBO_URL,
     REGISTER_ROUTE,
+    PORTAL_ROUTE,
 } from "./../../../Constants.js";
+import checkSessionExpired from "./../../utils/checkSessionExpired.js";
 
 function Login(props) {
     const isSessionExpired =
@@ -92,66 +94,78 @@ function Login(props) {
     }
 
     return (
-        <div className="flex flex-col justify-center items-center">
-            {isSessionExpired ? (
-                <p className="text-red-600">Session Expired Login again</p>
-            ) : null}
-            <p className="mt-4 text-4xl">Login</p>
-            <div className="rounded w-96 m-4 bg-gray-50 shadow-lg p-6 align-middle">
-                <form onSubmit={handleLogin}>
-                    <TextField
-                        label="Username"
-                        placeholder="Enter username"
-                        type="text"
-                        onChange={handleUsernameChange}
-                    />
-                    <TextField
-                        label="Password"
-                        placeholder="Enter password"
-                        type="password"
-                        onChange={handlePasswordChange}
-                    />
-                    {loginError !== null ? (
-                        <p className="text-red-600">{loginError}</p>
-                    ) : null}
-                    <button
-                        type="submit"
-                        className={
-                            jwt === null || jwt === ""
-                                ? "submitBtn bg-blue-600"
-                                : "submitBtn bg-blue-200"
-                        }
-                        disabled={jwt !== null && jwt !== ""}
-                    >
-                        Login
-                    </button>
-
-                    {jwt !== null ? (
-                        <p className="text-green-600">
-                            Login successfull, now connect to Quickbooks
+        <>
+            {jwt !== null && checkSessionExpired() === false ? (
+                // if the user is logged in and session is not expired then redirect to portal
+                <Redirect to={PORTAL_ROUTE} />
+            ) : (
+                <div className="flex flex-col justify-center items-center">
+                    {isSessionExpired ? (
+                        <p className="text-red-600">
+                            Session Expired Login again
                         </p>
                     ) : null}
-                    <button
-                        type="button"
-                        onClick={handleQBOConnect}
-                        className={
-                            jwt === null || jwt === ""
-                                ? "submitBtn bg-blue-200"
-                                : "submitBtn bg-blue-600"
-                        }
-                        disabled={jwt === null || jwt === ""}
-                    >
-                        Connect to QuickBooks
-                    </button>
-                </form>
-            </div>
-            <div>
-                Not a registered user?
-                <Link to={REGISTER_ROUTE}>
-                    <p className="inline text-blue-600"> Register Instead</p>
-                </Link>
-            </div>
-        </div>
+                    <p className="mt-4 text-4xl">Login</p>
+                    <div className="rounded w-96 m-4 bg-gray-50 shadow-lg p-6 align-middle">
+                        <form onSubmit={handleLogin}>
+                            <TextField
+                                label="Username"
+                                placeholder="Enter username"
+                                type="text"
+                                onChange={handleUsernameChange}
+                            />
+                            <TextField
+                                label="Password"
+                                placeholder="Enter password"
+                                type="password"
+                                onChange={handlePasswordChange}
+                            />
+                            {loginError !== null ? (
+                                <p className="text-red-600">{loginError}</p>
+                            ) : null}
+                            <button
+                                type="submit"
+                                className={
+                                    jwt === null || jwt === ""
+                                        ? "submitBtn bg-blue-600"
+                                        : "submitBtn bg-blue-200"
+                                }
+                                disabled={jwt !== null && jwt !== ""}
+                            >
+                                Login
+                            </button>
+
+                            {jwt !== null ? (
+                                <p className="text-green-600">
+                                    Login successfull, now connect to Quickbooks
+                                </p>
+                            ) : null}
+                            <button
+                                type="button"
+                                onClick={handleQBOConnect}
+                                className={
+                                    jwt === null || jwt === ""
+                                        ? "submitBtn bg-blue-200"
+                                        : "submitBtn bg-blue-600"
+                                }
+                                disabled={jwt === null || jwt === ""}
+                            >
+                                Connect to QuickBooks
+                            </button>
+                        </form>
+                    </div>
+                    <div>
+                        Not a registered user?
+                        <Link to={REGISTER_ROUTE}>
+                            <p className="inline text-blue-600">
+                                {" "}
+                                Register Instead
+                            </p>
+                        </Link>
+                    </div>
+                </div>
+            )}
+        </>
     );
 }
 

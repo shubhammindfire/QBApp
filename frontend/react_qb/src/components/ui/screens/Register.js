@@ -1,10 +1,17 @@
 import React, { useState } from "react";
 import axios from "axios";
-import { Link, useHistory } from "react-router-dom";
+import { Link, Redirect, useHistory } from "react-router-dom";
 import TextField from "../widgets/TextField";
-import { REGISTER_URL, LOGIN_ROUTE } from "./../../../Constants.js";
+import {
+    REGISTER_URL,
+    LOGIN_ROUTE,
+    PORTAL_ROUTE,
+} from "./../../../Constants.js";
+import { useSelector } from "react-redux";
+import checkSessionExpired from "../../utils/checkSessionExpired";
 
 function Register() {
+    const jwt = useSelector((state) => state.localAuthReducer.jwt);
     const history = useHistory();
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
@@ -42,7 +49,6 @@ function Register() {
             .then((response) => {
                 console.log(response);
                 if (response.status === 201) {
-                    // console.log("user created successfully");
                     setSuccessMessage("User registered successfully");
                     // delay and then route to /login after successfull register
                     setTimeout(() => {
@@ -77,55 +83,68 @@ function Register() {
     }
 
     return (
-        <div className="flex flex-col justify-center items-center">
-            <p className="mt-4 text-4xl">Register</p>
-            <div className="rounded w-96 m-4 bg-gray-50 shadow-lg p-6 align-middle">
-                <form onSubmit={handleRegister}>
-                    <TextField
-                        label="Username"
-                        placeholder="Enter username"
-                        type="text"
-                        onChange={handleUsernameChange}
-                    />
-                    {usernameError !== null ? (
-                        <p className="text-red-600">{usernameError}</p>
-                    ) : null}
-                    <TextField
-                        label="Password"
-                        placeholder="Enter password"
-                        type="password"
-                        onChange={handlePasswordChange}
-                    />
-                    {passwordError !== null ? (
-                        <p className="text-red-600">{passwordError}</p>
-                    ) : null}
-                    <TextField
-                        label="RealmId"
-                        placeholder="Enter RealmId"
-                        type="text"
-                        onChange={handleRealmIdChange}
-                    />
-                    {realmIdError !== null ? (
-                        <p className="text-red-600">{realmIdError}</p>
-                    ) : null}
-                    <button type="submit" className="submitBtn bg-blue-600">
-                        Register
-                    </button>
-                    {successMessage !== null ? (
-                        <p className="text-green-600 text-center my-2">
-                            {successMessage}
-                        </p>
-                    ) : null}
-                </form>
-            </div>
+        <>
+            {jwt !== null && checkSessionExpired() === false ? (
+                // if the user is logged in and session is not expired then redirect to portal
+                <Redirect to={PORTAL_ROUTE} />
+            ) : (
+                <div className="flex flex-col justify-center items-center">
+                    <p className="mt-4 text-4xl">Register</p>
+                    <div className="rounded w-96 m-4 bg-gray-50 shadow-lg p-6 align-middle">
+                        <form onSubmit={handleRegister}>
+                            <TextField
+                                label="Username"
+                                placeholder="Enter username"
+                                type="text"
+                                onChange={handleUsernameChange}
+                            />
+                            {usernameError !== null ? (
+                                <p className="text-red-600">{usernameError}</p>
+                            ) : null}
+                            <TextField
+                                label="Password"
+                                placeholder="Enter password"
+                                type="password"
+                                onChange={handlePasswordChange}
+                            />
+                            {passwordError !== null ? (
+                                <p className="text-red-600">{passwordError}</p>
+                            ) : null}
+                            <TextField
+                                label="RealmId"
+                                placeholder="Enter RealmId"
+                                type="text"
+                                onChange={handleRealmIdChange}
+                            />
+                            {realmIdError !== null ? (
+                                <p className="text-red-600">{realmIdError}</p>
+                            ) : null}
+                            <button
+                                type="submit"
+                                className="submitBtn bg-blue-600"
+                            >
+                                Register
+                            </button>
+                            {successMessage !== null ? (
+                                <p className="text-green-600 text-center my-2">
+                                    {successMessage}
+                                </p>
+                            ) : null}
+                        </form>
+                    </div>
 
-            <div>
-                Already registered?
-                <Link to={LOGIN_ROUTE}>
-                    <p className="inline text-blue-600"> Login Instead</p>
-                </Link>
-            </div>
-        </div>
+                    <div>
+                        Already registered?
+                        <Link to={LOGIN_ROUTE}>
+                            <p className="inline text-blue-600">
+                                {" "}
+                                Login Instead
+                            </p>
+                        </Link>
+                    </div>
+                </div>
+            )}
+        </>
     );
 }
 
