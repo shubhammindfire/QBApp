@@ -234,26 +234,6 @@ function InvoiceDetail(props) {
         }
     }
 
-    async function handleSave(e) {
-        e.preventDefault();
-        setCartItemsError(null);
-        if (validateAll() === true) {
-            const isSuccess = await addNewInvoice(
-                jwt,
-                invoiceDate,
-                dueDate,
-                getQBOCustomerId(customers, customerName),
-                totalAmount,
-                balance,
-                reduxState.currentCartItems
-            );
-            if (isSuccess) {
-                setSuccessModalType("Save");
-                setShowSuccessModal(true);
-            } else setShowErrorModal(true);
-        }
-    }
-
     async function handleSaveAndClose(e) {
         e.preventDefault();
         setCartItemsError(null);
@@ -569,13 +549,6 @@ function InvoiceDetail(props) {
                     </div>
 
                     <div id="footer-right" className="flex flex-row mb-2">
-                        <button
-                            type="button"
-                            className="xs:hidden md:inline roundedPillBorderedBtn bg-transparent rounded-pill mr-2 hover:bg-white hover:text-black"
-                            onClick={(e) => handleSave(e)}
-                        >
-                            Save
-                        </button>
                         <Link
                             to={PORTAL_INVOICES_ROUTE}
                             className="roundedPillBtn bg-green-700 rounded-pill hover:bg-green-500"
