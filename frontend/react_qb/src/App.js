@@ -22,6 +22,7 @@ import Customers from "./components/ui/screens/Customers.js";
 import Invoices from "./components/ui/screens/Invoices.js";
 import Items from "./components/ui/screens/Items.js";
 import InvoiceDetail from "./components/ui/screens/InvoiceDetail.js";
+import NoPageFound from "./components/ui/screens/NoPageFound.js";
 
 function App() {
     const dispatch = useDispatch();
@@ -87,6 +88,7 @@ function App() {
                         exact
                         component={InvoiceDetail}
                     />
+                    <Route component={NoPageFound} />
                 </Switch>
             </div>
         </Router>
