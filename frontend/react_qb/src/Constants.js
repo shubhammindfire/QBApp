@@ -3,6 +3,9 @@ export const BASE_SERVER_URL = "http://localhost:8000";
 export const REGISTER_URL = BASE_SERVER_URL + "/api/users";
 export const LOGIN_URL = BASE_SERVER_URL + "/api/login";
 export const CONNECT_TO_QBO_URL = BASE_SERVER_URL + "/qb/connect";
+export const FETCH_DATA_FROM_QBO_URL =
+    BASE_SERVER_URL + "/qb/fetch_data_from_qbo"; // actual endpoint - /qb/fetch_data_from_qbo/{userId}
+export const GET_CURRENT_USER = BASE_SERVER_URL + "/api/user";
 export const GET_ALL_INVOICES = BASE_SERVER_URL + "/api/invoices";
 export const GET_INVOICE_BY_ID = BASE_SERVER_URL + "/api/invoices"; // actual endpoint - /api/invoices/{id}
 export const DELETE_INVOICE_BY_ID = BASE_SERVER_URL + "/api/invoices"; // actual endpoint - /api/invoices/{id}

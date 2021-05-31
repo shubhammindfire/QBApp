@@ -14,6 +14,7 @@ use DateTime;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ManagerRegistry;
+use Exception;
 use Psr\Log\LoggerInterface;
 use QuickBooksOnline\API\Data\IPPInvoice;
 use QuickBooksOnline\API\Data\IPPLine;
@@ -54,11 +55,34 @@ class QuickBooksService extends BaseService
      * @var User $user
      * @var UserAccessTokenService $userAccessTokenService
      */
-    public function fetchAllDataFromQBO(User $user, UserAccessTokenService $userAccessTokenService)
+    public function fetchAllDataFromQBO(User $user, UserAccessTokenService $userAccessTokenService): bool
     {
-        $this->fetchCustomersFromQBO($user, $userAccessTokenService);
-        $this->fetchItemsFromQBO($user, $userAccessTokenService);
-        $this->fetchInvoicesfromQBO($user, $userAccessTokenService);
+        try {
+            $this->removeExistingData($user);
+            $this->fetchCustomersFromQBO($user, $userAccessTokenService);
+            $this->fetchItemsFromQBO($user, $userAccessTokenService);
+            $this->fetchInvoicesfromQBO($user, $userAccessTokenService);
+            return true;
+        } catch (Exception $ex) {
+            return false;
+        }
+    }
+
+    /**
+     * @var User $user
+     */
+    public function removeExistingData(User $user)
+    {
+        $userId = $user->getRealmId();
+        $conn = $this->entityManager->getConnection();
+
+        $sql = "
+        DELETE FROM cartItem WHERE userId=$userId;
+        DELETE FROM invoice WHERE userId=$userId;
+        DELETE FROM customer WHERE userId=$userId;
+        DELETE FROM item WHERE userId=$userId;
+            ";
+        $conn->executeQuery($sql);
     }
 
     /**

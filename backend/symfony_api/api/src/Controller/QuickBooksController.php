@@ -11,6 +11,7 @@ use App\Entity\User;
 use App\Service\QuickBooksService;
 use App\Service\UserAccessTokenService;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @Route("/qb")
@@ -54,7 +55,7 @@ class QuickBooksController extends AbstractController
     /**
      * @Route("/callback")
      */
-    public function proccessCode(QuickBooksService $quickBooksService, UserAccessTokenService $userAccessTokenService)
+    public function proccessCode()
     {
         $dataService = DataService::Configure(array(
             'auth_mode' => 'oauth2',
@@ -84,13 +85,6 @@ class QuickBooksController extends AbstractController
          */
         $user = $repository->findOneBy(["realmId" => $parseUrl['realmId']]);
         $em = $this->getDoctrine()->getManager();
-        $isNewUser = false;
-
-        if ($user->getAccessToken() == null || $user->getRefreshTokenExpiresAt() == null) {
-            // check if user is new or not
-            // if new then we set the token and fetch all data in if-condition below
-            $isNewUser = true;
-        }
 
         $user->setAccessToken($accessToken->getAccessToken());
         $user->setRefreshToken($accessToken->getRefreshToken());
@@ -112,12 +106,6 @@ class QuickBooksController extends AbstractController
         $em->persist($user);
         $em->flush();
 
-        if ($isNewUser === true) {
-            // if tokens are null, we need to fetch all data to database this first time
-            $quickBooksService->fetchAllDataFromQBO($user, $userAccessTokenService);
-        }
-
-
         return $this->redirect("http://localhost:3000");
     }
 
@@ -129,5 +117,25 @@ class QuickBooksController extends AbstractController
             'code' => $qsArray['code'],
             'realmId' => $qsArray['realmId']
         );
+    }
+
+    /**
+     * @Route("/fetch_data_from_qbo/{userId}")
+     */
+    public function fetchDataFromQBO(String $userId, QuickBooksService $quickBooksService, UserAccessTokenService $userAccessTokenService)
+    {
+        $userRepository = $this->getDoctrine()->getRepository(User::class);
+        /**
+         * @var User $user
+         */
+        $user = $userRepository->findOneBy(["realmId" => $userId]);
+
+        $response = $quickBooksService->fetchAllDataFromQBO($user, $userAccessTokenService);
+
+        if ($response === true) {
+            return $this->json(null, Response::HTTP_NO_CONTENT);
+        } else {
+            return $this->json(null, Response::HTTP_BAD_REQUEST);
+        }
     }
 }

@@ -4,7 +4,7 @@ import React from "react";
 import { BASE_REACT_ROUTE, PORTAL_INVOICES_ROUTE } from "../../../Constants";
 
 function SuccessModal(props) {
-    const { setShowSuccessModal, type } = props;
+    const { setShowSuccessModal, type, message } = props;
 
     return (
         <div className="w-96 h-40 fixed top-1/3 left-1/3 bg-white border border-black rounded-lg">
@@ -16,14 +16,13 @@ function SuccessModal(props) {
                         color="#228B22"
                         className="mr-2"
                     />
-                    Invoice Created Successfully
+                    {message}
                 </div>
                 <button
                     className="submitBtn text-center bg-blue-600"
                     onClick={(e) => {
                         e.preventDefault();
-                        if (type === "Save") setShowSuccessModal(false);
-                        else if (type === "Save&Close") {
+                        if (type === "SaveAndClose" || type === "Close") {
                             setShowSuccessModal(false);
                         }
                     }}

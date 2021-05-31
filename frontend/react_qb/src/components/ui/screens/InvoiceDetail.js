@@ -90,7 +90,6 @@ function InvoiceDetail(props) {
     const [cartItemsError, setCartItemsError] = useState(null);
 
     const [showSuccessModal, setShowSuccessModal] = useState(false);
-    const [successModalType, setSuccessModalType] = useState("Save");
     const [showErrorModal, setShowErrorModal] = useState(false);
 
     let customerNameListAsString = [];
@@ -248,7 +247,6 @@ function InvoiceDetail(props) {
                 reduxState.currentCartItems
             );
             if (isSuccess) {
-                setSuccessModalType("Save&Close");
                 setShowSuccessModal(true);
                 setTimeout(function () {
                     // using history to move to PORTAL_INVOICES_ROUTE without page refresh
@@ -297,7 +295,7 @@ function InvoiceDetail(props) {
     }
 
     return (
-        <div>
+        <div className="bg-blueGray-100">
             {/* top heading */}
             <div className="flex justify-between p-3">
                 <div>
@@ -321,7 +319,8 @@ function InvoiceDetail(props) {
             {showSuccessModal ? (
                 <SuccessModal
                     setShowSuccessModal={setShowSuccessModal}
-                    type={successModalType}
+                    type="SaveAndClose"
+                    message="Invoice created Successfully"
                 />
             ) : showErrorModal ? (
                 <ErrorModal />

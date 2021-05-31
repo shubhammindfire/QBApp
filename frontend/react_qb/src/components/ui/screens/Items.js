@@ -2,13 +2,14 @@ import React, { useEffect, useState } from "react";
 import Sidebar from "../widgets/notus-react/SideBar.js";
 import { useDispatch, useSelector } from "react-redux";
 import axios from "axios";
-import { GET_ALL_ITEMS } from "../../../Constants.js";
+import { GET_ALL_ITEMS, PORTAL_ROUTE } from "../../../Constants.js";
 import {
     addAllItems,
     removeAllItems,
 } from "./../../../redux/quickbooks/item/itemActions.js";
 import CustomerAndItemTable from "../widgets/notus-react/CustomerAndItemTable.js";
 import ErrorModal from "../widgets/ErrorModal.js";
+import { Link } from "react-router-dom";
 
 function Items() {
     const jwt = useSelector((state) => state.localAuthReducer.jwt);
@@ -42,15 +43,24 @@ function Items() {
             ) : (
                 <>
                     <Sidebar />
-                    <div className="relative md:ml-64 bg-blueGray-100">
-                        <div className="flex flex-wrap mt-4">
-                            <div className="w-full mb-12 px-4">
-                                <CustomerAndItemTable
-                                    title="Items"
-                                    data={items}
-                                />
+                    <div className="relative md:ml-64 bg-blueGray-100 py-10">
+                        {items === null || items === "" ? (
+                            <div className="text-center">
+                                <p className="mb-4 text-lg">
+                                    No item data available. Please ensure to
+                                    click on "Fetch data from QuickBooks" button
+                                    in the portal home page.
+                                </p>
+                                <Link
+                                    to={PORTAL_ROUTE}
+                                    className="rounded-full bg-green-600 text-white px-4 py-2"
+                                >
+                                    Go to Portal Home page
+                                </Link>
                             </div>
-                        </div>
+                        ) : (
+                            <CustomerAndItemTable title="Items" data={items} />
+                        )}
                     </div>
                 </>
             )}
