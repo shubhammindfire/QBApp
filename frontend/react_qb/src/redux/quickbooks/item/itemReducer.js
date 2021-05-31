@@ -1,4 +1,4 @@
-import { ADD_ALL_ITEMS } from "./itemTypes.js";
+import { ADD_ALL_ITEMS, REMOVE_ALL_ITEMS } from "./itemTypes.js";
 
 const initialState = {
     items: [],
@@ -10,6 +10,11 @@ const itemReducer = (state = initialState, action) => {
             return {
                 ...state,
                 items: action.payload,
+            };
+        case REMOVE_ALL_ITEMS:
+            return {
+                ...state,
+                items: [],
             };
         default:
             return state;

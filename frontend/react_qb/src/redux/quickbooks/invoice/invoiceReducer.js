@@ -1,5 +1,6 @@
 import {
     ADD_ALL_INVOICES,
+    REMOVE_ALL_INVOICES,
     ADD_CURRENT_CART_ITEMS,
     ADD_CURRENT_INVOICE,
     REMOVE_CURRENT_INVOICE,
@@ -19,6 +20,11 @@ const invoiceReducer = (state = initialState, action) => {
             return {
                 ...state,
                 invoices: action.payload,
+            };
+        case REMOVE_ALL_INVOICES:
+            return {
+                ...state,
+                invoices: [],
             };
         case ADD_CURRENT_INVOICE:
             return {

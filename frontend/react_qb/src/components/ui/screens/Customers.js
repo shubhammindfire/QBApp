@@ -4,7 +4,10 @@ import CustomerAndItemTable from "../widgets/notus-react/CustomerAndItemTable.js
 import { useDispatch, useSelector } from "react-redux";
 import axios from "axios";
 import { GET_ALL_CUSTOMERS } from "../../../Constants.js";
-import { addAllCustomers } from "./../../../redux/quickbooks/customer/customerActions.js";
+import {
+    addAllCustomers,
+    removeAllCustomers,
+} from "./../../../redux/quickbooks/customer/customerActions.js";
 import ErrorModal from "../widgets/ErrorModal.js";
 
 function Customers() {
@@ -22,10 +25,14 @@ function Customers() {
                 dispatch(addAllCustomers(response.data));
             })
             .catch((error) => {
-                if (error.response.data.code === 401) {
+                if (error.response.code === 401) {
                     setIsSessionExpired(true);
                 }
             });
+        // clear the redux state on component did unmount
+        return () => {
+            dispatch(removeAllCustomers());
+        };
     }, [jwt, dispatch]);
 
     return (

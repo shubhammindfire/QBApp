@@ -183,10 +183,6 @@ function InvoiceDetail(props) {
         dispatch(addCurrentInvoice(currentInvoice));
     }
 
-    function handleCancel() {
-        window.location.href = BASE_REACT_ROUTE + PORTAL_INVOICES_ROUTE;
-    }
-
     function validateAll() {
         if (customerName === "") {
             setCustomerNameError("Please enter a customer name");
@@ -336,12 +332,9 @@ function InvoiceDetail(props) {
                             : null}
                     </p>
                 </div>
-                {/* <Link to={PORTAL_INVOICES_ROUTE}>
+                <Link to={PORTAL_INVOICES_ROUTE}>
                     <FontAwesomeIcon icon={faTimes} color="#696969" size="2x" />
-                </Link> */}
-                <button onClick={handleCancel}>
-                    <FontAwesomeIcon icon={faTimes} color="#696969" size="2x" />
-                </button>
+                </Link>
             </div>
 
             {showSuccessModal ? (
@@ -566,13 +559,12 @@ function InvoiceDetail(props) {
             ) : (
                 <div className="bg-gray-800 text-white fixed left-0 bottom-0 justify-between px-2  h-16 w-full flex flex-row">
                     <div id="footer-left" className="flex flex-row mb-2">
-                        <button
-                            type="button"
+                        <Link
+                            to={PORTAL_INVOICES_ROUTE}
                             className="roundedPillBorderedBtn bg-transparent rounded-pill mr-2 hover:bg-white hover:text-black"
-                            onClick={handleCancel}
                         >
                             Cancel
-                        </button>
+                        </Link>
                     </div>
 
                     <div id="footer-right" className="flex flex-row mb-2">

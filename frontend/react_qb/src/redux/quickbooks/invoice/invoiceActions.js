@@ -1,5 +1,6 @@
 import {
     ADD_ALL_INVOICES,
+    REMOVE_ALL_INVOICES,
     ADD_CURRENT_INVOICE,
     ADD_CURRENT_CART_ITEMS,
     DELETE_CURRENT_CART_ITEM_BY_INDEX,
@@ -11,6 +12,12 @@ export const addAllInvoices = (invoices = []) => {
     return {
         type: ADD_ALL_INVOICES,
         payload: invoices,
+    };
+};
+
+export const removeAllInvoices = () => {
+    return {
+        type: REMOVE_ALL_INVOICES,
     };
 };
 

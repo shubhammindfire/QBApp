@@ -3,7 +3,10 @@ import Sidebar from "../widgets/notus-react/SideBar.js";
 import { useDispatch, useSelector } from "react-redux";
 import axios from "axios";
 import { GET_ALL_ITEMS } from "../../../Constants.js";
-import { addAllItems } from "./../../../redux/quickbooks/item/itemActions.js";
+import {
+    addAllItems,
+    removeAllItems,
+} from "./../../../redux/quickbooks/item/itemActions.js";
 import CustomerAndItemTable from "../widgets/notus-react/CustomerAndItemTable.js";
 import ErrorModal from "../widgets/ErrorModal.js";
 
@@ -26,6 +29,10 @@ function Items() {
                     setIsSessionExpired(true);
                 }
             });
+        // clear the redux state on component did unmount
+        return () => {
+            dispatch(removeAllItems());
+        };
     }, [jwt, dispatch]);
 
     return (
