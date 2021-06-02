@@ -14,3 +14,7 @@
 .roundedPillBorderedBtn {
     @apply block p-2 mt-4 text-white px-4 border border-white rounded-full;
 }
+
+.roundedPillDarkBorderedBtn {
+    @apply p-2 border border-black rounded-full;
+}

@@ -10,6 +10,7 @@ export const GET_ALL_INVOICES = BASE_SERVER_URL + "/api/invoices";
 export const GET_INVOICE_BY_ID = BASE_SERVER_URL + "/api/invoices"; // actual endpoint - /api/invoices/{id}
 export const DELETE_INVOICE_BY_ID = BASE_SERVER_URL + "/api/invoices"; // actual endpoint - /api/invoices/{id}
 export const POST_INVOICE = BASE_SERVER_URL + "/api/invoices";
+export const PATCH_INVOICE = BASE_SERVER_URL + "/api/invoices"; // actual endpoint - /api/invoices/{id}
 export const GET_ALL_ITEMS = BASE_SERVER_URL + "/api/items";
 export const GET_ITEM_BY_ID = BASE_SERVER_URL + "/api/items"; // actual endpoint - /api/items/{id}
 export const GET_ALL_CUSTOMERS = BASE_SERVER_URL + "/api/customers";

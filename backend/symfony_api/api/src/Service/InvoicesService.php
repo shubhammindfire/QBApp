@@ -247,6 +247,7 @@ class InvoicesService extends BaseService
                     "value" => $newCustomerId,
                     "name" => $newCustomerName
                 ],
+                // "Deposit" => $newAmount - $newBalance,
                 "BillAddr" => [
                     "City" => $newBillingAddress['City'],
                     "Line1" => $newBillingAddress['Line1'],

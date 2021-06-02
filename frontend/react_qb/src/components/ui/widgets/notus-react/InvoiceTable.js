@@ -29,7 +29,7 @@ function InvoiceTable(props) {
     return (
         <>
             {showErrorModal ? (
-                <ErrorModal type="INVOICE_DELETE_ERROR" />
+                <ErrorModal setShowErrorModal={setShowErrorModal} type="INVOICE_DELETE_ERROR" message="Error in deleting the invoice"/>
             ) : (
                 <div
                     className={

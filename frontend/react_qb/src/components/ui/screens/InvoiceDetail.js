@@ -37,6 +37,7 @@ import ErrorModal from "../widgets/ErrorModal.js";
 import SuccessModal from "../widgets/SuccessModal.js";
 import LoadingModal from "../widgets/LoadingModal.js";
 import InvoiceItemInInvoiceTable from "../widgets/InvoiceItemInInvoiceTable.js";
+import editInvoice from "../../utils/editInvoice.js";
 
 function InvoiceDetail(props) {
     const dispatch = useDispatch();
@@ -74,6 +75,7 @@ function InvoiceDetail(props) {
     const [dueDate, setDueDate] = useState("");
     const [invoiceDate, setInvoiceDate] = useState("");
     const [totalAmount, setTotalAmount] = useState(0.0);
+    const [amountReceived, setAmountReceived] = useState(0.0);
 
     const [customerNameError, setCustomerNameError] = useState(null);
     const [invoiceDateError, setInvoiceDateError] = useState(null);
@@ -97,7 +99,7 @@ function InvoiceDetail(props) {
                 })
                 .then((response) => {
                     dispatch(addCurrentInvoice(response.data.invoice));
-                    setStateInvoice(response.data.invoiceItems);
+                    setStateInvoice(response.data.invoice);
                     dispatch(
                         addCurrentInvoiceItems(response.data.invoiceItems)
                     );
@@ -192,7 +194,10 @@ function InvoiceDetail(props) {
         } else if (invoiceDate === "") {
             setInvoiceDateError("Please enter an invoice date");
             return false;
-        } else if (validateInvoiceDate(invoiceDate) === false) {
+        } else if (
+            operation === "Create" &&
+            validateInvoiceDate(invoiceDate) === false
+        ) {
             setInvoiceDateError("Please select a proper invoice date");
             return false;
         } else if (dueDate === "") {
@@ -232,20 +237,41 @@ function InvoiceDetail(props) {
         }
     }
 
+    console.log("STATE INVOICES RESPONSE: " + JSON.stringify(stateInvoice));
+    console.log("STATE INVOICES ID RESPONSE: " + stateInvoice.id);
+    console.log(
+        "INVOICES ITEMS RESPONSE: " +
+            JSON.stringify(reduxState.currentInvoiceItems)
+    );
     async function handleSaveAndClose(e) {
         e.preventDefault();
         setInvoiceItemsError(null);
         if (validateAll() === true) {
+            let isSuccess = false;
             setShowLoadingModal(true);
-            const isSuccess = await addNewInvoice(
-                jwt,
-                invoiceDate,
-                dueDate,
-                getQBOCustomerId(customers, customerName),
-                totalAmount,
-                balance,
-                reduxState.currentInvoiceItems
-            );
+            if (operation === "Create") {
+                isSuccess = await addNewInvoice(
+                    jwt,
+                    invoiceDate,
+                    dueDate,
+                    getQBOCustomerId(customers, customerName),
+                    totalAmount,
+                    balance,
+                    reduxState.currentInvoiceItems
+                );
+            } else if (operation === "Edit") {
+                isSuccess = await editInvoice(
+                    jwt,
+                    stateInvoice.id,
+                    invoiceDate,
+                    dueDate,
+                    getQBOCustomerId(customers, customerName),
+                    totalAmount,
+                    balance,
+                    reduxState.currentInvoiceItems
+                );
+            }
+
             if (isSuccess) {
                 setShowLoadingModal(false);
                 setShowSuccessModal(true);
@@ -337,7 +363,11 @@ function InvoiceDetail(props) {
                             message="Invoice created Successfully"
                         />
                     ) : showErrorModal ? (
-                        <ErrorModal setShowErrorModal={setShowErrorModal} />
+                        <ErrorModal
+                            setShowErrorModal={setShowErrorModal}
+                            type="CREATE_OR_EDIT_INVOICE_ERROR"
+                            message="An error occured, please check the data filled. This might be due to invalid invoice date or due date OR invoice date and due date may be given before the start date of one or all of the items listed."
+                        />
                     ) : null}
                     {/* the margin below is used because the footer hides the data at the bottom */}
                     <form className="mb-64">
@@ -411,6 +441,20 @@ function InvoiceDetail(props) {
                                         <p className="font-bold text-4xl">
                                             ${balance.toFixed(2)}
                                         </p>
+                                        {operation === "Edit" ? (
+                                            <button
+                                                onClick={(e) => {
+                                                    e.preventDefault();
+                                                    setAmountReceived(
+                                                        totalAmount
+                                                    );
+                                                    setBalance(0);
+                                                }}
+                                                className="roundedPillDarkBorderedBtn mt-2 text-sm bg-transparent right-0 hover:bg-white"
+                                            >
+                                                Receive total payment
+                                            </button>
+                                        ) : null}
                                     </div>
                                 )}
                             </div>
@@ -552,7 +596,7 @@ function InvoiceDetail(props) {
                                             $
                                             {operation === "View"
                                                 ? totalAmount.toFixed(2)
-                                                : 0.0}
+                                                : amountReceived.toFixed(2)}
                                         </td>
                                     </tr>
                                     <tr>
@@ -645,6 +689,7 @@ function InvoiceDetail(props) {
             });
             setTotalAmountError(null);
             setTotalAmount(total);
+            setBalance(total);
             if (operation === "Create") setBalance(total);
         }
 
