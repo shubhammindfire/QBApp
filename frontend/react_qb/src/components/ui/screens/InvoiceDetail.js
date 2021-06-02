@@ -35,6 +35,7 @@ import {
 } from "../../utils/validateData.js";
 import ErrorModal from "../widgets/ErrorModal.js";
 import SuccessModal from "../widgets/SuccessModal.js";
+import LoadingModal from "../widgets/LoadingModal.js";
 import InvoiceItemInInvoiceTable from "../widgets/InvoiceItemInInvoiceTable.js";
 
 function InvoiceDetail(props) {
@@ -80,6 +81,7 @@ function InvoiceDetail(props) {
     const [totalAmountError, setTotalAmountError] = useState(null);
     const [invoiceItemsError, setInvoiceItemsError] = useState(null);
 
+    const [showLoadingModal, setShowLoadingModal] = useState(false);
     const [showSuccessModal, setShowSuccessModal] = useState(false);
     const [showErrorModal, setShowErrorModal] = useState(false);
 
@@ -234,6 +236,7 @@ function InvoiceDetail(props) {
         e.preventDefault();
         setInvoiceItemsError(null);
         if (validateAll() === true) {
+            setShowLoadingModal(true);
             const isSuccess = await addNewInvoice(
                 jwt,
                 invoiceDate,
@@ -244,12 +247,16 @@ function InvoiceDetail(props) {
                 reduxState.currentInvoiceItems
             );
             if (isSuccess) {
+                setShowLoadingModal(false);
                 setShowSuccessModal(true);
                 setTimeout(function () {
                     // using history to move to PORTAL_INVOICES_ROUTE without page refresh
                     history.push(PORTAL_INVOICES_ROUTE);
                 }, 2000);
-            } else setShowErrorModal(true);
+            } else {
+                setShowLoadingModal(false);
+                setShowErrorModal(true);
+            }
         }
     }
 
@@ -322,6 +329,7 @@ function InvoiceDetail(props) {
                         </Link>
                     </div>
 
+                    {showLoadingModal ? <LoadingModal /> : null}
                     {showSuccessModal ? (
                         <SuccessModal
                             setShowSuccessModal={setShowSuccessModal}

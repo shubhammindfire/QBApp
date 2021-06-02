@@ -15,7 +15,8 @@ import {
 } from "../../../../Constants";
 import axios from "axios";
 import { useDispatch, useSelector } from "react-redux";
-import ErrorModal from "../ErrorModal";
+import ErrorModal from "../ErrorModal.js";
+import LoadingModal from "../LoadingModal.js";
 import { removeInvoiceByIndex } from "../../../../redux/quickbooks/invoice/invoiceActions";
 
 function InvoiceTable(props) {
@@ -23,6 +24,7 @@ function InvoiceTable(props) {
     const dispatch = useDispatch();
     const { color = "light", title, invoices } = props;
     const [showErrorModal, setShowErrorModal] = useState(false);
+    const [showLoadingModal, setShowLoadingModal] = useState(false);
 
     return (
         <>
@@ -60,6 +62,7 @@ function InvoiceTable(props) {
                             Create Invoice
                         </Link>
                     </div>
+                    {showLoadingModal ? <LoadingModal /> : null}
                     <div className="block w-full overflow-x-auto">
                         {/* Table starts */}
                         <table className="items-center w-full bg-transparent border-collapse">
@@ -138,7 +141,14 @@ function InvoiceTable(props) {
                                 </tr>
                             </thead>
                             <tbody>
-                                {row("light", invoices, jwt, setShowErrorModal,dispatch)}
+                                {row(
+                                    "light",
+                                    invoices,
+                                    jwt,
+                                    setShowErrorModal,
+                                    setShowLoadingModal,
+                                    dispatch
+                                )}
                             </tbody>
                         </table>
                     </div>
@@ -148,21 +158,30 @@ function InvoiceTable(props) {
     );
 }
 
-function row(color = "light", invoices, jwt, setShowErrorModal,dispatch) {
+function row(
+    color = "light",
+    invoices,
+    jwt,
+    setShowErrorModal,
+    setShowLoadingModal,
+    dispatch
+) {
     const rows = [];
 
-    function handleDelete(e, invoiceTableId,index) {
+    function handleDelete(e, invoiceTableId, index) {
         e.preventDefault();
-        // TODO: add loader for deleting
+        setShowLoadingModal(true);
         axios
             .delete(DELETE_INVOICE_BY_ID + `/${invoiceTableId}`, {
                 headers: { Authorization: `Bearer ${jwt}` },
             })
             .then((response) => {
-                // refresh the page if the delete is successful
-                if (response.status === 204) dispatch(removeInvoiceByIndex(index));
+                setShowLoadingModal(false);
+                if (response.status === 204)
+                    dispatch(removeInvoiceByIndex(index));
             })
             .catch((error) => {
+                setShowLoadingModal(false);
                 console.log(JSON.stringify(error));
                 setShowErrorModal(true);
             });
@@ -272,7 +291,7 @@ function row(color = "light", invoices, jwt, setShowErrorModal,dispatch) {
                     <td>
                         <button
                             className="ml-4"
-                            onClick={(e) => handleDelete(e, invoices[i].id,i)}
+                            onClick={(e) => handleDelete(e, invoices[i].id, i)}
                         >
                             <FontAwesomeIcon
                                 icon={faTrashAlt}
