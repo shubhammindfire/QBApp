@@ -54,9 +54,8 @@ function Portal() {
 
     return (
         <>
-            {/* {jwt === null || checkSessionExpired() === false ? ( */}
             {jwt === null ? (
-                // if the user is not logged in or the session expired then redirect to login
+                // if the user is not logged in then redirect to login
                 <Redirect to={LOGIN_ROUTE} />
             ) : (
                 <div>

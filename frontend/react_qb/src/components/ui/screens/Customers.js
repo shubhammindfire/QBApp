@@ -3,13 +3,17 @@ import Sidebar from "../widgets/notus-react/SideBar.js";
 import CustomerAndItemTable from "../widgets/notus-react/CustomerAndItemTable.js";
 import { useDispatch, useSelector } from "react-redux";
 import axios from "axios";
-import { GET_ALL_CUSTOMERS, PORTAL_ROUTE } from "../../../Constants.js";
+import {
+    GET_ALL_CUSTOMERS,
+    LOGIN_ROUTE,
+    PORTAL_ROUTE,
+} from "../../../Constants.js";
 import {
     addAllCustomers,
     removeAllCustomers,
 } from "./../../../redux/quickbooks/customer/customerActions.js";
 import ErrorModal from "../widgets/ErrorModal.js";
-import { Link } from "react-router-dom";
+import { Link, Redirect } from "react-router-dom";
 
 function Customers() {
     const jwt = useSelector((state) => state.localAuthReducer.jwt);
@@ -38,7 +42,10 @@ function Customers() {
 
     return (
         <>
-            {isSessionExpired ? (
+            {jwt === null ? (
+                // if the user is not logged in then redirect to login
+                <Redirect to={LOGIN_ROUTE} />
+            ) : isSessionExpired ? (
                 <ErrorModal type="SESSION_EXPIRED" />
             ) : (
                 <>

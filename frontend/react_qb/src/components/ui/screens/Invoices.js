@@ -2,7 +2,11 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import Sidebar from "../widgets/notus-react/SideBar.js";
 import InvoiceTable from "../widgets/notus-react/InvoiceTable.js";
-import { GET_ALL_INVOICES, PORTAL_ROUTE } from "./../../../Constants.js";
+import {
+    GET_ALL_INVOICES,
+    LOGIN_ROUTE,
+    PORTAL_ROUTE,
+} from "./../../../Constants.js";
 import { useDispatch, useSelector } from "react-redux";
 import {
     addAllInvoices,
@@ -11,7 +15,7 @@ import {
     removeCurrentInvoice,
 } from "./../../../redux/quickbooks/invoice/invoiceActions.js";
 import ErrorModal from "../widgets/ErrorModal.js";
-import { Link } from "react-router-dom";
+import { Link, Redirect } from "react-router-dom";
 
 function Invoices() {
     const jwt = useSelector((state) => state.localAuthReducer.jwt);
@@ -45,7 +49,10 @@ function Invoices() {
 
     return (
         <>
-            {isSessionExpired ? (
+            {jwt === null ? (
+                // if the user is not logged in then redirect to login
+                <Redirect to={LOGIN_ROUTE} />
+            ) : isSessionExpired ? (
                 <ErrorModal type="SESSION_EXPIRED" />
             ) : (
                 <>

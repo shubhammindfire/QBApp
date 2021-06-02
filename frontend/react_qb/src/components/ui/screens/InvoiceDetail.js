@@ -7,13 +7,14 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import axios from "axios";
 import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { Link, useHistory } from "react-router-dom";
+import { Link, Redirect, useHistory } from "react-router-dom";
 import {
     PORTAL_INVOICES_ROUTE,
     GET_INVOICE_BY_ID,
     GET_ALL_CUSTOMERS,
     GET_ALL_ITEMS,
     BASE_REACT_ROUTE,
+    LOGIN_ROUTE,
 } from "../../../Constants.js";
 import {
     addCurrentInvoiceItems,
@@ -291,269 +292,313 @@ function InvoiceDetail(props) {
     }
 
     return (
-        <div className="bg-blueGray-100">
-            {/* top heading */}
-            <div className="flex justify-between p-3">
-                <div>
-                    <FontAwesomeIcon
-                        icon={faHistory}
-                        color="#696969"
-                        size="2x"
-                    />
-                    <p className="inline font-bold ml-2 text-gray-800 text-3xl">
-                        Invoice{" "}
-                        {operation !== "Create"
-                            ? `#${stateInvoice.invoiceNumber}`
-                            : null}
-                    </p>
-                </div>
-                <Link to={PORTAL_INVOICES_ROUTE}>
-                    <FontAwesomeIcon icon={faTimes} color="#696969" size="2x" />
-                </Link>
-            </div>
-
-            {showSuccessModal ? (
-                <SuccessModal
-                    setShowSuccessModal={setShowSuccessModal}
-                    type="SaveAndClose"
-                    message="Invoice created Successfully"
-                />
-            ) : showErrorModal ? (
-                <ErrorModal setShowErrorModal={setShowErrorModal} />
-            ) : null}
-            {/* the margin below is used because the footer hides the data at the bottom */}
-            <form className="mb-64">
-                {/* grid wrapper*/}
-                <div className="px-5">
-                    {/* row 1 */}
-                    <div className="grid xs:grid-cols-1 lg:grid-cols-8">
-                        <div className="col-span-2 lg:mr-3">
-                            <label htmlFor="customer" className="font-bold">
-                                Customer
-                            </label>
-                            <div>
-                                <input
-                                    list="customerNames"
-                                    className="inline rounded p-2 border border-black xs:w-full"
-                                    placeholder="Select a customer"
-                                    value={customerName}
-                                    onChange={(e) =>
-                                        handleChange(e, "customerName")
-                                    }
-                                    disabled={
-                                        operation === "View" ? true : false
-                                    }
-                                />
-                                <datalist id="customerNames">
-                                    {getCustomerNameList()}
-                                </datalist>
-                                <p className="text-red-600">
-                                    {customerNameError}
-                                </p>
-                            </div>
-                        </div>
-                        <div className="col-span-2">
-                            <label
-                                htmlFor="customerEmail"
-                                className="font-bold"
-                            >
-                                Customer email
-                            </label>
-                            <input
-                                type="text"
-                                className="block rounded xs:w-full"
-                                placeholder="Enter customer email"
-                                value={customerEmail}
-                                // disabled={operation === "View" ? true : false}
-                                disabled
-                            />
-                        </div>
-                        {/* Empty col */}
-                        <div className="col-span-2"></div>
-                        {/* if balance is zero then show that payment status is "paid", else show the balance due amount */}
-                        {operation === "View" ? (
-                            <div className="col-span-2 text-right">
-                                <span className="text-gray-500 font-bold">
-                                    PAYMENT STATUS
-                                </span>
-                                <p className="font-bold text-4xl">PAID</p>
-                            </div>
-                        ) : (
-                            <div className="col-span-2 text-right">
-                                <span className="text-gray-500 font-bold">
-                                    BALANCE DUE
-                                </span>
-                                <p className="font-bold text-4xl">
-                                    ${balance.toFixed(2)}
-                                </p>
-                            </div>
-                        )}
-                    </div>
-
-                    {/* row 2 */}
-                    <div className="grid xs:mt-8 lg:mt-16 xs:grid-cols-1 lg:grid-cols-8">
-                        <div className="col-span-2 lg:mr-3">
-                            <label
-                                htmlFor="billingAddress"
-                                className="font-bold"
-                            >
-                                Billing Address
-                            </label>
-                            <textarea
-                                name="billing"
-                                id="billing"
-                                cols="20"
-                                rows="3"
-                                className="block rounded xs:w-full"
-                                value={billingAddress}
-                                onChange={(e) =>
-                                    handleChange(e, "billingAddress")
-                                }
-                                // disabled={operation === "View" ? true : false}
-                                disabled
-                            ></textarea>
-                        </div>
-
-                        <div className="col-span-1">
-                            <label htmlFor="invoiceDate" className="font-bold">
-                                Invoice Date
-                            </label>
-                            <input
-                                type="date"
-                                className="block rounded border"
-                                value={invoiceDate}
-                                onChange={(e) => handleChange(e, "invoiceDate")}
-                                disabled={operation === "View" ? true : false}
-                            />
-                            <p className="text-red-600">{invoiceDateError}</p>
-                        </div>
-
-                        <div className="col-span-1">
-                            <label htmlFor="dueDate" className="font-bold">
-                                Due Date
-                            </label>
-                            <input
-                                type="date"
-                                className="block rounded border xs:w-full"
-                                value={dueDate}
-                                onChange={(e) => handleChange(e, "dueDate")}
-                                disabled={operation === "View" ? true : false}
-                            />
-                            <p className="text-red-600">{dueDateError}</p>
-                        </div>
-
-                        {/* empty col */}
-                        <div className="col-span-2"></div>
-                    </div>
-                    <p className="text-red-600">{totalAmountError}</p>
-                    {/* table starts */}
-                    <div className="table w-full mt-5 p-4">
-                        <table className="table-auto border-collapse w-full p-4">
-                            <thead>
-                                <tr>
-                                    <th className="p-3 font-bold uppercase border-r-2 lg:table-cell">
-                                        #
-                                    </th>
-                                    <th className="p-3 font-bold uppercase border-r-2 lg:table-cell">
-                                        PRODUCT/SERVICE
-                                    </th>
-                                    <th className="p-3 font-bold uppercase border-r-2 lg:table-cell">
-                                        DESCRIPTION
-                                    </th>
-                                    <th className="p-3 font-bold uppercase border-r-2 lg:table-cell">
-                                        QTY
-                                    </th>
-                                    <th className="p-3 font-bold uppercase border-r-2 lg:table-cell">
-                                        RATE
-                                    </th>
-                                    <th className="p-3 font-bold uppercase border-r-2 lg:table-cell">
-                                        AMOUNT
-                                    </th>
-                                    <th className="p-3 font-bold uppercase lg:table-cell"></th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {showItems(
-                                    stateInvoiceItems,
-                                    reduxState.currentInvoiceItems
-                                )}
-                            </tbody>
-                        </table>
-                        <p className="text-red-600">{invoiceItemsError}</p>
-                        {operation === "View" ? null : (
-                            <button
-                                title="Add an item"
-                                onClick={(e) => handleAddItem(e)}
-                            >
-                                <FontAwesomeIcon
-                                    icon={faPlusCircle}
-                                    color="#228B22"
-                                    size="2x"
-                                />
-                            </button>
-                        )}
-                    </div>
-                    {/* table ends */}
-                    {/* amount description table starts */}
-                    <table className="float-right font-bold text-xl w-96 text-right">
-                        <tbody>
-                            <tr>
-                                <td>Total</td>
-                                <td>${totalAmount.toFixed(2)}</td>
-                            </tr>
-                            <tr>
-                                <td>Amount Received</td>
-                                <td>
-                                    $
-                                    {operation === "View"
-                                        ? totalAmount.toFixed(2)
-                                        : 0.0}
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>Balance due</td>
-                                <td>${balance.toFixed(2)}</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                    {/* amount description table ends */}
-                </div>
-            </form>
-
-            {/* sticky footer */}
-
-            {operation === "View" ? (
-                <div className="bg-gray-800 text-white fixed left-0 bottom-0 justify-between px-2  h-16 w-full">
-                    <Link
-                        to={PORTAL_INVOICES_ROUTE}
-                        className="roundedPillBtn bg-green-700 rounded-pill float-right hover:bg-green-500"
-                    >
-                        Close
-                    </Link>
-                </div>
+        <>
+            {jwt === null ? (
+                // if the user is not logged in then redirect to login
+                <Redirect to={LOGIN_ROUTE} />
             ) : (
-                <div className="bg-gray-800 text-white fixed left-0 bottom-0 justify-between px-2  h-16 w-full flex flex-row">
-                    <div id="footer-left" className="flex flex-row mb-2">
-                        <Link
-                            to={PORTAL_INVOICES_ROUTE}
-                            className="roundedPillBorderedBtn bg-transparent rounded-pill mr-2 hover:bg-white hover:text-black"
-                        >
-                            Cancel
+                <div className="bg-blueGray-100">
+                    {/* top heading */}
+                    <div className="flex justify-between p-3">
+                        <div>
+                            <FontAwesomeIcon
+                                icon={faHistory}
+                                color="#696969"
+                                size="2x"
+                            />
+                            <p className="inline font-bold ml-2 text-gray-800 text-3xl">
+                                Invoice{" "}
+                                {operation !== "Create"
+                                    ? `#${stateInvoice.invoiceNumber}`
+                                    : null}
+                            </p>
+                        </div>
+                        <Link to={PORTAL_INVOICES_ROUTE}>
+                            <FontAwesomeIcon
+                                icon={faTimes}
+                                color="#696969"
+                                size="2x"
+                            />
                         </Link>
                     </div>
 
-                    <div id="footer-right" className="flex flex-row mb-2">
-                        <Link
-                            to={PORTAL_INVOICES_ROUTE}
-                            className="roundedPillBtn bg-green-700 rounded-pill hover:bg-green-500"
-                            onClick={(e) => handleSaveAndClose(e)}
-                        >
-                            Save and Close
-                        </Link>
-                    </div>
+                    {showSuccessModal ? (
+                        <SuccessModal
+                            setShowSuccessModal={setShowSuccessModal}
+                            type="SaveAndClose"
+                            message="Invoice created Successfully"
+                        />
+                    ) : showErrorModal ? (
+                        <ErrorModal setShowErrorModal={setShowErrorModal} />
+                    ) : null}
+                    {/* the margin below is used because the footer hides the data at the bottom */}
+                    <form className="mb-64">
+                        {/* grid wrapper*/}
+                        <div className="px-5">
+                            {/* row 1 */}
+                            <div className="grid xs:grid-cols-1 lg:grid-cols-8">
+                                <div className="col-span-2 lg:mr-3">
+                                    <label
+                                        htmlFor="customer"
+                                        className="font-bold"
+                                    >
+                                        Customer
+                                    </label>
+                                    <div>
+                                        <input
+                                            list="customerNames"
+                                            className="inline rounded p-2 border border-black xs:w-full"
+                                            placeholder="Select a customer"
+                                            value={customerName}
+                                            onChange={(e) =>
+                                                handleChange(e, "customerName")
+                                            }
+                                            disabled={
+                                                operation === "View"
+                                                    ? true
+                                                    : false
+                                            }
+                                        />
+                                        <datalist id="customerNames">
+                                            {getCustomerNameList()}
+                                        </datalist>
+                                        <p className="text-red-600">
+                                            {customerNameError}
+                                        </p>
+                                    </div>
+                                </div>
+                                <div className="col-span-2">
+                                    <label
+                                        htmlFor="customerEmail"
+                                        className="font-bold"
+                                    >
+                                        Customer email
+                                    </label>
+                                    <input
+                                        type="text"
+                                        className="block rounded xs:w-full"
+                                        placeholder="Enter customer email"
+                                        value={customerEmail}
+                                        // disabled={operation === "View" ? true : false}
+                                        disabled
+                                    />
+                                </div>
+                                {/* Empty col */}
+                                <div className="col-span-2"></div>
+                                {/* if balance is zero then show that payment status is "paid", else show the balance due amount */}
+                                {operation === "View" ? (
+                                    <div className="col-span-2 text-right">
+                                        <span className="text-gray-500 font-bold">
+                                            PAYMENT STATUS
+                                        </span>
+                                        <p className="font-bold text-4xl">
+                                            PAID
+                                        </p>
+                                    </div>
+                                ) : (
+                                    <div className="col-span-2 text-right">
+                                        <span className="text-gray-500 font-bold">
+                                            BALANCE DUE
+                                        </span>
+                                        <p className="font-bold text-4xl">
+                                            ${balance.toFixed(2)}
+                                        </p>
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* row 2 */}
+                            <div className="grid xs:mt-8 lg:mt-16 xs:grid-cols-1 lg:grid-cols-8">
+                                <div className="col-span-2 lg:mr-3">
+                                    <label
+                                        htmlFor="billingAddress"
+                                        className="font-bold"
+                                    >
+                                        Billing Address
+                                    </label>
+                                    <textarea
+                                        name="billing"
+                                        id="billing"
+                                        cols="20"
+                                        rows="3"
+                                        className="block rounded xs:w-full"
+                                        value={billingAddress}
+                                        onChange={(e) =>
+                                            handleChange(e, "billingAddress")
+                                        }
+                                        // disabled={operation === "View" ? true : false}
+                                        disabled
+                                    ></textarea>
+                                </div>
+
+                                <div className="col-span-1">
+                                    <label
+                                        htmlFor="invoiceDate"
+                                        className="font-bold"
+                                    >
+                                        Invoice Date
+                                    </label>
+                                    <input
+                                        type="date"
+                                        className="block rounded border"
+                                        value={invoiceDate}
+                                        onChange={(e) =>
+                                            handleChange(e, "invoiceDate")
+                                        }
+                                        disabled={
+                                            operation === "View" ? true : false
+                                        }
+                                    />
+                                    <p className="text-red-600">
+                                        {invoiceDateError}
+                                    </p>
+                                </div>
+
+                                <div className="col-span-1">
+                                    <label
+                                        htmlFor="dueDate"
+                                        className="font-bold"
+                                    >
+                                        Due Date
+                                    </label>
+                                    <input
+                                        type="date"
+                                        className="block rounded border xs:w-full"
+                                        value={dueDate}
+                                        onChange={(e) =>
+                                            handleChange(e, "dueDate")
+                                        }
+                                        disabled={
+                                            operation === "View" ? true : false
+                                        }
+                                    />
+                                    <p className="text-red-600">
+                                        {dueDateError}
+                                    </p>
+                                </div>
+
+                                {/* empty col */}
+                                <div className="col-span-2"></div>
+                            </div>
+                            <p className="text-red-600">{totalAmountError}</p>
+                            {/* table starts */}
+                            <div className="table w-full mt-5 p-4">
+                                <table className="table-auto border-collapse w-full p-4">
+                                    <thead>
+                                        <tr>
+                                            <th className="p-3 font-bold uppercase border-r-2 lg:table-cell">
+                                                #
+                                            </th>
+                                            <th className="p-3 font-bold uppercase border-r-2 lg:table-cell">
+                                                PRODUCT/SERVICE
+                                            </th>
+                                            <th className="p-3 font-bold uppercase border-r-2 lg:table-cell">
+                                                DESCRIPTION
+                                            </th>
+                                            <th className="p-3 font-bold uppercase border-r-2 lg:table-cell">
+                                                QTY
+                                            </th>
+                                            <th className="p-3 font-bold uppercase border-r-2 lg:table-cell">
+                                                RATE
+                                            </th>
+                                            <th className="p-3 font-bold uppercase border-r-2 lg:table-cell">
+                                                AMOUNT
+                                            </th>
+                                            <th className="p-3 font-bold uppercase lg:table-cell"></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {showItems(
+                                            stateInvoiceItems,
+                                            reduxState.currentInvoiceItems
+                                        )}
+                                    </tbody>
+                                </table>
+                                <p className="text-red-600">
+                                    {invoiceItemsError}
+                                </p>
+                                {operation === "View" ? null : (
+                                    <button
+                                        title="Add an item"
+                                        onClick={(e) => handleAddItem(e)}
+                                    >
+                                        <FontAwesomeIcon
+                                            icon={faPlusCircle}
+                                            color="#228B22"
+                                            size="2x"
+                                        />
+                                    </button>
+                                )}
+                            </div>
+                            {/* table ends */}
+                            {/* amount description table starts */}
+                            <table className="float-right font-bold text-xl w-96 text-right">
+                                <tbody>
+                                    <tr>
+                                        <td>Total</td>
+                                        <td>${totalAmount.toFixed(2)}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Amount Received</td>
+                                        <td>
+                                            $
+                                            {operation === "View"
+                                                ? totalAmount.toFixed(2)
+                                                : 0.0}
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>Balance due</td>
+                                        <td>${balance.toFixed(2)}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            {/* amount description table ends */}
+                        </div>
+                    </form>
+
+                    {/* sticky footer */}
+
+                    {operation === "View" ? (
+                        <div className="bg-gray-800 text-white fixed left-0 bottom-0 justify-between px-2  h-16 w-full">
+                            <Link
+                                to={PORTAL_INVOICES_ROUTE}
+                                className="roundedPillBtn bg-green-700 rounded-pill float-right hover:bg-green-500"
+                            >
+                                Close
+                            </Link>
+                        </div>
+                    ) : (
+                        <div className="bg-gray-800 text-white fixed left-0 bottom-0 justify-between px-2  h-16 w-full flex flex-row">
+                            <div
+                                id="footer-left"
+                                className="flex flex-row mb-2"
+                            >
+                                <Link
+                                    to={PORTAL_INVOICES_ROUTE}
+                                    className="roundedPillBorderedBtn bg-transparent rounded-pill mr-2 hover:bg-white hover:text-black"
+                                >
+                                    Cancel
+                                </Link>
+                            </div>
+
+                            <div
+                                id="footer-right"
+                                className="flex flex-row mb-2"
+                            >
+                                <Link
+                                    to={PORTAL_INVOICES_ROUTE}
+                                    className="roundedPillBtn bg-green-700 rounded-pill hover:bg-green-500"
+                                    onClick={(e) => handleSaveAndClose(e)}
+                                >
+                                    Save and Close
+                                </Link>
+                            </div>
+                        </div>
+                    )}
                 </div>
             )}
-        </div>
+        </>
     );
 
     function showItems(stateInvoiceItems, reduxInvoiceItems) {
