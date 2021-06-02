@@ -1,12 +1,14 @@
 <?php
 
 require_once(__DIR__ . '/vendor/autoload.php');
+
 use QuickBooksOnline\API\DataService\DataService;
 
 session_start();
 
 function makeAPICall()
 {
+    // TODO: IMPORTANT remove used files in this(public) folder
 
     // Create SDK instance
     $config = include('config.php');
@@ -47,7 +49,7 @@ function makeAPICall()
     // foreach($entities as $entry){
     //     echo $entry->
     // }
-    echo"result";
+    echo "result";
 
 
     return $companyInfo;

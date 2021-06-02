@@ -7,7 +7,7 @@ use Symfony\Component\Routing\Annotation\Route;
 use QuickBooksOnline\API\DataService\DataService;
 use App\QuickBooks\Config;
 use QuickBooksOnline\API\Core\OAuth\OAuth2\OAuth2AccessToken;
-use App\Entity\User;
+use App\Entity\Users;
 use App\Service\QuickBooksService;
 use App\Service\UserAccessTokenService;
 use Psr\Log\LoggerInterface;
@@ -79,9 +79,9 @@ class QuickBooksController extends AbstractController
         $dataService->updateOAuth2Token($accessToken);
 
         // Updating the accessToken in the database
-        $repository = $this->getDoctrine()->getRepository(User::class);
+        $repository = $this->getDoctrine()->getRepository(Users::class);
         /**
-         * @var User $user
+         * @var Users $user
          */
         $user = $repository->findOneBy(["realmId" => $parseUrl['realmId']]);
         $em = $this->getDoctrine()->getManager();
@@ -124,11 +124,11 @@ class QuickBooksController extends AbstractController
      */
     public function fetchDataFromQBO(String $userId, QuickBooksService $quickBooksService, UserAccessTokenService $userAccessTokenService)
     {
-        $userRepository = $this->getDoctrine()->getRepository(User::class);
+        $usersRepository = $this->getDoctrine()->getRepository(Users::class);
         /**
-         * @var User $user
+         * @var Users $user
          */
-        $user = $userRepository->findOneBy(["realmId" => $userId]);
+        $user = $usersRepository->findOneBy(["realmId" => $userId]);
 
         $response = $quickBooksService->fetchAllDataFromQBO($user, $userAccessTokenService);
 

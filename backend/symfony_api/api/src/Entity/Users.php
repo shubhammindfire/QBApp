@@ -2,17 +2,19 @@
 
 namespace App\Entity;
 
-use App\Repository\UserRepository;
+use App\Repository\UsersRepository;
 use Doctrine\ORM\Mapping as ORM;
 use ApiPlatform\Core\Annotation\ApiResource;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Security\Core\User\UserInterface;
 
 /**
- * @ORM\Entity(repositoryClass=UserRepository::class)
- * @ORM\Table(name="user")
+ * @ORM\Entity(repositoryClass=UsersRepository::class)
+ * @ORM\Table(name="users")
  * @ApiResource(
  *      itemOperations={"GET"},
  *      collectionOperations={"GET", "POST"},
@@ -24,7 +26,7 @@ use Symfony\Component\Security\Core\User\UserInterface;
  * @UniqueEntity("realmId", message="realmId for each user must be unique")
  * 
  */
-class User implements UserInterface
+class Users implements UserInterface
 {
     /**
      * @ORM\Id
@@ -92,6 +94,7 @@ class User implements UserInterface
      * @ORM\Column(name="refreshTokenExpiresAt", type="bigint", nullable=true)
      */
     private $refreshTokenExpiresAt;
+
 
     public function __construct()
     {

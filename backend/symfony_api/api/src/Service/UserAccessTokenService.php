@@ -2,7 +2,7 @@
 
 namespace App\Service;
 
-use App\Entity\User;
+use App\Entity\Users;
 use QuickBooksOnline\API\Core\OAuth\OAuth2\OAuth2AccessToken;
 use QuickBooksOnline\API\DataService\DataService;
 use App\QuickBooks\Config;
@@ -37,10 +37,10 @@ class UserAccessTokenService extends BaseService
     }
 
     /**
-     * @param User $user 
+     * @param Users $user 
      * @return OAuth2AccessToken
      */
-    function getUserAccessToken(User $user): ?OAuth2AccessToken
+    function getUserAccessToken(Users $user): ?OAuth2AccessToken
     {
         // Create SDK instance
         $dataService = DataService::Configure(array(

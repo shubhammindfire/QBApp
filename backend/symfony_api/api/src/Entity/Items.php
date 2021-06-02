@@ -2,14 +2,15 @@
 
 namespace App\Entity;
 
-use App\Repository\ItemRepository;
+use App\Repository\ItemsRepository;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * @ORM\Entity(repositoryClass=ItemRepository::class)
+ * @ORM\Entity(repositoryClass=ItemsRepository::class)
+ * @ORM\Table(name="items")
  * @ORM\HasLifecycleCallbacks()
  */
-class Item
+class Items
 {
     /**
      * @ORM\Id
@@ -19,9 +20,9 @@ class Item
     private $id;
 
     /**
-     * @ORM\Column(name="itemId",type="integer")
+     * @ORM\Column(name="qbo_id",type="integer")
      */
-    private $itemId;
+    private $qbo_id;
 
     /**
      * @ORM\Column(type="string", length=255)
@@ -64,23 +65,23 @@ class Item
     private $updatedAt;
 
     /**
-     * @ORM\Column(name="userId",type="string", length=225)
+     * @ORM\Column(name="FK_users",type="integer")
      */
-    private $userId;
+    private $FK_users;
 
     public function getId(): ?int
     {
         return $this->id;
     }
 
-    public function getItemId(): ?int
+    public function getQBOId(): ?int
     {
-        return $this->itemId;
+        return $this->qbo_id;
     }
 
-    public function setItemId(int $itemId): self
+    public function setQBOId(int $qbo_id): self
     {
-        $this->itemId = $itemId;
+        $this->qbo_id = $qbo_id;
 
         return $this;
     }
@@ -188,14 +189,20 @@ class Item
         return $this;
     }
 
-    public function getUserId(): ?string
+    /**
+     * @return int
+     */
+    public function getFKUsers(): int
     {
-        return $this->userId;
+        return $this->FK_users;
     }
 
-    public function setUserId(string $userId): self
+    /**
+     * @param int $FK_users
+     */
+    public function setFKUsers(int $FK_users): self
     {
-        $this->userId = $userId;
+        $this->FK_users = $FK_users;
 
         return $this;
     }

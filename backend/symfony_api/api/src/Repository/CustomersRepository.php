@@ -2,25 +2,25 @@
 
 namespace App\Repository;
 
-use App\Entity\CartItem;
+use App\Entity\Customers;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
- * @method CartItem|null find($id, $lockMode = null, $lockVersion = null)
- * @method CartItem|null findOneBy(array $criteria, array $orderBy = null)
- * @method CartItem[]    findAll()
- * @method CartItem[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
+ * @method Customers|null find($id, $lockMode = null, $lockVersion = null)
+ * @method Customers|null findOneBy(array $criteria, array $orderBy = null)
+ * @method Customers[]    findAll()
+ * @method Customers[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  */
-class CartItemRepository extends ServiceEntityRepository
+class CustomersRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
     {
-        parent::__construct($registry, CartItem::class);
+        parent::__construct($registry, Customers::class);
     }
 
     // /**
-    //  * @return CartItem[] Returns an array of CartItem objects
+    //  * @return Customers[] Returns an array of Customers objects
     //  */
     /*
     public function findByExampleField($value)
@@ -37,7 +37,7 @@ class CartItemRepository extends ServiceEntityRepository
     */
 
     /*
-    public function findOneBySomeField($value): ?CartItem
+    public function findOneBySomeField($value): ?Customers
     {
         return $this->createQueryBuilder('c')
             ->andWhere('c.exampleField = :val')

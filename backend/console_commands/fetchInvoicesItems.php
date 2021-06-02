@@ -13,13 +13,13 @@ use QuickBooksOnline\API\Data\IPPLine;
  * @param String $updatedAt
  * @param String $invoiceId
  * this is the invoice id of the last invoice that was successfully added
- * and thus it will the invoiceId for this cartItem
+ * and thus it will the invoiceId for this invoiceItem
  */
-function fetchCartItems($conn, $line, $createdAt, $updatedAt, $invoiceId, $userId)
+function fetchInvoicesItems($conn, $line, $createdAt, $updatedAt, $invoiceId, $userId)
 {
     foreach ($line as $item) {
         if ($item->Id !== null)
-            updateCartItemTable($conn, $item, $createdAt, $updatedAt, $invoiceId, $userId);
+            updateinvoicesItemsTable($conn, $item, $createdAt, $updatedAt, $invoiceId, $userId);
     }
 }
 
@@ -31,16 +31,17 @@ function fetchCartItems($conn, $line, $createdAt, $updatedAt, $invoiceId, $userI
  * @param String $dueDate
  * @return bool
  */
-function updateCartItemTable($conn, $item, $createdAt, $updatedAt, $invoiceId, $userId): bool
+function updateinvoicesItemsTable($conn, $item, $createdAt, $updatedAt, $FK_invoices, $FK_users): bool
 {
-    $itemId = getItemId($conn, $item->SalesItemLineDetail->ItemRef, $userId);
+    $FK_items = getItemId($conn, $item->SalesItemLineDetail->ItemRef, $FK_users);
     $quantity = $item->SalesItemLineDetail->Qty ?? 0;
+    $rate = $item->UnitPrice ?? 0;
     $createdAt = strtotime($createdAt);
     $updatedAt = strtotime($updatedAt);
 
-    $sql = "INSERT INTO cartItem(itemId, quantity, invoiceId, createdAt, updatedAt, userId) VALUES($itemId, $quantity, $invoiceId, $createdAt, $updatedAt, $userId)";
+    $sql = "INSERT INTO invoices_items(FK_items, quantity, rate, FK_invoices, createdAt, updatedAt, FK_users) VALUES($FK_items, $quantity, $rate, $FK_invoices, $createdAt, $updatedAt, $FK_users)";
     if ($conn->query($sql) === false) {
-        echo ("Error in adding new cart item in table cartItem: " . $conn->error);
+        echo ("Error in adding new invoice item in table invoicesItems: " . $conn->error);
         return false;
     }
 
@@ -49,13 +50,13 @@ function updateCartItemTable($conn, $item, $createdAt, $updatedAt, $invoiceId, $
 
 /**
  * @param mysqli $conn
- * @param String $itemId
+ * @param String $itemQBOId
  * @param String $userId
  * @return String
  */
-function getItemId($conn, $itemId, $userId): String
+function getItemId($conn, $itemQBOId, $userId): String
 {
-    $sql = "SELECT id from item WHERE itemId=$itemId AND userId=$userId";
+    $sql = "SELECT id from items WHERE qbo_id=$itemQBOId AND FK_users=$userId";
 
     return $conn->query($sql)->fetch_assoc()['id'];
 }

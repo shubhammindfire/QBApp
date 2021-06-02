@@ -46,7 +46,7 @@ function fetchCustomers()
 
         // var_dump($customers);
         foreach ($customers as $customer) {
-            if (customerExists($conn, $customer->Id, $user['realmId']) === false) {
+            if (customerExists($conn, $customer->Id, $user['id']) === false) {
                 addCustomer($conn, $customer, $user);
             }
         }
@@ -65,13 +65,13 @@ function fetchCustomers()
 
 /**
  * @param mysqli $conn
- * @param String $customerId
+ * @param String $qboId
  * @param String $userId
  * @return bool
  */
-function customerExists($conn, $customerId, $userId): bool
+function customerExists($conn, $qboId, $userId): bool
 {
-    $sql = "SELECT id from customer WHERE customerId=$customerId AND userId=$userId";
+    $sql = "SELECT id from customers WHERE qbo_id=$qboId AND FK_users=$userId";
 
     $res = $conn->query($sql)->fetch_assoc();
     if ($res !== null) {
@@ -88,7 +88,7 @@ function customerExists($conn, $customerId, $userId): bool
  */
 function addCustomer($conn, $customer, $user): bool
 {
-    $customerId = $customer->Id;
+    $qboId = $customer->Id;
     $firstname = ($customer->GivenName) ?? "null";
     $lastname = ($customer->FamilyName) ?? "null";
     $companyName = ($customer->CompanyName) ?? "null";
@@ -106,13 +106,13 @@ function addCustomer($conn, $customer, $user): bool
     $openBalance = ($customer->Balance) ?? 0.0;
     $createdAt = strtotime($customer->MetaData->CreateTime);
     $updatedAt = strtotime($customer->MetaData->LastUpdatedTime);
-    $userId = $user['realmId'];
+    $FK_users = $user['id'];
 
-    $stmt = $conn->prepare("INSERT INTO customer(customerId,firstName,lastName, companyName, displayName, email, billingAddress, shippingAddress, phoneNumber, openBalance, createdAt, updatedAt, userId) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)");
-    $stmt->bind_param("issssssssdiis", $customerId, $firstname, $lastname, $companyName, $displayName, $email, $billingAddress, $shippingAddress, $phoneNumber, $openBalance, $createdAt, $updatedAt, $userId);
+    $stmt = $conn->prepare("INSERT INTO customers(qbo_id,firstName,lastName, companyName, displayName, email, billingAddress, shippingAddress, phoneNumber, openBalance, createdAt, updatedAt, FK_users) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)");
+    $stmt->bind_param("issssssssdiii", $qboId, $firstname, $lastname, $companyName, $displayName, $email, $billingAddress, $shippingAddress, $phoneNumber, $openBalance, $createdAt, $updatedAt, $FK_users);
 
     if ($stmt->execute() === false) {
-        echo ("Error in adding new customer in table customer: " . $conn->error);
+        echo ("Error in adding new customer in table customers: " . $conn->error);
         echo ("Statement Error: " . $stmt->error);
         $stmt->close();
         return false;

@@ -2,7 +2,7 @@
 
 namespace App\QuickBooks;
 
-use App\Entity\User;
+use App\Entity\Users;
 use App\Service\UserAccessTokenService;
 use QuickBooksOnline\API\Core\OAuth\OAuth2\OAuth2AccessToken;
 use QuickBooksOnline\API\DataService\DataService;
@@ -46,10 +46,10 @@ class SetupQBQuery
     }
 
     /**
-     * @var User $user
+     * @var Users $user
      * @return OAuth2AccessToken
      */
-    public function getAcessToken(User $user): OAuth2AccessToken
+    public function getAcessToken(Users $user): OAuth2AccessToken
     {
         // $this->accessToken = (new UserAccessTokenService())->getUserAccessToken($user);
         // $this->accessToken = new OAuth2AccessToken($this->config['client_id'], $this->config['client_secret'], $user->getAccessToken(), $user->getRefreshToken(), $user->getAccessTokenExpiresAt(), $user->getRefreshTokenExpiresAt());

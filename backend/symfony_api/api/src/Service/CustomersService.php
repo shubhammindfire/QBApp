@@ -2,13 +2,13 @@
 
 namespace App\Service;
 
-use App\Entity\Customer;
-use App\Entity\User;
+use App\Entity\Customers;
+use App\Entity\Users;
 use Doctrine\Persistence\ManagerRegistry;
 use Doctrine\Persistence\ObjectRepository;
 use Psr\Log\LoggerInterface;
 
-class CustomerService extends BaseService
+class CustomersService extends BaseService
 {
     /**
      * @var LoggerInterface
@@ -29,29 +29,31 @@ class CustomerService extends BaseService
     {
         $this->logger = $logger;
         $this->doctrine = $doctrine;
-        $this->repository = $this->doctrine->getRepository(Customer::class);
+        $this->repository = $this->doctrine->getRepository(Customers::class);
     }
 
     /**
      * @param int $id
-     * @param User $user
+     * @param Users $user
      * @return Object
      */
-    public function getCustomerByIdForUser(int $id, User $user): ?Object
+    public function getCustomerByIdForUser(int $id, Users $user): ?Object
     {
-        $customer = $this->repository->findOneBy(["userId" => $user->getRealmId(), "id" => $id]);
+        // $customer = $this->repository->findOneBy(["userId" => $user->getRealmId(), "id" => $id]);
+        $customer = $this->repository->findOneBy(["FK_users" => $user->getId(), "id" => $id]);
 
         return $customer;
     }
 
     /**
-     * @param User $user
+     * @param Users $user
      * @return Array
      * // this method finds all the customers for the provided $user
      */
-    public function getAllCustomerForUser(User $user): array
+    public function getAllCustomerForUser(Users $user): array
     {
-        $customers = $this->repository->findBy(["userId" => $user->getRealmId()]);
+        // $customers = $this->repository->findBy(["userId" => $user->getRealmId()]);
+        $customers = $this->repository->findBy(["FK_users" => $user->getId()]);
 
         return $customers;
     }

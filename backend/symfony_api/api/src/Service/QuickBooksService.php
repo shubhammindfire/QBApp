@@ -2,11 +2,11 @@
 
 namespace App\Service;
 
-use App\Entity\CartItem;
-use App\Entity\Customer;
-use App\Entity\Invoice;
-use App\Entity\Item;
-use App\Entity\User;
+use App\Entity\InvoicesItems;
+use App\Entity\Customers;
+use App\Entity\Invoices;
+use App\Entity\Items;
+use App\Entity\Users;
 use QuickBooksOnline\API\DataService\DataService;
 use App\QuickBooks\Config;
 use App\QuickBooks\SetupQBQuery;
@@ -52,10 +52,10 @@ class QuickBooksService extends BaseService
     }
 
     /**
-     * @var User $user
+     * @var Users $user
      * @var UserAccessTokenService $userAccessTokenService
      */
-    public function fetchAllDataFromQBO(User $user, UserAccessTokenService $userAccessTokenService): bool
+    public function fetchAllDataFromQBO(Users $user, UserAccessTokenService $userAccessTokenService): bool
     {
         try {
             $this->removeExistingData($user);
@@ -64,32 +64,33 @@ class QuickBooksService extends BaseService
             $this->fetchInvoicesfromQBO($user, $userAccessTokenService);
             return true;
         } catch (Exception $ex) {
+            $this->logger->error("Exception in fetchAllDataFromQBO: " . $ex);
             return false;
         }
     }
 
     /**
-     * @var User $user
+     * @var Users $user
      */
-    public function removeExistingData(User $user)
+    public function removeExistingData(Users $user)
     {
-        $userId = $user->getRealmId();
+        $userId = $user->getId();
         $conn = $this->entityManager->getConnection();
 
         $sql = "
-        DELETE FROM cartItem WHERE userId=$userId;
-        DELETE FROM invoice WHERE userId=$userId;
-        DELETE FROM customer WHERE userId=$userId;
-        DELETE FROM item WHERE userId=$userId;
+        DELETE FROM invoices_items WHERE FK_users=$userId;
+        DELETE FROM invoices WHERE FK_users=$userId;
+        DELETE FROM customers WHERE FK_users=$userId;
+        DELETE FROM items WHERE FK_users=$userId;
             ";
         $conn->executeQuery($sql);
     }
 
     /**
-     * @var User $user
+     * @var Users $user
      * @var UserAccessTokenService $userAccessTokenService
      */
-    public function fetchCustomersFromQBO(User $user, UserAccessTokenService $userAccessTokenService)
+    public function fetchCustomersFromQBO(Users $user, UserAccessTokenService $userAccessTokenService)
     {
 
         $setupQBQuery = new SetupQBQuery();
@@ -102,8 +103,11 @@ class QuickBooksService extends BaseService
         $customers = $dataService->Query("Select * from Customer");
 
         foreach ($customers as $customer) {
-            $customerEntity = new Customer();
-            $customerEntity->setCustomerId($customer->Id);
+            /**
+             * @var Customers $customerEntity
+             */
+            $customerEntity = new Customers();
+            $customerEntity->setQBOId($customer->Id);
             $customerEntity->setFirstname(($customer->GivenName) ?? "null");
             $customerEntity->setLastname(($customer->FamilyName) ?? "null");
             $customerEntity->setCompanyName(($customer->CompanyName) ?? "null");
@@ -129,7 +133,8 @@ class QuickBooksService extends BaseService
             $customerEntity->setOpenBalance(($customer->Balance) ?? 0.0);
             $customerEntity->setCreatedAt(strtotime($customer->MetaData->CreateTime));
             $customerEntity->setUpdatedAt(strtotime($customer->MetaData->LastUpdatedTime));
-            $customerEntity->setUserId($user->getRealmId());
+            // $customerEntity->setUserId($user->getRealmId());
+            $customerEntity->setFKUsers($user->getId());
 
             $this->entityManager->persist($customerEntity);
         }
@@ -137,10 +142,10 @@ class QuickBooksService extends BaseService
     }
 
     /**
-     * @var User $user
+     * @var Users $user
      * @var UserAccessTokenService $userAccessTokenService
      */
-    public function fetchItemsFromQBO(User $user, UserAccessTokenService $userAccessTokenService)
+    public function fetchItemsFromQBO(Users $user, UserAccessTokenService $userAccessTokenService)
     {
 
         $setupQBQuery = new SetupQBQuery();
@@ -153,9 +158,10 @@ class QuickBooksService extends BaseService
         $items = $dataService->Query("Select * from Item");
 
         foreach ($items as $item) {
-            $itemEntity = new Item();
+            $itemEntity = new Items();
 
-            $itemEntity->setItemId($item->Id);
+            // $itemEntity->setItemId($item->Id);
+            $itemEntity->setQBOId($item->Id);
             $itemEntity->setType(($item->Type === "Inventory") ? "INVENTORY" : "SERVICE");
             $itemEntity->setName(($item->Name) ?? "null");
             $itemEntity->setDescription(($item->Description) ?? "null");
@@ -164,7 +170,8 @@ class QuickBooksService extends BaseService
             $itemEntity->setQuantity(($item->TrackQtyOnHand === true) ? $item->QtyOnHand : 0);
             $itemEntity->setCreatedAt(strtotime($item->MetaData->CreateTime));
             $itemEntity->setUpdatedAt(strtotime($item->MetaData->LastUpdatedTime));
-            $itemEntity->setUserId($user->getRealmId());
+            // $itemEntity->setUserId($user->getRealmId());
+            $itemEntity->setFKUsers($user->getId());
 
             $this->entityManager->persist($itemEntity);
         }
@@ -172,10 +179,10 @@ class QuickBooksService extends BaseService
     }
 
     /**
-     * @var User $user
+     * @var Users $user
      * @var UserAccessTokenService $userAccessTokenService
      */
-    public function fetchInvoicesfromQBO(User $user, UserAccessTokenService $userAccessTokenService)
+    public function fetchInvoicesfromQBO(Users $user, UserAccessTokenService $userAccessTokenService)
     {
 
         $setupQBQuery = new SetupQBQuery();
@@ -188,13 +195,16 @@ class QuickBooksService extends BaseService
         $invoices = $dataService->Query("Select * from Invoice");
 
         foreach ($invoices as $invoice) {
-            $invoiceEntity = new Invoice();
+            $invoiceEntity = new Invoices();
 
-            $invoiceEntity->setInvoiceId($invoice->Id);
+            // $invoiceEntity->setInvoiceId($invoice->Id);
+            $invoiceEntity->setQBOId($invoice->Id);
             $invoiceEntity->setInvoiceNumber($invoice->DocNumber);
-            $customerRepository = $this->doctrine->getRepository(Customer::class);
-            $customer = $customerRepository->findOneBy(['customerId' => $invoice->CustomerRef, 'userId' => $user->getRealmId()]);
-            $invoiceEntity->setCustomerId($customer->getId());
+            $customerRepository = $this->doctrine->getRepository(Customers::class);
+            // $customer = $customerRepository->findOneBy(['customerId' => $invoice->CustomerRef, 'userId' => $user->getRealmId()]);
+            $customer = $customerRepository->findOneBy(['qbo_id' => $invoice->CustomerRef, 'FK_users' => $user->getId()]);
+            // $invoiceEntity->setCustomerId($customer->getId());
+            $invoiceEntity->setFKCustomers($customer->getId());
             $invoiceEntity->setAmount($invoice->TotalAmt);
             $invoiceEntity->setBalance($invoice->Balance);
             $invoiceEntity->setPaymentStatus((($invoice->Balance) == 0) ? "PAID" : "PENDING");
@@ -202,7 +212,8 @@ class QuickBooksService extends BaseService
             $invoiceEntity->setDueDate(DateTime::createFromFormat('Y-m-d', ($invoice->DueDate)));
             $invoiceEntity->setCreatedAt(strtotime($invoice->MetaData->CreateTime));
             $invoiceEntity->setUpdatedAt(strtotime($invoice->MetaData->LastUpdatedTime));
-            $invoiceEntity->setUserId($user->getRealmId());
+            // $invoiceEntity->setUserId($user->getRealmId());
+            $invoiceEntity->setFKUsers($user->getId());
 
             $this->entityManager->persist($invoiceEntity);
             $this->entityManager->flush();
@@ -215,10 +226,10 @@ class QuickBooksService extends BaseService
     /**
      * @var int $invoiceIdFromQBO
      * @var $line // this is an array of IPPLine
-     * @var User $user
+     * @var Users $user
      * @var UserAccessTokenService $userAccessTokenService
      */
-    public function fetchCartItemsfromQBO(int $invoiceIdFromQBO, $line, User $user, UserAccessTokenService $userAccessTokenService)
+    public function fetchCartItemsfromQBO(int $invoiceIdFromQBO, $line, Users $user, UserAccessTokenService $userAccessTokenService)
     {
 
         $setupQBQuery = new SetupQBQuery();
@@ -233,29 +244,36 @@ class QuickBooksService extends BaseService
             // the last item in every invoice is empty so checking for that, or else thows exception
             // so checking the $line is array or not and then $item has an $Id or not
             if (is_array($line) == 1 && $item->Id !== null) {
-                $cartItemEntity = new CartItem();
+                // $invoicesItemEntity = new CartItem();
+                $invoicesItemEntity = new InvoicesItems();
 
-                $itemRepository = $this->doctrine->getRepository(Item::class);
+                $itemsRepository = $this->doctrine->getRepository(Items::class);
                 /**
-                 * @var Item $item
+                 * @var Items $item
                  */
-                $itemFromDB = $itemRepository->findOneBy(['itemId' => $item->SalesItemLineDetail->ItemRef, 'userId' => $user->getRealmId()]);
-                $cartItemEntity->setItemTableId($itemFromDB->getId());
+                // $itemFromDB = $itemsRepository->findOneBy(['itemId' => $item->SalesItemLineDetail->ItemRef, 'userId' => $user->getRealmId()]);
+                $itemFromDB = $itemsRepository->findOneBy(['qbo_id' => $item->SalesItemLineDetail->ItemRef, 'FK_users' => $user->getId()]);
+                // $invoicesItemEntity->setItemTableId($itemFromDB->getId());
+                $invoicesItemEntity->setFKItems($itemFromDB->getId());
 
-                $invoiceRepository = $this->doctrine->getRepository(Invoice::class);
+                // TODO: remove code-duplicate comments from all files
+                $invoicesRepository = $this->doctrine->getRepository(Invoices::class);
                 /**
-                 * @var Invoice $invoice
+                 * @var Invoices $invoice
                  */
-                $invoiceFromDB = $invoiceRepository->findOneBy(['invoiceId' => $invoiceIdFromQBO, 'userId' => $user->getRealmId()]);
-                $cartItemEntity->setInvoiceTableId($invoiceFromDB->getId());
+                // $invoiceFromDB = $invoicesRepository->findOneBy(['invoiceId' => $invoiceIdFromQBO, 'userId' => $user->getRealmId()]);
+                $invoiceFromDB = $invoicesRepository->findOneBy(['qbo_id' => $invoiceIdFromQBO, 'FK_users' => $user->getId()]);
+                // $invoicesItemEntity->setInvoiceTableId($invoiceFromDB->getId());
+                $invoicesItemEntity->setFKInvoices($invoiceFromDB->getId());
 
-                $cartItemEntity->setQuantity($item->SalesItemLineDetail->Qty ?? 0);
-                $cartItemEntity->setRate($item->SalesItemLineDetail->UnitPrice ?? 0.0);
-                $cartItemEntity->setCreatedAt(strtotime($invoiceFromDB->getCreatedAt()));
-                $cartItemEntity->setUpdatedAt(strtotime($invoiceFromDB->getUpdatedAt()));
-                $cartItemEntity->setUserId($user->getRealmId());
+                $invoicesItemEntity->setQuantity($item->SalesItemLineDetail->Qty ?? 0);
+                $invoicesItemEntity->setRate($item->SalesItemLineDetail->UnitPrice ?? 0.0);
+                $invoicesItemEntity->setCreatedAt(strtotime($invoiceFromDB->getCreatedAt()));
+                $invoicesItemEntity->setUpdatedAt(strtotime($invoiceFromDB->getUpdatedAt()));
+                // $invoicesItemEntity->setUserId($user->getRealmId());
+                $invoicesItemEntity->setFKUsers($user->getId());
 
-                $this->entityManager->persist($cartItemEntity);
+                $this->entityManager->persist($invoicesItemEntity);
             }
             $this->entityManager->flush();
         }

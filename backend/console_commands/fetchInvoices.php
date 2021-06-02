@@ -3,7 +3,7 @@
 require_once('./../vendor/autoload.php');
 require_once('./../connect.php');
 require_once('updateUserAccessToken.php');
-require_once('fetchCartItems.php');
+require_once('fetchInvoicesItems.php');
 
 use QuickBooksOnline\API\Core\OAuth\OAuth2\OAuth2AccessToken;
 use QuickBooksOnline\API\Data\IPPInvoice;
@@ -47,10 +47,10 @@ function fetchInvoices()
 
         // var_dump($invoices);
         foreach ($invoices as $invoice) {
-            if (invoiceExists($conn, $invoice->Id, $user['realmId']) === false) {
+            if (invoiceExists($conn, $invoice->Id, $user['id']) === false) {
                 addInvoice($conn, $invoice, $user);
-                $lastInvoiceId = getLastAddedInvoiceId($conn, $invoice->Id, $user['realmId']);
-                fetchCartItems($conn, $invoice->Line, $invoice->MetaData->CreateTime, $invoice->MetaData->LastUpdatedTime, $lastInvoiceId, $user['realmId']);
+                $lastInvoiceId = getLastAddedInvoiceId($conn, $invoice->Id, $user['id']);
+                fetchInvoicesItems($conn, $invoice->Line, $invoice->MetaData->CreateTime, $invoice->MetaData->LastUpdatedTime, $lastInvoiceId, $user['id']);
             }
         }
     }
@@ -69,13 +69,13 @@ function fetchInvoices()
 
 /**
  * @param mysqli $conn
- * @param String $invoiceId
+ * @param String $qboId
  * @param String $userId
  * @return bool
  */
-function invoiceExists($conn, $invoiceId, $userId): bool
+function invoiceExists($conn, $qboId, $userId): bool
 {
-    $sql = "SELECT id from invoice WHERE invoiceId=$invoiceId AND userId=$userId";
+    $sql = "SELECT id from invoices WHERE qbo_id=$qboId AND FK_users=$userId";
 
     $res = $conn->query($sql)->fetch_assoc();
     if ($res !== null) {
@@ -86,13 +86,13 @@ function invoiceExists($conn, $invoiceId, $userId): bool
 
 /**
  * @param mysqli $conn
- * @param String $invoiceId
+ * @param String $qbo_id
  * @param String $userId
  * @return String
  */
-function getLastAddedInvoiceId($conn, $invoiceId, $userId)
+function getLastAddedInvoiceId($conn, $qboId, $userId)
 {
-    $sql = "SELECT id from invoice WHERE invoiceId=$invoiceId AND userId=$userId";
+    $sql = "SELECT id from invoices WHERE qbo_id=$qboId AND FK_users=$userId";
 
     return $conn->query($sql)->fetch_assoc()['id'];
 }
@@ -105,9 +105,9 @@ function getLastAddedInvoiceId($conn, $invoiceId, $userId)
  */
 function addInvoice($conn, $invoice, $user): bool
 {
-    $invoiceId = $invoice->Id;
+    $qboId = $invoice->Id;
     $invoiceNumber = $invoice->DocNumber;
-    $customerId = getCustomerId($conn, $invoice->CustomerRef, $user['realmId']);
+    $FK_customers = getCustomerId($conn, $invoice->CustomerRef, $user['id']);
     $amount = $invoice->TotalAmt;
     $balance = $invoice->Balance;
     $paymentStatus = ($balance == 0) ? "PAID" : "PENDING";
@@ -115,11 +115,11 @@ function addInvoice($conn, $invoice, $user): bool
     $dueDate = $invoice->DueDate;
     $createdAt = strtotime($invoice->MetaData->CreateTime);
     $updatedAt = strtotime($invoice->MetaData->LastUpdatedTime);
-    $userId = $user['realmId'];
+    $FK_users = $user['id'];
 
-    $sql = "INSERT INTO invoice(invoiceId, invoiceNumber, customerId, paymentStatus, invoiceDate, dueDate, amount, balance, createdAt, updatedAt, userId) VALUES($invoiceId, $invoiceNumber, $customerId, '$paymentStatus', '$invoiceDate', '$dueDate', $amount, $balance, $createdAt, $updatedAt, $userId)";
+    $sql = "INSERT INTO invoices(qbo_id, invoiceNumber, FK_customers, paymentStatus, invoiceDate, dueDate, amount, balance, createdAt, updatedAt, FK_users) VALUES($qboId, $invoiceNumber, $FK_customers, '$paymentStatus', '$invoiceDate', '$dueDate', $amount, $balance, $createdAt, $updatedAt, $FK_users)";
     if ($conn->query($sql) === false) {
-        echo ("Error in adding new invoice in table invoice: " . $conn->error);
+        echo ("Error in adding new invoice in table invoices: " . $conn->error);
         return false;
     }
 
@@ -128,7 +128,7 @@ function addInvoice($conn, $invoice, $user): bool
 
 /**
  * @param mysqli $conn
- * @param String $customerId
+ * @param String $customerQBOId
  * @param String $userId
  * @return String
  * this function takes in the customerId from the QB API response
@@ -136,9 +136,9 @@ function addInvoice($conn, $invoice, $user): bool
  * The local database has a separate PRIMARY KEY column id
  * It has another column customerId which corresponds to the id of the customer received from QB
  */
-function getCustomerId($conn, $customerId, $userId): String
+function getCustomerId($conn, $customerQBOId, $userId): String
 {
-    $sql = "SELECT id from customer WHERE customerId=$customerId AND userId=$userId";
+    $sql = "SELECT id from customers WHERE qbo_id=$customerQBOId AND FK_users=$userId";
 
     return $conn->query($sql)->fetch_assoc()['id'];
 }

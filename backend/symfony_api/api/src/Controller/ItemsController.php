@@ -2,7 +2,7 @@
 
 namespace App\Controller;
 
-use App\Service\ItemService;
+use App\Service\ItemsService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\Response;
@@ -10,14 +10,14 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * @Route("/api/items")
  */
-class ItemController extends AbstractController
+class ItemsController extends AbstractController
 {
     /**
      * @Route("/{id}", methods={"GET"})
      * this method returns a item with the $id for the current user
      * if there is no item then returns null and No Content HTTP response
      */
-    public function getItemById($id, ItemService $itemService)
+    public function getItemById($id, ItemsService $itemService)
     {
         $item = $itemService->getItemByIdForUser($id, $this->getUser());
 
@@ -34,7 +34,7 @@ class ItemController extends AbstractController
      * this method returns all items for the current user
      * if there are no items then returns null and No Content HTTP response
      */
-    public function getAllItems(ItemService $itemService)
+    public function getAllItems(ItemsService $itemService)
     {
         $items = $itemService->getAllItemForUser($this->getUser());
 

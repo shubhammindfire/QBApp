@@ -46,7 +46,7 @@ function fetchItems()
 
         // var_dump($items);
         foreach ($items as $item) {
-            if (itemExists($conn, $item->Id, $user['realmId']) === false) {
+            if (itemExists($conn, $item->Id, $user['id']) === false) {
                 addItem($conn, $item, $user);
             }
         }
@@ -65,13 +65,13 @@ function fetchItems()
 
 /**
  * @param mysqli $conn
- * @param String $itemId
+ * @param String $qboId
  * @param String $userId
  * @return bool
  */
-function itemExists($conn, $itemId, $userId): bool
+function itemExists($conn, $qboId, $userId): bool
 {
-    $sql = "SELECT id from item WHERE itemId=$itemId AND userId=$userId";
+    $sql = "SELECT id from items WHERE qbo_id=$qboId AND FK_users=$userId";
 
     $res = $conn->query($sql)->fetch_assoc();
     if ($res !== null) {
@@ -88,7 +88,7 @@ function itemExists($conn, $itemId, $userId): bool
  */
 function addItem($conn, $item, $user): bool
 {
-    $itemId = $item->Id;
+    $qboId = $item->Id;
     $type = ($item->Type === "Inventory") ? "INVENTORY" : "SERVICE";
     $name = ($item->Name) ?? "null";
     $description = ($item->Description) ?? "null";
@@ -97,13 +97,13 @@ function addItem($conn, $item, $user): bool
     $quantity = ($item->TrackQtyOnHand === true) ? $item->QtyOnHand : 0;
     $createdAt = strtotime($item->MetaData->CreateTime);
     $updatedAt = strtotime($item->MetaData->LastUpdatedTime);
-    $userId = $user['realmId'];
+    $FK_users = $user['id'];
 
-    $stmt = $conn->prepare("INSERT INTO item(itemId, type, name, description, salesPrice, costPrice, quantity, createdAt, updatedAt, userId) VALUES(?,?,?,?,?,?,?,?,?,?)");
-    $stmt->bind_param("isssddiiis", $itemId, $type, $name, $description, $salesPrice, $costPrice, $quantity, $createdAt, $updatedAt, $userId);
+    $stmt = $conn->prepare("INSERT INTO items(qbo_id, type, name, description, salesPrice, costPrice, quantity, createdAt, updatedAt, FK_users) VALUES(?,?,?,?,?,?,?,?,?,?)");
+    $stmt->bind_param("isssddiiii", $qboId, $type, $name, $description, $salesPrice, $costPrice, $quantity, $createdAt, $updatedAt, $FK_users);
 
     if ($stmt->execute() === false) {
-        echo ("Error in adding new item in table item: " . $conn->error);
+        echo ("Error in adding new item in table items: " . $conn->error);
         echo ("Statement Error: " . $stmt->error);
         $stmt->close();
         return false;

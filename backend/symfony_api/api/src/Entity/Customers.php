@@ -2,13 +2,14 @@
 
 namespace App\Entity;
 
-use App\Repository\CustomerRepository;
+use App\Repository\CustomersRepository;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * @ORM\Entity(repositoryClass=CustomerRepository::class)
+ * @ORM\Entity(repositoryClass=CustomersRepository::class)
+ * @ORM\Table(name="customers")
  */
-class Customer
+class Customers
 {
     /**
      * @ORM\Id
@@ -18,9 +19,9 @@ class Customer
     private $id;
 
     /**
-     * @ORM\Column(name="customerId",type="integer")
+     * @ORM\Column(name="qbo_id",type="integer")
      */
-    private $customerId;
+    private $qbo_id;
 
     /**
      * @ORM\Column(type="string", length=45)
@@ -78,23 +79,23 @@ class Customer
     private $updatedAt;
 
     /**
-     * @ORM\Column(name="userId",type="string", length=225)
+     * @ORM\Column(name="FK_users",type="integer")
      */
-    private $userId;
+    private $FK_users;
 
     public function getId(): ?int
     {
         return $this->id;
     }
 
-    public function getCustomerId(): ?int
+    public function getQBOId(): ?int
     {
-        return $this->customerId;
+        return $this->qbo_id;
     }
 
-    public function setCustomerId(int $customerId): self
+    public function setQBOId(int $qbo_id): self
     {
-        $this->customerId = $customerId;
+        $this->qbo_id = $qbo_id;
 
         return $this;
     }
@@ -231,14 +232,20 @@ class Customer
         return $this;
     }
 
-    public function getUserId(): ?string
+    /**
+     * @return int
+     */
+    public function getFKUsers(): int
     {
-        return $this->userId;
+        return $this->FK_users;
     }
 
-    public function setUserId(string $userId): self
+    /**
+     * @param int $FK_users
+     */
+    public function setFKUsers(int $FK_users): self
     {
-        $this->userId = $userId;
+        $this->FK_users = $FK_users;
 
         return $this;
     }

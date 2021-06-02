@@ -2,15 +2,15 @@
 
 namespace App\Entity;
 
-use App\Repository\CartItemRepository;
+use App\Repository\InvoicesItemsRepository;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * @ORM\Entity(repositoryClass=CartItemRepository::class)
- * @ORM\Table(name="cartItem")
+ * @ORM\Entity(repositoryClass=InvoicesItemsRepository::class)
+ * @ORM\Table(name="invoices_items")
  * @ORM\HasLifecycleCallbacks()
  */
-class CartItem
+class InvoicesItems
 {
     /**
      * @ORM\Id
@@ -20,10 +20,12 @@ class CartItem
     private $id;
 
     /**
-     * @ORM\Column(name="itemTableId",type="integer")
+     * @ORM\Column(name="FK_items",type="integer")
+     * @ORM\ManyToOne(targetEntity="App\Entity\Items", inversedBy="id")
+     * @ORM\JoinColumn(nullable=false)
      * this is the id of the item in the item table
      */
-    private $itemTableId;
+    private $FK_items;
 
     /**
      * @ORM\Column(type="integer")
@@ -36,10 +38,10 @@ class CartItem
     private $rate;
 
     /**
-     * @ORM\Column(name="invoiceTableId",type="integer")
+     * @ORM\Column(name="FK_invoices",type="integer")
      * this is the id of the invoice in the invoice table
      */
-    private $invoiceTableId;
+    private $FK_invoices;
 
     /**
      * @ORM\Column(name="createdAt",type="bigint")
@@ -50,11 +52,6 @@ class CartItem
      * @ORM\Column(name="updatedAt",type="bigint")
      */
     private $updatedAt;
-
-    /**
-     * @ORM\Column(name="userId",type="string", length=225)
-     */
-    private $userId;
 
     /**
      * Not included in the database
@@ -74,19 +71,24 @@ class CartItem
      */
     private $itemAmount;
 
+    /**
+     * @ORM\Column(name="FK_users",type="integer")
+     */
+    private $FK_users;
+
     public function getId(): ?int
     {
         return $this->id;
     }
 
-    public function getItemTableId(): ?int
+    public function getFKItems(): ?int
     {
-        return $this->itemTableId;
+        return $this->FK_items;
     }
 
-    public function setItemTableId(int $itemTableId): self
+    public function setFKItems(int $FK_items): self
     {
-        $this->itemTableId = $itemTableId;
+        $this->FK_items = $FK_items;
 
         return $this;
     }
@@ -115,14 +117,14 @@ class CartItem
         return $this;
     }
 
-    public function getInvoiceTableId(): ?int
+    public function getFKInvoices(): ?int
     {
-        return $this->invoiceTableId;
+        return $this->FK_invoices;
     }
 
-    public function setInvoiceTableId(int $invoiceTableId): self
+    public function setFKInvoices(int $FK_invoices): self
     {
-        $this->invoiceTableId = $invoiceTableId;
+        $this->FK_invoices = $FK_invoices;
 
         return $this;
     }
@@ -158,18 +160,6 @@ class CartItem
         return $this;
     }
 
-    public function getUserId(): ?string
-    {
-        return $this->userId;
-    }
-
-    public function setUserId(string $userId): self
-    {
-        $this->userId = $userId;
-
-        return $this;
-    }
-
     public function getItemName()
     {
         return $this->itemName;
@@ -194,12 +184,29 @@ class CartItem
         return $this;
     }
 
-
     // getItemAmount() also acts the setter here
     public function getItemAmount()
     {
         $this->itemAmount = $this->rate * $this->quantity;
 
         return $this->itemAmount;
+    }
+
+    /**
+     * @return int
+     */
+    public function getFKUsers(): int
+    {
+        return $this->FK_users;
+    }
+
+    /**
+     * @param int $FK_users
+     */
+    public function setFKUsers(int $FK_users): self
+    {
+        $this->FK_users = $FK_users;
+
+        return $this;
     }
 }

@@ -49,15 +49,15 @@ services:
         arguments:
             - "@monolog.logger"
             - "@doctrine.orm.entity_manager"
-    QBApp.customer_service:
-        class: App\Service\CustomerService
+    QBApp.customers_service:
+        class: App\Service\CustomersService
         parent: QBApp.base_service
         public: true
         arguments:
             - "@monolog.logger"
             - "@doctrine"
-    QBApp.item_service:
-        class: App\Service\ItemService
+    QBApp.items_service:
+        class: App\Service\ItemsService
         parent: QBApp.base_service
         public: true
         arguments:

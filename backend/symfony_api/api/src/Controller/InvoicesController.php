@@ -2,7 +2,7 @@
 
 namespace App\Controller;
 
-use App\Service\InvoiceService;
+use App\Service\InvoicesService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
@@ -12,19 +12,19 @@ use Symfony\Component\Serializer\SerializerInterface;
 /**
  * @Route("/api/invoices")
  */
-class InvoiceController extends AbstractController
+class InvoicesController extends AbstractController
 {
     /**
      * @Route("/{id}", methods={"GET"})
      * this method returns a invoice with the $id for the current user
      * if there is no invoice then returns null and No Content HTTP response
      */
-    public function getInvoiceById($id, InvoiceService $invoiceService)
+    public function getInvoiceById($id, InvoicesService $invoiceService)
     {
         $data = $invoiceService->getInvoiceByIdForUser($id, $this->getUser());
 
         $invoice = $data["invoice"];
-        $cartItems = $data["cartItems"];
+        $invoiceItems = $data["invoice"];
 
         // if there is no invoice then send a no content response
         if ($invoice == null) {
@@ -32,7 +32,7 @@ class InvoiceController extends AbstractController
         }
 
         // return $this->json($invoice);
-        return $this->json(["invoice" => $invoice, "cartItems" => $cartItems]);
+        return $this->json(["invoice" => $invoice, "invoiceItems" => $invoiceItems]);
     }
 
     /**
@@ -40,7 +40,7 @@ class InvoiceController extends AbstractController
      * this method returns all invoices for the current user
      * if there are no invoices then returns null and No Content HTTP response
      */
-    public function getAllInvoices(InvoiceService $invoiceService)
+    public function getAllInvoices(InvoicesService $invoiceService)
     {
         $invoices = $invoiceService->getAllInvoiceForUser($this->getUser());
 
@@ -55,7 +55,7 @@ class InvoiceController extends AbstractController
     /**
      * @Route("/{id}", methods={"PATCH"})
      */
-    public function updateInvoiceById($id, InvoiceService $invoiceService, Request $request)
+    public function updateInvoiceById($id, InvoicesService $invoiceService, Request $request)
     {
         $data = $request->toArray();
         $user = $this->getUser();
@@ -75,7 +75,7 @@ class InvoiceController extends AbstractController
     /**
      * @Route("/{id}", methods={"DELETE"})
      */
-    public function deleteInvoiceById($id, InvoiceService $invoiceService, Request $request)
+    public function deleteInvoiceById($id, InvoicesService $invoiceService, Request $request)
     {
         $user = $this->getUser();
 
@@ -93,7 +93,7 @@ class InvoiceController extends AbstractController
     /**
      * @Route("/", methods={"POST"})
      */
-    public function createInvoice(InvoiceService $invoiceService, Request $request)
+    public function createInvoice(InvoicesService $invoiceService, Request $request)
     {
         $data = $request->toArray();
         $user = $this->getUser();
@@ -102,7 +102,6 @@ class InvoiceController extends AbstractController
         if ($responseData['status'] === "OK") {
             return $this->json($responseData['data'], Response::HTTP_CREATED);
         }
-        echo ("STATUS IS NOT OK");
         return $this->json($responseData, Response::HTTP_BAD_REQUEST);
     }
 }

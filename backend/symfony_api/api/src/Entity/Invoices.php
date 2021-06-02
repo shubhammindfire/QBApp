@@ -2,14 +2,15 @@
 
 namespace App\Entity;
 
-use App\Repository\InvoiceRepository;
+use App\Repository\InvoicesRepository;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * @ORM\Entity(repositoryClass=InvoiceRepository::class)
+ * @ORM\Entity(repositoryClass=InvoicesRepository::class)
+ * @ORM\Table(name="invoices")
  * @ORM\HasLifecycleCallbacks()
  */
-class Invoice
+class Invoices
 {
     /**
      * @ORM\Id
@@ -19,9 +20,9 @@ class Invoice
     private $id;
 
     /**
-     * @ORM\Column(name="invoiceId",type="integer")
+     * @ORM\Column(name="qbo_id",type="integer")
      */
-    private $invoiceId;
+    private $qbo_id;
 
     /**
      * @ORM\Column(name="invoiceNumber",type="integer")
@@ -29,9 +30,9 @@ class Invoice
     private $invoiceNumber;
 
     /**
-     * @ORM\Column(name="customerId",type="integer")
+     * @ORM\Column(name="FK_customers",type="integer")
      */
-    private $customerId;
+    private $FK_customers;
 
     /**
      * @ORM\Column(name="paymentStatus",type="string", length=45)
@@ -69,11 +70,6 @@ class Invoice
     private $updatedAt;
 
     /**
-     * @ORM\Column(name="userId",type="string", length=225)
-     */
-    private $userId;
-
-    /**
      * Not included in the database
      * @var String $customerName
      */
@@ -91,19 +87,24 @@ class Invoice
      */
     private $billingAddress;
 
+    /**
+     * @ORM\Column(name="FK_users",type="integer")
+     */
+    private $FK_users;
+
     public function getId(): ?int
     {
         return $this->id;
     }
 
-    public function getInvoiceId(): ?int
+    public function getQBOId(): ?int
     {
-        return $this->invoiceId;
+        return $this->qbo_id;
     }
 
-    public function setInvoiceId(int $invoiceId): self
+    public function setQBOId(int $qbo_id): self
     {
-        $this->invoiceId = $invoiceId;
+        $this->qbo_id = $qbo_id;
 
         return $this;
     }
@@ -120,14 +121,14 @@ class Invoice
         return $this;
     }
 
-    public function getCustomerId(): ?int
+    public function getFKCustomers(): ?int
     {
-        return $this->customerId;
+        return $this->FK_customers;
     }
 
-    public function setCustomerId(int $customerId): self
+    public function setFKCustomers(int $FK_customers): self
     {
-        $this->customerId = $customerId;
+        $this->FK_customers = $FK_customers;
 
         return $this;
     }
@@ -223,18 +224,6 @@ class Invoice
         return $this;
     }
 
-    public function getUserId(): ?string
-    {
-        return $this->userId;
-    }
-
-    public function setUserId(string $userId): self
-    {
-        $this->userId = $userId;
-
-        return $this;
-    }
-
     public function getCustomerName(): ?String
     {
         return $this->customerName;
@@ -267,6 +256,24 @@ class Invoice
     public function setBillingAddress(String $billingAddress): self
     {
         $this->billingAddress = $billingAddress;
+
+        return $this;
+    }
+
+    /**
+     * @return int
+     */
+    public function getFKUsers(): int
+    {
+        return $this->FK_users;
+    }
+
+    /**
+     * @param int $FK_users
+     */
+    public function setFKUsers(int $FK_users): self
+    {
+        $this->FK_users = $FK_users;
 
         return $this;
     }
