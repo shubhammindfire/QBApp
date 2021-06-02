@@ -15,17 +15,17 @@ export function validateDueDate(invoiceDate, dueDate) {
     return false;
 }
 
-// this function checks if any cartItem is name is empty
-export function validateEmptyCartItem(cartItems) {
-    for (let i = 0; i < cartItems.length; i++) {
-        if (cartItems.itemName === null || cartItems.itemName === "")
+// this function checks if any invoiceItem is name is empty
+export function validateEmptyInvoiceItem(invoiceItems) {
+    for (let i = 0; i < invoiceItems.length; i++) {
+        if (invoiceItems.itemName === null || invoiceItems.itemName === "")
             return false;
     }
     return true;
 }
 
-// this function checks if any cartItem is name is invalid
-export function validateInvalidCartItem(cartItems, items) {
+// this function checks if any invoiceItem is name is invalid
+export function validateInvalidInvoiceItem(invoiceItems, items) {
     let itemNameListAsString = [];
 
     if (items !== undefined) {
@@ -33,18 +33,18 @@ export function validateInvalidCartItem(cartItems, items) {
             itemNameListAsString.push(items[i].name);
         }
     }
-    for (let i = 0; i < cartItems.length; i++) {
-        if (!itemNameListAsString.includes(cartItems[i].itemName)) {
+    for (let i = 0; i < invoiceItems.length; i++) {
+        if (!itemNameListAsString.includes(invoiceItems[i].itemName)) {
             return false;
         }
     }
     return true;
 }
 
-// this function checks if any cartItem quantity is zero
-export function validateCartItemQuantity(cartItems) {
-    for (let i = 0; i < cartItems.length; i++) {
-        if (cartItems[i].quantity === null || cartItems[i].quantity === 0)
+// this function checks if any invoiceItem quantity is zero
+export function validateInvoiceItemQuantity(invoiceItems) {
+    for (let i = 0; i < invoiceItems.length; i++) {
+        if (invoiceItems[i].quantity === null || invoiceItems[i].quantity === 0)
             return false;
     }
     return true;

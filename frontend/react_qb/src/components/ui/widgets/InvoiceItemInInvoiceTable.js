@@ -3,38 +3,38 @@ import { faTrashAlt } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useDispatch, useSelector } from "react-redux";
 
-function CartItemInInvoiceTable(props) {
+function InvoiceItemInInvoiceTable(props) {
     const {
-        cartItem,
+        invoiceItem,
         items,
         operation,
         updateItemsCallback,
         deleteItemCallback,
         index,
     } = props;
-    const [itemName, setItemName] = useState(cartItem.itemName ?? "");
+    const [itemName, setItemName] = useState(invoiceItem.itemName ?? "");
     const [itemDescription, setItemDescription] = useState(
-        cartItem.itemDescription ?? ""
+        invoiceItem.itemDescription ?? ""
     );
-    const [quantity, setQuantity] = useState(cartItem.quantity ?? 0);
-    const [rate, setRate] = useState(cartItem.rate ?? 0.0);
-    const [itemAmount, setItemAmount] = useState(cartItem.itemAmount ?? 0.0);
+    const [quantity, setQuantity] = useState(invoiceItem.quantity ?? 0);
+    const [rate, setRate] = useState(invoiceItem.rate ?? 0.0);
+    const [itemAmount, setItemAmount] = useState(invoiceItem.itemAmount ?? 0.0);
     let itemNameListAsString = [];
-    let newCartItem = cartItem;
+    let newinvoiceItem = invoiceItem;
 
     useEffect(() => {
         console.log("Component mount");
-        // let newCartItem = cartItem;
-        // newCartItem.itemName = itemName;
-        // newCartItem.itemDescription = itemDescription;
-        // newCartItem.quantity = quantity;
-        // newCartItem.rate = rate;
-        // newCartItem.itemAmount = itemAmount;
-        // callback("Edit", newCartItem, index);
+        // let newinvoiceItem = invoiceItem;
+        // newinvoiceItem.itemName = itemName;
+        // newinvoiceItem.itemDescription = itemDescription;
+        // newinvoiceItem.quantity = quantity;
+        // newinvoiceItem.rate = rate;
+        // newinvoiceItem.itemAmount = itemAmount;
+        // callback("Edit", newinvoiceItem, index);
         return () => {
             // cleanup for didComponentDismount
             console.log("Component dismount");
-            // updateItemsCallback("Edit", newCartItem, index);
+            // updateItemsCallback("Edit", newinvoiceItem, index);
         };
     }, [itemName, itemDescription, quantity, rate, itemAmount]);
 
@@ -43,33 +43,33 @@ function CartItemInInvoiceTable(props) {
 
         if (attribute === "itemName") {
             setItemName(e.target.value);
-            newCartItem.itemName = e.target.value;
+            newinvoiceItem.itemName = e.target.value;
             if (itemNameListAsString.includes(e.target.value)) {
                 for (let j = 0; j < items.length; j++) {
                     if (items[j].name === e.target.value) {
-                        newCartItem.itemTableId = items[j].id;
+                        newinvoiceItem.itemTableId = items[j].id;
                         setItemDescription(items[j].description);
-                        newCartItem.itemDescription = items[j].description;
+                        newinvoiceItem.itemDescription = items[j].description;
                         // here I set quantity to 1 whenever new item is selected from dropdown
                         // I don't give quantity from the items[j] because items[j].quantity is the total quantity in hand
                         setQuantity(1);
-                        newCartItem.quantity = 1;
+                        newinvoiceItem.quantity = 1;
                         setRate(items[j].costPrice);
-                        newCartItem.rate = items[j].costPrice;
+                        newinvoiceItem.rate = items[j].costPrice;
                         // I don't use variable quantity and rate here because they aren't updated by this point
                         setItemAmount(1 * items[j].costPrice);
-                        newCartItem.itemAmount = items[j].costPrice;
-                        updateItemsCallback("Edit", newCartItem, index);
+                        newinvoiceItem.itemAmount = items[j].costPrice;
+                        updateItemsCallback("Edit", newinvoiceItem, index);
                         break;
                     }
                 }
             }
         } else if (attribute === "quantity") {
             setQuantity(e.target.value);
-            newCartItem.quantity = parseInt(e.target.value);
+            newinvoiceItem.quantity = parseInt(e.target.value);
             setItemAmount(e.target.value * rate);
-            newCartItem.itemAmount = e.target.value * rate;
-            updateItemsCallback("Edit", newCartItem, index);
+            newinvoiceItem.itemAmount = e.target.value * rate;
+            updateItemsCallback("Edit", newinvoiceItem, index);
         }
     }
 
@@ -97,14 +97,14 @@ function CartItemInInvoiceTable(props) {
             <td className="border-r-2 border-t-2">{index + 1}</td>
             <td className="border-r-2 border-t-2">
                 <input
-                    list="cartItemNames"
+                    list="invoiceItemNames"
                     className="inline p-2 border border-black xs:w-full"
                     placeholder="Select an item"
                     value={itemName}
                     disabled={operation === "View" ? true : false}
                     onChange={(e) => handleChange(e, "itemName")}
                 />
-                <datalist id="cartItemNames">{getItemNameList()}</datalist>
+                <datalist id="invoiceItemNames">{getItemNameList()}</datalist>
             </td>
             <td className="border-r-2 border-t-2">{itemDescription}</td>
             <td className="border-r-2 border-t-2">
@@ -130,4 +130,4 @@ function CartItemInInvoiceTable(props) {
     );
 }
 
-export default CartItemInInvoiceTable;
+export default InvoiceItemInInvoiceTable;

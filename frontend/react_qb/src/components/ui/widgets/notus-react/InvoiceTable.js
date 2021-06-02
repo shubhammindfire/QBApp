@@ -14,11 +14,13 @@ import {
     DELETE_INVOICE_BY_ID,
 } from "../../../../Constants";
 import axios from "axios";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import ErrorModal from "../ErrorModal";
+import { removeInvoiceByIndex } from "../../../../redux/quickbooks/invoice/invoiceActions";
 
 function InvoiceTable(props) {
     const jwt = useSelector((state) => state.localAuthReducer.jwt);
+    const dispatch = useDispatch();
     const { color = "light", title, invoices } = props;
     const [showErrorModal, setShowErrorModal] = useState(false);
 
@@ -136,7 +138,7 @@ function InvoiceTable(props) {
                                 </tr>
                             </thead>
                             <tbody>
-                                {row("light", invoices, jwt, setShowErrorModal)}
+                                {row("light", invoices, jwt, setShowErrorModal,dispatch)}
                             </tbody>
                         </table>
                     </div>
@@ -146,18 +148,19 @@ function InvoiceTable(props) {
     );
 }
 
-function row(color = "light", invoices, jwt, setShowErrorModal) {
+function row(color = "light", invoices, jwt, setShowErrorModal,dispatch) {
     const rows = [];
 
-    function handleDelete(e, invoiceTableId) {
+    function handleDelete(e, invoiceTableId,index) {
         e.preventDefault();
+        // TODO: add loader for deleting
         axios
             .delete(DELETE_INVOICE_BY_ID + `/${invoiceTableId}`, {
                 headers: { Authorization: `Bearer ${jwt}` },
             })
             .then((response) => {
                 // refresh the page if the delete is successful
-                if (response.status === 204) window.location.reload();
+                if (response.status === 204) dispatch(removeInvoiceByIndex(index));
             })
             .catch((error) => {
                 console.log(JSON.stringify(error));
@@ -269,7 +272,7 @@ function row(color = "light", invoices, jwt, setShowErrorModal) {
                     <td>
                         <button
                             className="ml-4"
-                            onClick={(e) => handleDelete(e, invoices[i].id)}
+                            onClick={(e) => handleDelete(e, invoices[i].id,i)}
                         >
                             <FontAwesomeIcon
                                 icon={faTrashAlt}

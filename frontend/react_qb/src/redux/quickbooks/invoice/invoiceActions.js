@@ -1,11 +1,12 @@
 import {
     ADD_ALL_INVOICES,
     REMOVE_ALL_INVOICES,
+    REMOVE_INVOICE_BY_INDEX,
     ADD_CURRENT_INVOICE,
-    ADD_CURRENT_CART_ITEMS,
-    DELETE_CURRENT_CART_ITEM_BY_INDEX,
+    ADD_CURRENT_INVOICE_ITEMS,
+    DELETE_CURRENT_INVOICE_ITEM_BY_INDEX,
     REMOVE_CURRENT_INVOICE,
-    REMOVE_CURRENT_CART_ITEMS,
+    REMOVE_CURRENT_INVOICE_ITEMS,
 } from "./invoiceTypes.js";
 
 export const addAllInvoices = (invoices = []) => {
@@ -21,6 +22,13 @@ export const removeAllInvoices = () => {
     };
 };
 
+export const removeInvoiceByIndex = (index) => {
+    return {
+        type: REMOVE_INVOICE_BY_INDEX,
+        payload: index,
+    };
+};
+
 export const addCurrentInvoice = (invoice = {}) => {
     return {
         type: ADD_CURRENT_INVOICE,
@@ -28,16 +36,16 @@ export const addCurrentInvoice = (invoice = {}) => {
     };
 };
 
-export const addCurrentCartItems = (cartItems = []) => {
+export const addCurrentInvoiceItems = (invoiceItems = []) => {
     return {
-        type: ADD_CURRENT_CART_ITEMS,
-        payload: cartItems,
+        type: ADD_CURRENT_INVOICE_ITEMS,
+        payload: invoiceItems,
     };
 };
 
-export const deleteCurrentCartItemByIndex = (index) => {
+export const deleteCurrentInvoiceItemByIndex = (index) => {
     return {
-        type: DELETE_CURRENT_CART_ITEM_BY_INDEX,
+        type: DELETE_CURRENT_INVOICE_ITEM_BY_INDEX,
         payload: index,
     };
 };
@@ -48,8 +56,8 @@ export const removeCurrentInvoice = () => {
     };
 };
 
-export const removeCurrentCartItems = () => {
+export const removeCurrentInvoiceItems = () => {
     return {
-        type: REMOVE_CURRENT_CART_ITEMS,
+        type: REMOVE_CURRENT_INVOICE_ITEMS,
     };
 };

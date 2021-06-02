@@ -5,7 +5,7 @@ import { Link } from "react-router-dom";
 import { LOGIN_ROUTE } from "../../../Constants";
 
 function ErrorModal(props) {
-    const { type = "ERROR" } = props;
+    const { setShowErrorModal, type = "ERROR" } = props;
 
     return (
         <div className="w-96 h-40 fixed top-1/3 left-1/3 bg-white border border-black rounded-lg">
@@ -19,7 +19,7 @@ function ErrorModal(props) {
                     />
                     {type === "SESSION_EXPIRED"
                         ? "Session Expired, please login again"
-                        : "An error Occured, please refersh the page"}
+                        : "An error Occured, please check the data filled"}
                 </div>
                 {type === "SESSION_EXPIRED" ? (
                     <Link
@@ -39,10 +39,10 @@ function ErrorModal(props) {
                         className="submitBtn text-center bg-blue-600"
                         onClick={(e) => {
                             e.preventDefault();
-                            window.location.reload();
+                            setShowErrorModal(false);
                         }}
                     >
-                        Refresh
+                        Close
                     </button>
                 )}
             </div>

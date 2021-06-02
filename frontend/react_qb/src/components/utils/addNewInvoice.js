@@ -6,9 +6,8 @@ async function getQBOItemId(jwt, itemTableId) {
         const response = await axios.get(GET_ITEM_BY_ID + `/${itemTableId}`, {
             headers: { Authorization: `Bearer ${jwt}` },
         });
-        console.log(`response ${response.data}`);
-        console.log(`item ${response.data.itemId}`);
-        return { success: true, data: response.data.itemId };
+        console.log("getQBOItemId RESPONSE: " + JSON.stringify(response.data));
+        return { success: true, data: response.data.qBOId };
     } catch (error) {
         console.log("ERROR LOG");
         return { success: false, data: error };
@@ -22,39 +21,38 @@ async function addNewInvoice(
     qboCustomerId,
     totalAmount,
     balance,
-    cartItems
+    invoiceItems
 ) {
-    let cartItemsToPost = [];
+    let invoiceItemsToPost = [];
 
-    for (let i = 0; i < cartItems.length; i++) {
+    for (let i = 0; i < invoiceItems.length; i++) {
         let qboItemId = null;
-        const res = await getQBOItemId(jwt, cartItems[i].itemTableId); // this should be the itemId from QBO
+        const res = await getQBOItemId(jwt, invoiceItems[i].itemTableId); // this should be the itemId from QBO
         if (res.success === false) {
             continue;
         }
         qboItemId = res.data;
-        console.log(qboItemId);
-        cartItemsToPost.push({
-            description: cartItems[i].itemDescription,
-            amount: cartItems[i].itemAmount,
-            // itemId: await getQBOItemId(jwt, cartItems[i].itemTableId), // this should be the itemId from QBO
-            itemId: await qboItemId, // this should be the itemId from QBO
-            name: cartItems[i].itemName,
-            costPrice: cartItems[i].rate,
-            quantity: cartItems[i].quantity,
+        invoiceItemsToPost.push({
+            description: invoiceItems[i].itemDescription,
+            amount: invoiceItems[i].itemAmount,
+            // itemId: await getQBOItemId(jwt, invoiceItems[i].itemTableId), // this should be the itemId from QBO
+            itemQBOId: await qboItemId, // this should be the itemId from QBO
+            name: invoiceItems[i].itemName,
+            costPrice: invoiceItems[i].rate,
+            quantity: invoiceItems[i].quantity,
         });
     }
 
-    // console.log(JSON.stringify(cartItems[0]));
-    console.log(JSON.stringify(cartItemsToPost));
+    // console.log(JSON.stringify(invoiceItems[0]));
+    console.log(JSON.stringify(invoiceItemsToPost));
 
     const data = {
         invoiceDate: invoiceDate,
         dueDate: dueDate,
-        customerId: qboCustomerId, // this should be the customerId from QBO
+        customerQBOId: qboCustomerId, // this should be the customerId from QBO
         totalAmount: totalAmount,
         balance: balance,
-        cartItems: cartItemsToPost,
+        invoiceItems: invoiceItemsToPost,
     };
 
     try {

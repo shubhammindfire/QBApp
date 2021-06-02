@@ -1,11 +1,11 @@
 // this function returns the customerQBO id from the customerName
 function getQBOCustomerId(customers, customerName) {
-    let customerId = null;
+    let qboCustomerId = null;
     customers.forEach((customer) => {
         if (customer.displayName === customerName)
-            customerId = customer.customerId;
+            qboCustomerId = customer.qBOId;
     });
-    if (customerId !== null) return customerId;
+    if (qboCustomerId !== null) return qboCustomerId;
     else throw Error("Customer Id not found");
 }
 

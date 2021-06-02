@@ -1,17 +1,18 @@
 import {
     ADD_ALL_INVOICES,
     REMOVE_ALL_INVOICES,
-    ADD_CURRENT_CART_ITEMS,
+    ADD_CURRENT_INVOICE_ITEMS,
     ADD_CURRENT_INVOICE,
     REMOVE_CURRENT_INVOICE,
-    REMOVE_CURRENT_CART_ITEMS,
-    DELETE_CURRENT_CART_ITEM_BY_INDEX,
+    REMOVE_CURRENT_INVOICE_ITEMS,
+    DELETE_CURRENT_INVOICE_ITEM_BY_INDEX,
+    REMOVE_INVOICE_BY_INDEX,
 } from "./invoiceTypes.js";
 
 const initialState = {
     invoices: [],
     currentInvoice: {},
-    currentCartItems: [],
+    currentInvoiceItems: [],
 };
 
 const invoiceReducer = (state = initialState, action) => {
@@ -26,23 +27,32 @@ const invoiceReducer = (state = initialState, action) => {
                 ...state,
                 invoices: [],
             };
+        case REMOVE_INVOICE_BY_INDEX:
+            return {
+                ...state,
+                invoices: [
+                    // here action.payload is the index of the invoice to be deleted
+                    ...state.invoices.slice(0, action.payload),
+                    ...state.invoices.slice(action.payload + 1),
+                ],
+            };
         case ADD_CURRENT_INVOICE:
             return {
                 ...state,
                 currentInvoice: action.payload,
             };
-        case ADD_CURRENT_CART_ITEMS:
+        case ADD_CURRENT_INVOICE_ITEMS:
             return {
                 ...state,
-                currentCartItems: action.payload,
+                currentInvoiceItems: action.payload,
             };
-        case DELETE_CURRENT_CART_ITEM_BY_INDEX:
+        case DELETE_CURRENT_INVOICE_ITEM_BY_INDEX:
             return {
                 ...state,
-                currentCartItems: [
+                currentInvoiceItems: [
                     // here action.payload is the index of the item to be deleted
-                    ...state.currentCartItems.slice(0, action.payload),
-                    ...state.currentCartItems.slice(action.payload + 1),
+                    ...state.currentInvoiceItems.slice(0, action.payload),
+                    ...state.currentInvoiceItems.slice(action.payload + 1),
                 ],
             };
         case REMOVE_CURRENT_INVOICE:
@@ -50,10 +60,10 @@ const invoiceReducer = (state = initialState, action) => {
                 ...state,
                 currentInvoice: {},
             };
-        case REMOVE_CURRENT_CART_ITEMS:
+        case REMOVE_CURRENT_INVOICE_ITEMS:
             return {
                 ...state,
-                currentCartItems: [],
+                currentInvoiceItems: [],
             };
         default:
             return state;

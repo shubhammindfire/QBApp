@@ -7,7 +7,7 @@ import { useDispatch, useSelector } from "react-redux";
 import {
     addAllInvoices,
     removeAllInvoices,
-    removeCurrentCartItems,
+    removeCurrentInvoiceItems,
     removeCurrentInvoice,
 } from "./../../../redux/quickbooks/invoice/invoiceActions.js";
 import ErrorModal from "../widgets/ErrorModal.js";
@@ -30,7 +30,7 @@ function Invoices() {
 
                 // clear the current invoice and current cartItems states in redux
                 dispatch(removeCurrentInvoice());
-                dispatch(removeCurrentCartItems());
+                dispatch(removeCurrentInvoiceItems());
             })
             .catch((error) => {
                 if (error.response.data.code === 401) {
