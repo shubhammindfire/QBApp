@@ -24,7 +24,7 @@ class InvoicesController extends AbstractController
         $data = $invoiceService->getInvoiceByIdForUser($id, $this->getUser());
 
         $invoice = $data["invoice"];
-        $invoiceItems = $data["invoice"];
+        $invoiceItems = $data["invoiceItems"];
 
         // if there is no invoice then send a no content response
         if ($invoice == null) {
