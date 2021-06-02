@@ -13,6 +13,11 @@ import {
 import checkSessionExpired from "./../../utils/checkSessionExpired.js";
 
 function Login(props) {
+    if (localStorage.getItem("isQBOConnected") === undefined)
+        localStorage.setItem("isQBOConnected", false);
+    // converting 'true' or 'false' from local storage to true or false
+    const isQBOConnected = localStorage.getItem("isQBOConnected") === "true";
+
     const isSessionExpired =
         props.location.state !== undefined
             ? props.location.state.isSessionExpired
@@ -95,7 +100,9 @@ function Login(props) {
 
     return (
         <>
-            {jwt !== null && checkSessionExpired() === false ? (
+            {isQBOConnected === true &&
+            jwt !== null &&
+            checkSessionExpired() === false ? (
                 // if the user is logged in and session is not expired then redirect to portal
                 <Redirect to={PORTAL_ROUTE} />
             ) : (

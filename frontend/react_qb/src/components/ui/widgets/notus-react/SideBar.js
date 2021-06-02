@@ -151,14 +151,16 @@ export default function Sidebar() {
 
                         <ul className="md:flex-col md:min-w-full flex flex-col list-none md:mb-4">
                             <li className="items-center">
-                                <button
+                                <Link
                                     className="text-blueGray-700 hover:text-blueGray-500 text-xs uppercase py-3 font-bold block"
+                                    to={LOGIN_ROUTE}
                                     onClick={(e) => {
                                         e.preventDefault();
                                         dispatch(setLocalAuthJwt(null));
                                         localStorage.removeItem("session-jwt");
-                                        window.location.href =
-                                            BASE_REACT_ROUTE + LOGIN_ROUTE;
+                                        localStorage.removeItem(
+                                            "isQBOConnected"
+                                        );
                                     }}
                                 >
                                     <FontAwesomeIcon
@@ -167,7 +169,7 @@ export default function Sidebar() {
                                         color="#FF0000"
                                     />
                                     Logout
-                                </button>
+                                </Link>
                             </li>
                         </ul>
                     </div>
