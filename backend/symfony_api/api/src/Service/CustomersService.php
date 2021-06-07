@@ -39,7 +39,6 @@ class CustomersService extends BaseService
      */
     public function getCustomerByIdForUser(int $id, Users $user): ?Object
     {
-        // $customer = $this->repository->findOneBy(["userId" => $user->getRealmId(), "id" => $id]);
         $customer = $this->repository->findOneBy(["FK_users" => $user->getId(), "id" => $id]);
 
         return $customer;
@@ -52,7 +51,6 @@ class CustomersService extends BaseService
      */
     public function getAllCustomerForUser(Users $user): array
     {
-        // $customers = $this->repository->findBy(["userId" => $user->getRealmId()]);
         $customers = $this->repository->findBy(["FK_users" => $user->getId()]);
 
         return $customers;

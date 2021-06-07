@@ -32,22 +32,6 @@ class RequestListener
     {
 
         $request = $event->getRequest();
-        // $data = $request->get("data");
-
-        // echo("request body = $data");
-        // $request->attributes->set("request_body", $data);
-
-        // $method = $request->getMethod();
-        // $realMethod = $request->getRealMethod();
-        // echo ("method = $method and real method = $realMethod");
-
-        // if (in_array($method, [Request::METHOD_POST, Request::METHOD_PUT]) && $request->get('data') === null) {
-        //     // $this->logger->error("Method PUT/POST with an empty body");
-        //     $this->logger->info("Method PUT/POST with an empty body");
-        //     return new Response(null, Response::HTTP_BAD_REQUEST);
-        // } else {
-        //     $this->decodeJWT($request);
-        // }
         $this->decodeJWT($request);
     }
 

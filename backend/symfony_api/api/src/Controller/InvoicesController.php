@@ -31,7 +31,6 @@ class InvoicesController extends AbstractController
             return $this->json(null, Response::HTTP_NO_CONTENT);
         }
 
-        // return $this->json($invoice);
         return $this->json(["invoice" => $invoice, "invoiceItems" => $invoiceItems]);
     }
 

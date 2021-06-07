@@ -61,7 +61,6 @@ class InvoicesService extends BaseService
         /**
          * @var Invoices $invoice
          */
-        // $invoice = $this->repository->findOneBy(["userId" => $user->getRealmId(), "id" => $id]);
         $invoice = $this->repository->findOneBy(["FK_users" => $user->getId(), "id" => $id]);
 
         $invoiceItemRepository = $this->doctrine->getRepository(InvoicesItems::class);
@@ -72,7 +71,6 @@ class InvoicesService extends BaseService
             /**
              * @var Items $item
              */
-            // $item = $itemRepository->findOneBy(["id" => $invoiceItem->getItemTableId(), "userId" => $user->getRealmId()]);
             $item = $itemRepository->findOneBy(["id" => $invoiceItem->getFKItems(), "FK_users" => $user->getId()]);
 
             $invoiceItem->setItemName($item->getName());
@@ -96,7 +94,6 @@ class InvoicesService extends BaseService
      */
     public function getAllInvoiceForUser(Users $user): array
     {
-        // $invoices = $this->repository->findBy(["userId" => $user->getRealmId()]);
         $invoices = $this->repository->findBy(["FK_users" => $user->getId()]);
 
         foreach ($invoices as $invoice) {
@@ -117,7 +114,6 @@ class InvoicesService extends BaseService
      */
     public function isValidInvoice(int $id, Users $user): bool
     {
-        // $invoice = $this->repository->findOneBy(["userId" => $user->getRealmId(), "id" => $id]);
         $invoice = $this->repository->findOneBy(["FK_users" => $user->getId(), "id" => $id]);
 
         if ($invoice === null)
@@ -136,19 +132,14 @@ class InvoicesService extends BaseService
             /**
              * @var Invoices $invoice
              */
-            // $invoice = $this->repository->findOneBy(['id' => $id, 'userId' => $user->getRealmId()]);
             $invoice = $this->repository->findOneBy(['id' => $id, 'FK_users' => $user->getId()]);
-            // $invoiceId = $invoice->getInvoiceId();
             $invoiceId = $invoice->getQBOId();
-            // echo ("invoiceId = $invoiceId for id= $id");
             // udpate on remote Quickbooks server
             $setupQBQuery = new SetupQBQuery();
             /**
              * @var DataService
              */
             $dataService = $setupQBQuery->getDataService();
-            // $dataService->setMinorVersion('3');
-            // $accessTokenObject = $setupQBQuery->getAcessToken($user);
             $accessTokenObject = $this->userAccessTokenService->getUserAccessToken($user);
 
             $dataService->updateOAuth2Token($accessTokenObject);
@@ -175,13 +166,11 @@ class InvoicesService extends BaseService
             $newInvoiceDate = $invoice->getInvoiceDate();
             $newAmount = $invoice->getAmount();
             $newBalance = $invoice->getBalance();
-            // $newCustomerId = $invoice->getCustomerId(); // this is the customerTableId
             $newCustomerId = $invoice->getFKCustomers(); // this is the customerTableId
             $customerRepository = $this->doctrine->getRepository(Customers::class);
             /**
              * @var Customers $customer
              */
-            // $customer = $customerRepository->findOneBy(['id' => $newCustomerId, 'userId' => $user->getRealmId()]);
             $customer = $customerRepository->findOneBy(['id' => $newCustomerId, 'FK_users' => $user->getId()]);
             if (array_key_exists("dueDate", $data)) {
                 $newDueDate = $data['dueDate'];
@@ -198,7 +187,6 @@ class InvoicesService extends BaseService
             if (array_key_exists("customerQBOId", $data)) {
                 $newCustomerId = $data['customerQBOId'];
                 // check if findOneBy with receive 'id' or 'customerId'
-                // $customer = $customerRepository->findOneBy(['customerId' => $newCustomerId, 'userId' => $user->getRealmId()]);
                 $customer = $customerRepository->findOneBy(['qbo_id' => $newCustomerId, 'FK_users' => $user->getId()]);
                 $newCustomerName = $customer->getDisplayName();
             }
@@ -235,7 +223,6 @@ class InvoicesService extends BaseService
             $theInvoice = reset($entities);
             $updateInvoice = FacadesInvoice::update($theInvoice, [
                 "sparse" => "true",
-                // "Id" => $invoice->getInvoiceId(),
                 "Id" => $invoice->getQBOId(),
                 "CurrencyRef" => [
                     "value" => "USD",
@@ -275,7 +262,6 @@ class InvoicesService extends BaseService
             /**
              * @var Invoices $invoice
              */
-            // $invoice = $this->repository->findOneBy(["userId" => $user->getRealmId(), "id" => $id]);
             $invoice = $this->repository->findOneBy(["FK_users" => $user->getId(), "id" => $id]);
             $em = $this->doctrine->getManager();
 
@@ -283,7 +269,6 @@ class InvoicesService extends BaseService
             $invoice->setDueDate(DateTime::createFromFormat('Y-m-d', $newInvoiceObjFromQBO->DueDate));
             $invoice->setAmount($newAmount);
             $invoice->setBalance($newBalance);
-            // $invoice->setCustomerId($customer->getId());
             $invoice->setFKCustomers($customer->getId());
 
             // add CustomerName to the $invoice object as Customer name is used in the UI
@@ -291,7 +276,6 @@ class InvoicesService extends BaseService
             /**
              * @var Customers $customer
              */
-            // $customer = $customerRepository->findOneBy(["id" => $invoice->getCustomerId()]);
             $customer = $customerRepository->findOneBy(["id" => $invoice->getFKCustomers()]);
             $invoice->setCustomerName($customer->getDisplayName());
 
@@ -302,7 +286,6 @@ class InvoicesService extends BaseService
 
             // remove all the invoiceItems of the invoice with $id
             $invoiceItemRepository = $this->doctrine->getRepository(InvoicesItems::class);
-            // $entities = $invoiceItemRepository->findBy(['invoiceTableId' => $id]);
             $entities = $invoiceItemRepository->findBy(['FK_invoices' => $id]);
 
             foreach ($entities as $entity) {
@@ -319,13 +302,9 @@ class InvoicesService extends BaseService
                      */
                     $invoiceItem = new InvoicesItems();
                     $itemRepository = $this->doctrine->getRepository(Items::class);
-                    // $item = $itemRepository->findOneBy(['itemId' => $items[$i]['itemId']]);
                     $item = $itemRepository->findOneBy(['qbo_id' => $items[$i]['itemQBOId']]);
 
                     $invoiceItem->setQuantity($items[$i]['quantity']);
-                    // $invoiceItem->setItemTableId($item->getId());
-                    // $invoiceItem->setInvoiceTableId($id);
-                    // $invoiceItem->setUserId($user->getRealmId());
                     $invoiceItem->setFKItems($item->getId());
                     $invoiceItem->setFKInvoices($id);
                     $invoiceItem->setFKUsers($user->getId());
@@ -362,7 +341,6 @@ class InvoicesService extends BaseService
              * @var Invoices $invoice
              */
             $invoice = $this->repository->findOneBy(['id' => $id, 'FK_users' => $user]);
-            // $invoiceId = $invoice->getInvoiceId();
             $invoiceId = $invoice->getQBOId();
             // udpate on remote Quickbooks server
             $setupQBQuery = new SetupQBQuery();
@@ -396,9 +374,7 @@ class InvoicesService extends BaseService
             $em = $this->doctrine->getManager();
 
             // remove all the invoiceItems of the invoice with $id
-            // $invoiceItemRepository = $this->doctrine->getRepository(CartItem::class);
             $invoiceItemRepository = $this->doctrine->getRepository(InvoicesItems::class);
-            // $entities = $invoiceItemRepository->findBy(['invoiceTableId' => $id]);
             $entities = $invoiceItemRepository->findBy(['FK_invoices' => $id]);
 
             foreach ($entities as $entity) {
@@ -452,7 +428,6 @@ class InvoicesService extends BaseService
                 /**
                  * @var Customers $customer
                  */
-                // $customer = $customerRepository->findOneBy(['customerId' => $dataCustomerId, 'userId' => $user->getRealmId()]);
                 $customer = $customerRepository->findOneBy(['qbo_id' => $dataCustomerId, 'FK_users' => $user->getId()]);
                 $newCustomerName = $customer->getDisplayName();
                 $newCustomerId = $dataCustomerId;
@@ -496,7 +471,6 @@ class InvoicesService extends BaseService
              * @var IPPInvoice $newInvoiceFromQBO
              */
             $newInvoiceFromQBO = $dataService->Add($newInvoiceToQBO);
-            // var_dump($newInvoiceFromQBO);
 
             $error = $dataService->getLastError();
             if ($error) {
@@ -513,23 +487,19 @@ class InvoicesService extends BaseService
             $newInvoiceToDB = new Invoices();
             $em = $this->doctrine->getManager();
 
-            // $newInvoiceToDB->setInvoiceId((int)($newInvoiceFromQBO->Id));
             $newInvoiceToDB->setQBOId((int)($newInvoiceFromQBO->Id));
             $newInvoiceToDB->setInvoiceDate(DateTime::createFromFormat('Y-m-d', $newInvoiceFromQBO->TxnDate));
             $newInvoiceToDB->setDueDate(DateTime::createFromFormat('Y-m-d', $newInvoiceFromQBO->DueDate));
             $newInvoiceToDB->setAmount($newInvoiceFromQBO->TotalAmt);
             $newInvoiceToDB->setBalance($newInvoiceFromQBO->Balance);
             $newInvoiceToDB->setInvoiceNumber($newInvoiceFromQBO->DocNumber);
-            // $newInvoiceToDB->setUserId($user->getRealmId());
             $newInvoiceToDB->setFKUsers($user->getId());
 
             $customerRepository = $this->doctrine->getRepository(Customers::class);
             /**
              * @var Customers $qboCustomerInDb
              */
-            // $customer = $customerRepository->findOneBy(['customerId' => $newInvoiceFromQBO->CustomerRef, 'userId' => $user->getRealmId()]);
             $qboCustomerInDb = $customerRepository->findOneBy(['qbo_id' => $newInvoiceFromQBO->CustomerRef, 'FK_users' => $user->getId()]);
-            // $newInvoiceToDB->setCustomerId($customer->getId());
             $newInvoiceToDB->setFKCustomers($qboCustomerInDb->getId());
             if ($newInvoiceFromQBO->Balance == 0) $newInvoiceToDB->setPaymentStatus("PAID");
             else $newInvoiceToDB->setPaymentStatus("PENDING");
@@ -542,18 +512,14 @@ class InvoicesService extends BaseService
             /**
              * @var Invoices
              */
-            // $newinvoiceFromDB = $invoiceRepository->findOneBy(['invoiceId' => (int)($newInvoiceFromQBO->Id), 'userId' => $user->getRealmId()]);
             $newInvoiceFromDB = $invoiceRepository->findOneBy(['qbo_id' => (int)($newInvoiceFromQBO->Id), 'FK_users' => $user->getId()]);
 
             // add CustomerName to the $invoice object as Customer name is used in the UI
             $customerRepository = $this->doctrine->getRepository(Customers::class);
-            // $customer = $customerRepository->findOneBy(["id" => $newinvoiceFromDB->getCustomerId()]);
             $customer = $customerRepository->findOneBy(["id" => $newInvoiceFromDB->getFKCustomers()]);
             $newInvoiceFromDB->setCustomerName($customer->getDisplayName());
 
-            // $invoiceItemRepository = $this->doctrine->getRepository(CartItem::class);
             $invoiceItemRepository = $this->doctrine->getRepository(InvoicesItems::class);
-            // $entities = $invoiceItemRepository->findBy(['invoiceTableId' => $newinvoiceFromDB->getId()]);
             $entities = $invoiceItemRepository->findBy(['FK_invoices' => $newInvoiceFromDB->getId()]);
 
             foreach ($entities as $entity) {
@@ -570,13 +536,9 @@ class InvoicesService extends BaseService
                      */
                     $invoiceItem = new InvoicesItems();
                     $itemRepository = $this->doctrine->getRepository(Items::class);
-                    // $item = $itemRepository->findOneBy(['itemId' => $items[$i]['itemId']]);
                     $item = $itemRepository->findOneBy(['qbo_id' => $items[$i]['itemQBOId']]);
 
                     $invoiceItem->setQuantity($items[$i]['quantity']);
-                    // $invoiceItem->setItemTableId($item->getId());
-                    // $invoiceItem->setInvoiceTableId($newinvoiceFromDB->getId());
-                    // $invoiceItem->setUserId($user->getRealmId());
                     $invoiceItem->setFKItems($item->getId());
                     $invoiceItem->setFKInvoices($newInvoiceFromDB->getId());
                     $invoiceItem->setFKUsers($user->getId());

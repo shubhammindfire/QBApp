@@ -32,7 +32,6 @@ class ItemsService extends BaseService
      */
     public function getItemByIdForUser(int $id, Users $user): ?Object
     {
-        // $item = $this->repository->findOneBy(["userId" => $user->getRealmId(), "id" => $id]);
         $item = $this->repository->findOneBy(["FK_users" => $user->getId(), "id" => $id]);
 
         return $item;
@@ -45,7 +44,6 @@ class ItemsService extends BaseService
      */
     public function getAllItemForUser(Users $user): array
     {
-        // $items = $this->repository->findBy(["userId" => $user->getRealmId()]);
         $items = $this->repository->findBy(["FK_users" => $user->getId()]);
 
         return $items;

@@ -51,8 +51,6 @@ class SetupQBQuery
      */
     public function getAcessToken(Users $user): OAuth2AccessToken
     {
-        // $this->accessToken = (new UserAccessTokenService())->getUserAccessToken($user);
-        // $this->accessToken = new OAuth2AccessToken($this->config['client_id'], $this->config['client_secret'], $user->getAccessToken(), $user->getRefreshToken(), $user->getAccessTokenExpiresAt(), $user->getRefreshTokenExpiresAt());
         $this->accessToken->setRealmID($user->getRealmId());
 
         return $this->accessToken;

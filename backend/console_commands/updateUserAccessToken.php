@@ -35,11 +35,8 @@ function updateUserAccessToken()
         $accessToken->setRealmID($user['realmId']);
 
         if (checkAccessTokenExpiry($accessToken->getAccessTokenExpiresAt()) === true) {
-            echo ("  ACCESS TOKEN EXPIRED  ");
             $newAccessToken = myRefreshToken($accessToken, $user['realmId']);
-            echo ("  REFRESHED TOKEN");
             updateDBAccessToken($conn, $newAccessToken, $user['realmId']);
-            echo ("  GENERATED NEW ACCESS TOKEN");
         }
     }
 
