@@ -48,13 +48,8 @@ function Login(props) {
             })
             .then((response) => {
                 if (response.status === 200) {
-                    console.log(response.data);
-                    console.log(response.data.authUrl);
                     window.location.href = response.data.authUrl;
                 } else {
-                    console.log(
-                        `Error : ERROR CODE=${response.status} ERROR MESSAGE=${response.statusText}`
-                    );
                 }
             });
     }
@@ -81,20 +76,12 @@ function Login(props) {
                     );
                 } else {
                     setLoginError(response.message);
-                    // console.log(
-                    //     `Error : ERROR CODE=${response.status} ERROR MESSAGE=${response.message}`
-                    // );
                 }
             })
             .catch((error) => {
                 if (error.response) {
-                    // console.log(
-                    //     "error response data = " + error.response.data.message
-                    // );
-
                     setLoginError(error.response.data.message);
                 }
-                // console.error(`Axios Error: ${error}`);
             });
     }
 

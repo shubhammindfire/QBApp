@@ -6,10 +6,8 @@ async function getQBOItemId(jwt, itemTableId) {
         const response = await axios.get(GET_ITEM_BY_ID + `/${itemTableId}`, {
             headers: { Authorization: `Bearer ${jwt}` },
         });
-        console.log("getQBOItemId RESPONSE: " + JSON.stringify(response.data));
         return { success: true, data: response.data.qBOId };
     } catch (error) {
-        console.log("ERROR LOG");
         return { success: false, data: error };
     }
 }
@@ -35,16 +33,12 @@ async function addNewInvoice(
         invoiceItemsToPost.push({
             description: invoiceItems[i].itemDescription,
             amount: invoiceItems[i].itemAmount,
-            // itemId: await getQBOItemId(jwt, invoiceItems[i].itemTableId), // this should be the itemId from QBO
             itemQBOId: await qboItemId, // this should be the itemId from QBO
             name: invoiceItems[i].itemName,
             costPrice: invoiceItems[i].rate,
             quantity: invoiceItems[i].quantity,
         });
     }
-
-    // console.log(JSON.stringify(invoiceItems[0]));
-    console.log(JSON.stringify(invoiceItemsToPost));
 
     const data = {
         invoiceDate: invoiceDate,
@@ -60,7 +54,6 @@ async function addNewInvoice(
             headers: { Authorization: `Bearer ${jwt}` },
         });
 
-        console.log("REPSONSE = " + JSON.stringify(response));
         if (response.status === 201) {
             return true;
         }

@@ -6,10 +6,8 @@ async function getQBOItemId(jwt, itemTableId) {
         const response = await axios.get(GET_ITEM_BY_ID + `/${itemTableId}`, {
             headers: { Authorization: `Bearer ${jwt}` },
         });
-        console.log("getQBOItemId RESPONSE: " + JSON.stringify(response.data));
         return { success: true, data: response.data.qBOId };
     } catch (error) {
-        console.log("ERROR LOG");
         return { success: false, data: error };
     }
 }
@@ -24,10 +22,6 @@ async function editInvoice(
     balance,
     invoiceItems
 ) {
-    console.log(`invoiceId in editInvoiec() ${invoiceId}`);
-    console.log(
-        `invoiceItems in editInvoiec() ${JSON.stringify(invoiceItems)}`
-    );
     let invoiceItemsToPost = [];
 
     for (let i = 0; i < invoiceItems.length; i++) {
@@ -37,7 +31,6 @@ async function editInvoice(
                 ? invoiceItems[i].itemTableId
                 : invoiceItems[i].fKItems;
 
-        console.log(`itemTableId in editInvoiec() ${itemTableId}`);
         const res = await getQBOItemId(jwt, itemTableId); // this should be the itemId from QBO
         if (res.success === false) {
             continue;
@@ -52,9 +45,6 @@ async function editInvoice(
             quantity: invoiceItems[i].quantity,
         });
     }
-
-    // console.log(JSON.stringify(invoiceItems[0]));
-    console.log(JSON.stringify(invoiceItemsToPost));
 
     const data = {
         invoiceDate: invoiceDate,
@@ -74,7 +64,6 @@ async function editInvoice(
             }
         );
 
-        console.log("REPSONSE = " + JSON.stringify(response));
         if (response.status === 200) {
             return true;
         }

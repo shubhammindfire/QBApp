@@ -48,7 +48,6 @@ function Portal() {
                 setErrorModalType("SESSION_EXPIRED");
             }
             setShowErrorModal(true);
-            console.log(`Error: ${error}`);
         }
     }
 

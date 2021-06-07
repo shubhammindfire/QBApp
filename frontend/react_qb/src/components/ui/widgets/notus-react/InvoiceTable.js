@@ -10,7 +10,6 @@ import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import {
     PORTAL_INVOICE_DETAIL_ROUTE,
-    PORTAL_INVOICES_ROUTE,
     DELETE_INVOICE_BY_ID,
 } from "../../../../Constants";
 import axios from "axios";
@@ -182,7 +181,6 @@ function row(
             })
             .catch((error) => {
                 setShowLoadingModal(false);
-                console.log(JSON.stringify(error));
                 setShowErrorModal(true);
             });
     }
@@ -269,7 +267,6 @@ function row(
                                 View
                             </Link>
                         ) : (
-                            // TODO: pending finish work for editing an invoice
                             <Link
                                 to={{
                                     pathname: PORTAL_INVOICE_DETAIL_ROUTE,

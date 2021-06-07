@@ -1,7 +1,6 @@
 import { faCheckCircle } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import React from "react";
-import { BASE_REACT_ROUTE, PORTAL_INVOICES_ROUTE } from "../../../Constants";
 
 function SuccessModal(props) {
     const { setShowSuccessModal, type, message } = props;

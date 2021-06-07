@@ -47,7 +47,6 @@ function Register() {
                 realmId: realmId,
             })
             .then((response) => {
-                console.log(response);
                 if (response.status === 201) {
                     setSuccessMessage("User registered successfully");
                     // delay and then route to /login after successfull register
@@ -55,18 +54,10 @@ function Register() {
                         history.push({ LOGIN_ROUTE });
                     }, 1500);
                 } else {
-                    // console.log(
-                    //     `Error : ERROR CODE=${response.status} ERROR MESSAGE=${response.statusText}`
-                    // );
                 }
             })
             .catch((error) => {
                 if (error.response) {
-                    // console.log(
-                    //     "error response data = " +
-                    //         error.response.data.violations
-                    // );
-
                     const violations = error.response.data.violations;
 
                     violations.forEach((violation) => {

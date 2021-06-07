@@ -29,7 +29,6 @@ function Invoices() {
                 headers: { Authorization: `Bearer ${jwt}` },
             })
             .then((response) => {
-                console.log(response);
                 dispatch(addAllInvoices(response.data));
 
                 // clear the current invoice and current cartItems states in redux

@@ -13,14 +13,11 @@ import {
     GET_INVOICE_BY_ID,
     GET_ALL_CUSTOMERS,
     GET_ALL_ITEMS,
-    BASE_REACT_ROUTE,
     LOGIN_ROUTE,
 } from "../../../Constants.js";
 import {
     addCurrentInvoiceItems,
     addCurrentInvoice,
-    removeCurrentInvoice,
-    removeCurrentInvoiceItems,
     deleteCurrentInvoiceItemByIndex,
 } from "../../../redux/quickbooks/invoice/invoiceActions.js";
 import addNewInvoice from "../../utils/addNewInvoice.js";
@@ -116,9 +113,6 @@ function InvoiceDetail(props) {
                     const rawDueDate = response.data.invoice.dueDate;
                     const formattedDueDate = rawDueDate.split("T")[0];
                     setDueDate(formattedDueDate);
-                })
-                .catch((error) => {
-                    // TODO: pending write catch for this api call
                 });
         }
 
@@ -237,12 +231,6 @@ function InvoiceDetail(props) {
         }
     }
 
-    console.log("STATE INVOICES RESPONSE: " + JSON.stringify(stateInvoice));
-    console.log("STATE INVOICES ID RESPONSE: " + stateInvoice.id);
-    console.log(
-        "INVOICES ITEMS RESPONSE: " +
-            JSON.stringify(reduxState.currentInvoiceItems)
-    );
     async function handleSaveAndClose(e) {
         e.preventDefault();
         setInvoiceItemsError(null);
@@ -302,11 +290,6 @@ function InvoiceDetail(props) {
             itemAmount: null,
         });
         setStateInvoiceItems(reduxState.currentInvoiceItems);
-        console.log(
-            `state invoice items in handleAddItem() = ${JSON.stringify(
-                stateInvoiceItems
-            )}`
-        );
         dispatch(addCurrentInvoiceItems(reduxState.currentInvoiceItems));
     }
 
@@ -478,7 +461,6 @@ function InvoiceDetail(props) {
                                         onChange={(e) =>
                                             handleChange(e, "billingAddress")
                                         }
-                                        // disabled={operation === "View" ? true : false}
                                         disabled
                                     ></textarea>
                                 </div>
@@ -658,8 +640,6 @@ function InvoiceDetail(props) {
 
         // type can be "View", "Edit" or "Create"
         function updateStateInvoiceItems(type, newInvoiceItem, index) {
-            console.log("called updateStateInvoiceItems on callback");
-
             reduxInvoiceItems[index] = newInvoiceItem;
             updateAmount(reduxInvoiceItems);
             setStateInvoiceItems(reduxInvoiceItems);
@@ -667,8 +647,6 @@ function InvoiceDetail(props) {
         }
 
         function deleteStateInvoiceItem(index) {
-            console.log("called deleteStateInvoiceItem on callback");
-
             let tempInvoiceItems = [
                 ...stateInvoiceItems.slice(0, index),
                 ...stateInvoiceItems.slice(index + 1),
@@ -694,11 +672,6 @@ function InvoiceDetail(props) {
         }
 
         if (stateInvoiceItems !== undefined) {
-            console.log(
-                `state invoice items in showItems() = ${JSON.stringify(
-                    stateInvoiceItems
-                )}`
-            );
             for (let i = 0; i < stateInvoiceItems.length; i++) {
                 rows.push(
                     <InvoiceItemInInvoiceTable

@@ -3,7 +3,7 @@ import React from "react";
 function NoPageFound() {
     return (
         // Complete this page
-        <div className="flex flex-col justify-center items-center">
+        <div data-test="no-page-found-div" className="text-center text-lg">
             No Page Found
         </div>
     );

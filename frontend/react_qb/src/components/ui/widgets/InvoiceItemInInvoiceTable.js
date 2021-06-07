@@ -1,7 +1,6 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { faTrashAlt } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { useDispatch, useSelector } from "react-redux";
 
 function InvoiceItemInInvoiceTable(props) {
     const {
@@ -21,22 +20,6 @@ function InvoiceItemInInvoiceTable(props) {
     const [itemAmount, setItemAmount] = useState(invoiceItem.itemAmount ?? 0.0);
     let itemNameListAsString = [];
     let newinvoiceItem = invoiceItem;
-
-    useEffect(() => {
-        console.log("Component mount");
-        // let newinvoiceItem = invoiceItem;
-        // newinvoiceItem.itemName = itemName;
-        // newinvoiceItem.itemDescription = itemDescription;
-        // newinvoiceItem.quantity = quantity;
-        // newinvoiceItem.rate = rate;
-        // newinvoiceItem.itemAmount = itemAmount;
-        // callback("Edit", newinvoiceItem, index);
-        return () => {
-            // cleanup for didComponentDismount
-            console.log("Component dismount");
-            // updateItemsCallback("Edit", newinvoiceItem, index);
-        };
-    }, [itemName, itemDescription, quantity, rate, itemAmount]);
 
     function handleChange(e, attribute) {
         e.preventDefault();
