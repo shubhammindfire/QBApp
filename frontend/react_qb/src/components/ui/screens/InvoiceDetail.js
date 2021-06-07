@@ -424,7 +424,7 @@ function InvoiceDetail(props) {
                                         <p className="font-bold text-4xl">
                                             ${balance.toFixed(2)}
                                         </p>
-                                        {operation === "Edit" ? (
+                                        {/* {operation === "Edit" ? (
                                             <button
                                                 onClick={(e) => {
                                                     e.preventDefault();
@@ -437,7 +437,7 @@ function InvoiceDetail(props) {
                                             >
                                                 Receive total payment
                                             </button>
-                                        ) : null}
+                                        ) : null} */}
                                     </div>
                                 )}
                             </div>
