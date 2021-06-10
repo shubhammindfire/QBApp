@@ -88,7 +88,7 @@ function App() {
                         exact
                         component={InvoiceDetail}
                     />
-                    <Route component={NoPageFound} />
+                    {/* <Route component={NoPageFound} /> */}
                 </Switch>
             </div>
         </Router>
