@@ -9,7 +9,7 @@ import {
     REMOVE_INVOICE_BY_INDEX,
 } from "./invoiceTypes.js";
 
-const initialState = {
+export const initialState = {
     invoices: [],
     currentInvoice: {},
     currentInvoiceItems: [],

@@ -1,6 +1,6 @@
 import { SET_LOCAL_AUTH_JWT } from "./localAuthTypes.js";
 
-const initialState = {
+export const initialState = {
     jwt: null,
 };
 

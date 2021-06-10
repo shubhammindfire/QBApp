@@ -1,6 +1,6 @@
 import { ADD_ALL_CUSTOMERS, REMOVE_ALL_CUSTOMERS } from "./customerTypes.js";
 
-const initialState = {
+export const initialState = {
     customers: [],
 };
 

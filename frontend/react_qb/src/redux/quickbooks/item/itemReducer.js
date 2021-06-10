@@ -1,6 +1,6 @@
 import { ADD_ALL_ITEMS, REMOVE_ALL_ITEMS } from "./itemTypes.js";
 
-const initialState = {
+export const initialState = {
     items: [],
 };
 
