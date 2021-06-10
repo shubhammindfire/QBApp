@@ -89,6 +89,7 @@ function App() {
                         component={InvoiceDetail}
                     />
                     {/* <Route component={NoPageFound} /> */}
+                    <Route component={Login} />
                 </Switch>
             </div>
         </Router>
