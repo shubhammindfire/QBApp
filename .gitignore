@@ -1,3 +1,6 @@
+#Ignore scanner qube files
+.scannerwork/**
+
 # Ignore PHP files
 **/vendor/*
 **/composer.lock
