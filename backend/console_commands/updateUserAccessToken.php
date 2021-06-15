@@ -6,6 +6,7 @@ require_once('./../connect.php');
 use QuickBooksOnline\API\Core\OAuth\OAuth2\OAuth2AccessToken;
 use QuickBooksOnline\API\DataService\DataService;
 
+const CLIENT_ID = 'client_id', CLIENT_SECRET = 'client_secret';
 updateUserAccessToken();
 function updateUserAccessToken()
 {
@@ -13,8 +14,8 @@ function updateUserAccessToken()
     $config = include('./../config.php');
     $dataService = DataService::Configure(array(
         'auth_mode' => 'oauth2',
-        'ClientID' => $config['client_id'],
-        'ClientSecret' =>  $config['client_secret'],
+        'ClientID' => $config[CLIENT_ID],
+        'ClientSecret' =>  $config[CLIENT_SECRET],
         'RedirectURI' => $config['oauth_redirect_uri'],
         'scope' => $config['oauth_scope'],
         'baseUrl' => "development"
@@ -31,7 +32,7 @@ function updateUserAccessToken()
     }
 
     foreach ($users as $user) {
-        $accessToken = new OAuth2AccessToken($config['client_id'], $config['client_secret'], $user['accessToken'], $user['refreshToken'], $user['accessTokenExpiresAt'], $user['refreshTokenExpiresAt']);
+        $accessToken = new OAuth2AccessToken($config[CLIENT_ID], $config[CLIENT_SECRET], $user['accessToken'], $user['refreshToken'], $user['accessTokenExpiresAt'], $user['refreshTokenExpiresAt']);
         $accessToken->setRealmID($user['realmId']);
 
         if (checkAccessTokenExpiry($accessToken->getAccessTokenExpiresAt()) === true) {
@@ -63,8 +64,8 @@ function updateDBAccessToken(mysqli $conn, OAuth2AccessToken $newAccessToken, St
     $stmt->bind_param("ss", $newAccessToken->getAccessToken(), $realmId);
 
     if ($stmt->execute() === false) {
-        echo ("Error in updating accessToken in table user: " . $conn->error);
-        echo ("Statement Error: " . $stmt->error);
+        echo "Error in updating accessToken in table user: " . $conn->error;
+        echo "Statement Error: " . $stmt->error;
         $stmt->close();
         return false;
     }
@@ -75,8 +76,8 @@ function updateDBAccessToken(mysqli $conn, OAuth2AccessToken $newAccessToken, St
     $stmt->bind_param("ss", $newAccessToken->getRefreshToken(), $realmId);
 
     if ($stmt->execute() === false) {
-        echo ("Error in updating refreshToken in table user: " . $conn->error);
-        echo ("Statement Error: " . $stmt->error);
+        echo "Error in updating refreshToken in table user: " . $conn->error;
+        echo "Statement Error: " . $stmt->error;
         $stmt->close();
         return false;
     }
@@ -86,8 +87,8 @@ function updateDBAccessToken(mysqli $conn, OAuth2AccessToken $newAccessToken, St
     $stmt = $conn->prepare("UPDATE user SET updatedAt=? WHERE realmId=?");
     $stmt->bind_param("is", time(), $realmId);
     if ($stmt->execute() === false) {
-        echo ("Error in updating user updatedAt in table user: " . $conn->error);
-        echo ("Statement Error: " . $stmt->error);
+        echo "Error in updating user updatedAt in table user: " . $conn->error;
+        echo "Statement Error: " . $stmt->error;
         $stmt->close();
         return false;
     }
@@ -97,8 +98,8 @@ function updateDBAccessToken(mysqli $conn, OAuth2AccessToken $newAccessToken, St
     $stmt = $conn->prepare("UPDATE user SET accessTokenExpiresAt=? WHERE realmId=?");
     $stmt->bind_param("is", strtotime($newAccessToken->getAccessTokenExpiresAt()), $realmId);
     if ($stmt->execute() === false) {
-        echo ("Error in updating user accessTokenExpiresAt in table user: " . $conn->error);
-        echo ("Statement Error: " . $stmt->error);
+        echo "Error in updating user accessTokenExpiresAt in table user: " . $conn->error;
+        echo "Statement Error: " . $stmt->error;
         $stmt->close();
         return false;
     }
@@ -131,8 +132,8 @@ function myRefreshToken($accessToken, $realmId): OAuth2AccessToken
 
     $dataService = DataService::Configure(array(
         'auth_mode' => 'oauth2',
-        'ClientID' => $config['client_id'],
-        'ClientSecret' =>  $config['client_secret'],
+        'ClientID' => $config[CLIENT_ID],
+        'ClientSecret' =>  $config[CLIENT_SECRET],
         'RedirectURI' => $config['oauth_redirect_uri'],
         'baseUrl' => "development",
         'refreshTokenKey' => $accessToken->getRefreshToken(),

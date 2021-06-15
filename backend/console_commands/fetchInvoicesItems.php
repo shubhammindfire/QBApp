@@ -18,8 +18,9 @@ use QuickBooksOnline\API\Data\IPPLine;
 function fetchInvoicesItems($conn, $line, $createdAt, $updatedAt, $invoiceId, $userId)
 {
     foreach ($line as $item) {
-        if ($item->Id !== null)
+        if ($item->Id !== null) {
             updateinvoicesItemsTable($conn, $item, $createdAt, $updatedAt, $invoiceId, $userId);
+        }
     }
 }
 
@@ -41,7 +42,7 @@ function updateinvoicesItemsTable($conn, $item, $createdAt, $updatedAt, $FK_invo
 
     $sql = "INSERT INTO invoices_items(FK_items, quantity, rate, FK_invoices, createdAt, updatedAt, FK_users) VALUES($FK_items, $quantity, $rate, $FK_invoices, $createdAt, $updatedAt, $FK_users)";
     if ($conn->query($sql) === false) {
-        echo ("Error in adding new invoice item in table invoicesItems: " . $conn->error);
+        echo "Error in adding new invoice item in table invoicesItems: " . $conn->error;
         return false;
     }
 

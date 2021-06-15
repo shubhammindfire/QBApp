@@ -159,7 +159,6 @@ class InvoicesService extends BaseService
             if (empty($entities)) {
                 $this->logger->error("Failed to successfully update invoice with id=$id on QuickBooks. Error: " . $error->getResponseBody());
                 return ["status" => "Error", "message" => "Provided search entity was not found on the QuickBooks account"];
-                throw new NotFoundInQuickBooksException();
             }
 
             $newDueDate = $invoice->getDueDate();
@@ -252,7 +251,6 @@ class InvoicesService extends BaseService
             if ($error) {
                 $this->logger->error("Failed to successfully update invoice with id=$id on QuickBooks. Error: " . $error->getResponseBody());
                 return ["status" => "Error", "message" => $error->getResponseBody()];
-                throw new Exception($error->getResponseBody());
             } else {
                 $this->logger->info("Successfully updated invoice with id=$id on QuickBooks");
             }
@@ -323,7 +321,6 @@ class InvoicesService extends BaseService
             if ($error) {
                 $this->logger->error("Failed to successfully update invoice with id=$id on QuickBooks. Error: " . $error->getResponseBody());
                 return ["status" => "Error", "message" => $error->getResponseBody()];
-                throw new Exception($error->getResponseBody());
             }
             $this->logger->error("Failed to successfully update invoice with id=$id on QuickBooks. Exception: " . $ex->getMessage());
             return ["status" => "Error", "message" => "Failed to successfully update invoice with id=$id on QuickBooks. Exception: " . $ex->getMessage()];
@@ -394,7 +391,6 @@ class InvoicesService extends BaseService
             if ($error) {
                 $this->logger->error("Failed to successfully delete invoice with id=$id on QuickBooks. Error: " . $error->getResponseBody());
                 return ["status" => "Error", "message" => $error->getResponseBody()];
-                throw new Exception($error->getResponseBody());
             }
             return ["status" => "Error", "message" => "Failed to successfully delete invoice with id=$id on QuickBooks. Exception: " . $ex->getMessage()];
         }
@@ -557,7 +553,6 @@ class InvoicesService extends BaseService
             if ($error) {
                 $this->logger->error("Failed to successfully add invoice on QuickBooks. Error: " . $error->getResponseBody());
                 return ["status" => "Error", "message" => $error->getResponseBody()];
-                throw new Exception($error->getResponseBody());
             }
             $this->logger->error("Failed to successfully add invoice on QuickBooks. Exception: " . $ex->getMessage());
             return ["status" => "Error", "message" => "Failed to successfully add invoice on QuickBooks. Exception: " . $ex->getMessage()];

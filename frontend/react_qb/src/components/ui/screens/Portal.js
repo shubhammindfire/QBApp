@@ -1,7 +1,7 @@
 import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
-import { Redirect } from "react-router";
+import { Redirect } from "react-router-dom";
 import ErrorModal from "../widgets/ErrorModal";
 import Sidebar from "../widgets/notus-react/SideBar";
 import SuccessModal from "../widgets/SuccessModal";
@@ -57,7 +57,7 @@ function Portal() {
                 // if the user is not logged in then redirect to login
                 <Redirect to={LOGIN_ROUTE} />
             ) : (
-                <div>
+                <div data-test="portal-div">
                     <Sidebar />
                     <div className="md:ml-64 mt-16 py-4 text-3xl text-center bg-blueGray-100">
                         <p>Welcome to the Quick Books Integration portal</p>

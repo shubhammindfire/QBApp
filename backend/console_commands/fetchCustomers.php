@@ -112,8 +112,8 @@ function addCustomer($conn, $customer, $user): bool
     $stmt->bind_param("issssssssdiii", $qboId, $firstname, $lastname, $companyName, $displayName, $email, $billingAddress, $shippingAddress, $phoneNumber, $openBalance, $createdAt, $updatedAt, $FK_users);
 
     if ($stmt->execute() === false) {
-        echo ("Error in adding new customer in table customers: " . $conn->error);
-        echo ("Statement Error: " . $stmt->error);
+        echo "Error in adding new customer in table customers: " . $conn->error;
+        echo "Statement Error: " . $stmt->error;
         $stmt->close();
         return false;
     }
