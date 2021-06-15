@@ -10,7 +10,6 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class UsersController extends AbstractController
 {
-    // TODO handle empty POST request error, like POST /api/login with an empty body.
     // Currently, it shows 500 Internal Server Error
     // Configure it such that if the body is empty then it sends 400 Bad Request status
 

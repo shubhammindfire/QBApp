@@ -119,7 +119,7 @@ function addInvoice($conn, $invoice, $user): bool
 
     $sql = "INSERT INTO invoices(qbo_id, invoiceNumber, FK_customers, paymentStatus, invoiceDate, dueDate, amount, balance, createdAt, updatedAt, FK_users) VALUES($qboId, $invoiceNumber, $FK_customers, '$paymentStatus', '$invoiceDate', '$dueDate', $amount, $balance, $createdAt, $updatedAt, $FK_users)";
     if ($conn->query($sql) === false) {
-        echo ("Error in adding new invoice in table invoices: " . $conn->error);
+        echo "Error in adding new invoice in table invoices: " . $conn->error;
         return false;
     }
 

@@ -56,7 +56,6 @@ class UserAccessTokenService extends BaseService
             // if there is no accessToken then throw exception
             $this->logger->error("User Access Token is null");
             throw new Exception("No AccessToken generated for the user");
-            return null;
         } else {
             // if accessToken is present then check if it is expired or not
             // if expired then generate a new accessToken using the refreshToken else return the accessToken

@@ -111,7 +111,6 @@ class QuickBooksController extends AbstractController
 
     function parseAuthRedirectUrl($url)
     {
-        echo ("url = $url");
         parse_str($url, $qsArray);
         return array(
             'code' => $qsArray['code'],

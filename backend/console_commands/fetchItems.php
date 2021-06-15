@@ -103,8 +103,8 @@ function addItem($conn, $item, $user): bool
     $stmt->bind_param("isssddiiii", $qboId, $type, $name, $description, $salesPrice, $costPrice, $quantity, $createdAt, $updatedAt, $FK_users);
 
     if ($stmt->execute() === false) {
-        echo ("Error in adding new item in table items: " . $conn->error);
-        echo ("Statement Error: " . $stmt->error);
+        echo "Error in adding new item in table items: " . $conn->error;
+        echo "Statement Error: " . $stmt->error;
         $stmt->close();
         return false;
     }

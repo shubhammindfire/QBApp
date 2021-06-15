@@ -33,10 +33,7 @@ class InvoicesItemsService extends BaseService
      */
     public function getInvoiceItemByIdForInvoice(int $invoiceTableId, int $id): ?Object
     {
-        // $invoiceItem = $this->repository->findOneBy(["invoiceTableId" => $invoiceTableId, "id" => $id]);
-        $invoiceItem = $this->repository->findOneBy(["FK_invoices" => $invoiceTableId, "id" => $id]);
-
-        return $invoiceItem;
+        return $this->repository->findOneBy(["FK_invoices" => $invoiceTableId, "id" => $id]);
     }
 
     /**
@@ -46,9 +43,6 @@ class InvoicesItemsService extends BaseService
      */
     public function getAllInvoiceItemForInvoice(int $invoiceTableId): array
     {
-        // $invoiceItems = $this->repository->findBy(["invoiceTableId" => $invoiceTableId]);
-        $invoiceItems = $this->repository->findBy(["FK_invoices" => $invoiceTableId]);
-
-        return $invoiceItems;
+        return $this->repository->findBy(["FK_invoices" => $invoiceTableId]);
     }
 }
