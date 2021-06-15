@@ -1,0 +1,1 @@
+{"version":1,"defects":{"Warning":6,"UsersTest::test_set_username_works":4},"times":{"DummyTest::testFirstTest":0.002,"DummyTest::testFirst":0.004,"Warning":0.003,"DummyTest::test_first":0.002,"DummyTest::test_asserts_true_as_true":0.003,"UsersTest::test_set_username_works":0.004,"UsersTest::test_set_password_works":0}}
