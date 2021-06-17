@@ -106,7 +106,7 @@ class QuickBooksController extends AbstractController
         $em->persist($user);
         $em->flush();
 
-        return $this->redirect("http://localhost:3000");
+        return $this->redirect("http://localhost:3000/portal");
     }
 
     function parseAuthRedirectUrl($url)
