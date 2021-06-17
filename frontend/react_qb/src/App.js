@@ -51,55 +51,44 @@ function App() {
         <Router>
             <div className="App">
                 <Switch>
-                    <Route path="/qbapp" component={Login}>
-                        <Route
-                            exact
-                            path="/"
-                            render={() => {
-                                return jwt === null || jwt === "" ? (
-                                    <Redirect
-                                        to={{
-                                            pathname: LOGIN_ROUTE,
-                                            state: {
-                                                isSessionExpired:
-                                                    isSessionExpired,
-                                            },
-                                        }}
-                                    />
-                                ) : (
-                                    <Redirect to={PORTAL_ROUTE} />
-                                );
-                            }}
-                        />
-                        <Route path={LOGIN_ROUTE} exact component={Login} />
-                        <Route
-                            path={REGISTER_ROUTE}
-                            exact
-                            component={Register}
-                        />
-                        <Route path={PORTAL_ROUTE} exact component={Portal} />
-                        <Route
-                            path={PORTAL_CUSTOMERS_ROUTE}
-                            exact
-                            component={Customers}
-                        />
-                        <Route
-                            path={PORTAL_ITEMS_ROUTE}
-                            exact
-                            component={Items}
-                        />
-                        <Route
-                            path={PORTAL_INVOICES_ROUTE}
-                            exact
-                            component={Invoices}
-                        />
-                        <Route
-                            path={PORTAL_INVOICE_DETAIL_ROUTE}
-                            exact
-                            component={InvoiceDetail}
-                        />
-                        <Route component={NoPageFound} />
-                    </Route>
+                    <Route
+                        exact
+                        path="/"
+                        render={() => {
+                            return jwt === null || jwt === "" ? (
+                                <Redirect
+                                    to={{
+                                        pathname: LOGIN_ROUTE,
+                                        state: {
+                                            isSessionExpired: isSessionExpired,
+                                        },
+                                    }}
+                                />
+                            ) : (
+                                <Redirect to={PORTAL_ROUTE} />
+                            );
+                        }}
+                    />
+                    <Route path={LOGIN_ROUTE} exact component={Login} />
+                    <Route path={REGISTER_ROUTE} exact component={Register} />
+                    <Route path={PORTAL_ROUTE} exact component={Portal} />
+                    <Route
+                        path={PORTAL_CUSTOMERS_ROUTE}
+                        exact
+                        component={Customers}
+                    />
+                    <Route path={PORTAL_ITEMS_ROUTE} exact component={Items} />
+                    <Route
+                        path={PORTAL_INVOICES_ROUTE}
+                        exact
+                        component={Invoices}
+                    />
+                    <Route
+                        path={PORTAL_INVOICE_DETAIL_ROUTE}
+                        exact
+                        component={InvoiceDetail}
+                    />
+                    <Route component={NoPageFound} />
                 </Switch>
             </div>
         </Router>
