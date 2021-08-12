@@ -55,10 +55,10 @@ function Portal() {
         <>
             {jwt === null ? (
                 // if the user is not logged in then redirect to login
-                <Redirect to={LOGIN_ROUTE} />
+                <Redirect data-test="redirect-to-login" to={LOGIN_ROUTE} />
             ) : (
                 <div data-test="portal-div">
-                    <Sidebar />
+                    <Sidebar data-test="sidebar-component" />
                     <div className="md:ml-64 mt-16 py-4 text-3xl text-center bg-blueGray-100">
                         <p>Welcome to the Quick Books Integration portal</p>
                         <div className="text-base mx-3">
@@ -106,6 +106,7 @@ function Portal() {
                                 <ErrorModal type={errorModalType} />
                             ) : null}
                             <button
+                                data-test="fetch-data-from-qb-button"
                                 className="roundedPillBtn bg-green-600 mx-auto"
                                 onClick={handleFetchDataFromQBO}
                             >

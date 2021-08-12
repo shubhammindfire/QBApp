@@ -1,25 +1,54 @@
 import React from "react";
-import { shallow, mount } from "../../enzyme.js";
+import { mount } from "../../enzyme.js";
 import Portal from "../ui/screens/Portal.js";
 import { findByTestAtrr, testStore } from "../utils/testUtils.js";
-import { render, fireEvent } from "@testing-library/react";
 import { Provider } from "react-redux";
+import { setLocalAuthJwt } from "./../../redux/localAuth/localAuthActions";
+import { BrowserRouter as Router } from "react-router-dom";
 
-const store = testStore();
+let store;
 describe("Portal tests", () => {
-    test("renders portal without error", () => {
-        const wrapper = mount(
-            <Provider store={store}>
-                <Portal />
-            </Provider>
-        );
+    describe("When jwt is null", () => {
+        store = testStore();
+        test("redirects to login if jwt is null", () => {
+            const wrapper = mount(
+                <Provider store={store}>
+                    <Router>
+                        <Portal />
+                    </Router>
+                </Provider>
+            );
 
-	console.log(`debug = ${wrapper.debug()}`);
-        const component = findByTestAtrr(wrapper, "portal-div");
-        expect(component).toHaveLength(0);
-        // expect(component.text()).toEqual("No Page Found");
+            const component = findByTestAtrr(wrapper, "redirect-to-login");
+            expect(component).toHaveLength(1);
+        });
+    });
 
-        // const {container} = render(<Portal />);
-        // console.log(container);
+    describe("When jwt is not null", () => {
+        let wrapper;
+        beforeEach(() => {
+            store = testStore();
+            store.dispatch(setLocalAuthJwt("mockjwt"));
+            wrapper = mount(
+                <Provider store={store}>
+                    <Router>
+                        <Portal />
+                    </Router>
+                </Provider>
+            );
+        });
+
+        test("renders portal if jwt is not null", () => {
+            const component = findByTestAtrr(wrapper, "portal-div");
+            expect(component).toHaveLength(1);
+        });
+
+        test("renders Fetch Data From Quickbooks button", () => {
+            const component = findByTestAtrr(
+                wrapper,
+                "fetch-data-from-qb-button"
+            );
+            expect(component).toHaveLength(1);
+        });
     });
 });
